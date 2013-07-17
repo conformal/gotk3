@@ -883,3 +883,28 @@ func (v *Value) GetString() (string, error) {
 	}
 	return C.GoString((*C.char)(c)), nil
 }
+
+// alias for glib's special user directories
+type UserDirectory C.GUserDirectory
+
+const (
+	DesktopDirectory     = C.G_USER_DIRECTORY_DESKTOP
+	DocumentsDirectory   = C.G_USER_DIRECTORY_DOCUMENTS
+	DownloadDirectory    = C.G_USER_DIRECTORY_DOWNLOAD
+	MusicDirectory       = C.G_USER_DIRECTORY_MUSIC
+	PicturesDirectory    = C.G_USER_DIRECTORY_PICTURES
+	PublicShareDirectory = C.G_USER_DIRECTORY_PUBLIC_SHARE
+	TemplatesDirectory   = C.G_USER_DIRECTORY_TEMPLATES
+	VideosDirectory      = C.G_USER_DIRECTORY_VIDEOS
+)
+
+const UserNDirectories = 8
+
+// GetUserSpecialDir() is a wrapper around g_get_user_special_dir().
+func GetUserSpecialDir(directory UserDirectory) string {
+	dir := (C.g_get_user_special_dir(C.GUserDirectory(directory)))
+	if dir == nil {
+		return ""
+	}
+	return C.GoString((*C.char)(dir))
+}
