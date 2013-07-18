@@ -3212,6 +3212,16 @@ func (v *Statusbar) Pop(contextID uint) {
 	C.gtk_statusbar_pop(v.Native(), C.guint(contextID))
 }
 
+// GetMessageArea() is a wrapper around gtk_statusbar_get_message_area().
+func (v *Statusbar) GetMessageArea() (*Box, error) {
+	c := C.gtk_statusbar_get_message_area(v.Native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	return &Box{Container{Widget{glib.InitiallyUnowned{obj}}}}, nil
+}
+
 /*
  * GtkTreeIter
  */
@@ -4040,4 +4050,112 @@ func (v *Window) SetPosition(position WindowPosition) {
 // SetTransientFor() is a wrapper around gtk_window_set_transient_for().
 func (v *Window) SetTransientFor(parent IWindow) {
 	C.gtk_window_set_transient_for(v.Native(), parent.toWindow())
+}
+
+// Builder is a representation of GTK's GtkBuilder.
+type Builder struct {
+	*glib.Object
+}
+
+// Native() returns a pointer to the underlying GtkBuilder.
+func (b *Builder) Native() *C.GtkBuilder {
+	if b == nil || b.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(b.GObject)
+	return C.toGtkBuilder(p)
+}
+
+// BuilderNew() is a wrapper around gtk_builder_new().
+func BuilderNew() (*Builder, error) {
+	c := C.gtk_builder_new()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	b := &Builder{obj}
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return b, nil
+}
+
+// AddFromFile() is a wrapper around gtk_builder_add_from_file().
+func (b *Builder) AddFromFile(filename string) error {
+	cstr := C.CString(filename)
+	defer C.free(unsafe.Pointer(cstr))
+	var err *C.GError = nil
+	res := C.gtk_builder_add_from_file(b.Native(), (*C.gchar)(cstr), &err)
+	if res == 0 {
+		defer C.g_error_free(err)
+		return errors.New(C.GoString((*C.char)(C.get_message(err))))
+	}
+	return nil
+}
+
+// AddFromResource() is a wrapper around gtk_builder_add_from_resource().
+func (b *Builder) AddFromResource(path string) error {
+	cstr := C.CString(path)
+	defer C.free(unsafe.Pointer(cstr))
+	var err *C.GError = nil
+	res := C.gtk_builder_add_from_resource(b.Native(), (*C.gchar)(cstr), &err)
+	if res == 0 {
+		defer C.g_error_free(err)
+		return errors.New(C.GoString((*C.char)(C.get_message(err))))
+	}
+	return nil
+}
+
+// AddFromString() is a wrapper around gtk_builder_add_from_string().
+func (b *Builder) AddFromString(str string) error {
+	cstr := C.CString(str)
+	defer C.free(unsafe.Pointer(cstr))
+	length := (C.gsize)(len(str))
+	var err *C.GError = nil
+	res := C.gtk_builder_add_from_string(b.Native(), (*C.gchar)(cstr), length, &err)
+	if res == 0 {
+		defer C.g_error_free(err)
+		return errors.New(C.GoString((*C.char)(C.get_message(err))))
+	}
+	return nil
+}
+
+// getObject() is a wrapper around gtk_builder_get_object(). It returns
+// the native GObject and is intended to be used with other Get() methods.
+func (b *Builder) getObject(name string) (*C.GObject, error) {
+	cstr := C.CString(name)
+	defer C.free(unsafe.Pointer(cstr))
+	c := C.gtk_builder_get_object(b.Native(), (*C.gchar)(cstr))
+	if c == nil {
+		return nil, errors.New("object '" + name + "' not found")
+	}
+	return c, nil
+}
+
+// GetObject() returns the builder's Object with the given name.
+func (b *Builder) GetObject(name string) (*glib.Object, error) {
+	c, err := b.getObject(name)
+	if err != nil {
+		return nil, err
+	}
+	return &glib.Object{glib.ToGObject(unsafe.Pointer(c))}, nil
+}
+
+// GetWindow() returns the builder's Window with the given name.
+func (b *Builder) GetWindow(name string) (*Window, error) {
+	c, err := b.getObject(name)
+	if err != nil {
+		return nil, err
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	return &Window{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}, nil
+}
+
+// GetStatusbar() returns the builder's Statusbar with the given name.
+func (b *Builder) GetStatusbar(name string) (*Statusbar, error) {
+	c, err := b.getObject(name)
+	if err != nil {
+		return nil, err
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	return &Statusbar{Box{Container{Widget{glib.InitiallyUnowned{obj}}}}}, nil
 }
