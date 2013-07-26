@@ -4090,7 +4090,7 @@ func (b *Builder) AddFromFile(filename string) error {
 	res := C.gtk_builder_add_from_file(b.Native(), (*C.gchar)(cstr), &err)
 	if res == 0 {
 		defer C.g_error_free(err)
-		return errors.New(C.GoString((*C.char)(C.get_message(err))))
+		return errors.New(C.GoString((*C.char)(C.error_get_message(err))))
 	}
 	return nil
 }
@@ -4103,7 +4103,7 @@ func (b *Builder) AddFromResource(path string) error {
 	res := C.gtk_builder_add_from_resource(b.Native(), (*C.gchar)(cstr), &err)
 	if res == 0 {
 		defer C.g_error_free(err)
-		return errors.New(C.GoString((*C.char)(C.get_message(err))))
+		return errors.New(C.GoString((*C.char)(C.error_get_message(err))))
 	}
 	return nil
 }

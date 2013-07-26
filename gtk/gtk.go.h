@@ -275,7 +275,7 @@ _gtk_message_dialog_new(GtkWindow *parent, GtkDialogFlags flags,
 }
 
 static gchar *
-get_message(GError *error)
+error_get_message(GError *error)
 {
 	return error->message;
 }
