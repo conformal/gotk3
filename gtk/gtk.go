@@ -3993,6 +3993,10 @@ func (v *Window) toWindow() *C.GtkWindow {
 	return v.Native()
 }
 
+func wrapWindow(obj *glib.Object) (*Window) {
+	return &Window{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}
+}
+
 // WindowNew() is a wrapper around gtk_window_new().
 func WindowNew(t WindowType) (*Window, error) {
 	c := C.gtk_window_new(C.GtkWindowType(t))
@@ -4000,7 +4004,7 @@ func WindowNew(t WindowType) (*Window, error) {
 		return nil, nilPtrErr
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	w := &Window{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}
+	w := wrapWindow(obj)
 	obj.RefSink()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return w, nil
@@ -4119,7 +4123,11 @@ func (b *Builder) AddFromString(str string) error {
 	return nil
 }
 
-// GetObject() returns the builder's Object with the given name.
+// GetObject() is a wrapper around gtk_builder_get_object(). The returned result
+// is an IObject, so it will need to be cast to the appropriate type before
+// being used. For example, to get an object and cast it as a window:
+//   obj, _ := builder.GetObject("window")
+//   w := obj.(*gtk.Window)
 func (b *Builder) GetObject(name string) (glib.IObject, error) {
 	cstr := C.CString(name)
 	defer C.free(unsafe.Pointer(cstr))
@@ -4135,16 +4143,13 @@ func (b *Builder) GetObject(name string) (glib.IObject, error) {
 }
 
 // cast() is a private utility method for taking a native GObject and
-// casting it to the appropriate Go struct. It's returned as a glib.IObject,
-// so the caller will need to do a type assertion before using it.
+// casting it to the appropriate Go struct.
 func cast(c *C.GObject) (glib.IObject, error) {
 	className := C.GoString((*C.char)(C.object_get_class_name(c)))
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	switch className {
 	case "GtkWindow":
-		return &Window{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}, nil
-	case "GtkStatusbar":
-		return &Statusbar{Box{Container{Widget{glib.InitiallyUnowned{obj}}}}}, nil
+		return wrapWindow(obj), nil
 	default:
 		return nil, errors.New("unrecognized class name '" + className + "'")
 	}
