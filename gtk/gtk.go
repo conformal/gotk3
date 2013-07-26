@@ -3994,6 +3994,8 @@ func (v *Window) toWindow() *C.GtkWindow {
 }
 
 func wrapWindow(obj *glib.Object) (*Window) {
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return &Window{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}
 }
 
@@ -4004,10 +4006,7 @@ func WindowNew(t WindowType) (*Window, error) {
 		return nil, nilPtrErr
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	w := wrapWindow(obj)
-	obj.RefSink()
-	runtime.SetFinalizer(obj, (*glib.Object).Unref)
-	return w, nil
+	return wrapWindow(obj), nil
 }
 
 // SetTitle() is a wrapper around gtk_window_set_title().
@@ -4118,16 +4117,26 @@ func (b *Builder) AddFromString(str string) error {
 	res := C.gtk_builder_add_from_string(b.Native(), (*C.gchar)(cstr), length, &err)
 	if res == 0 {
 		defer C.g_error_free(err)
-		return errors.New(C.GoString((*C.char)(C.get_message(err))))
+		return errors.New(C.GoString((*C.char)(C.error_get_message(err))))
 	}
 	return nil
 }
 
 // GetObject() is a wrapper around gtk_builder_get_object(). The returned result
-// is an IObject, so it will need to be cast to the appropriate type before
-// being used. For example, to get an object and cast it as a window:
-//   obj, _ := builder.GetObject("window")
-//   w := obj.(*gtk.Window)
+// is an IObject, so it will need to be type-asserted to the appropriate type before
+// being used. For example, to get an object and type assert it as a window:
+//
+//   obj, err := builder.GetObject("window")
+//   if err != nil {
+//       // object not found
+//       return
+//   }
+//   if w, ok := obj.(*gtk.Window); ok {
+//       // do stuff with w here
+//   } else {
+//       // not a *gtk.Window
+//   }
+//
 func (b *Builder) GetObject(name string) (glib.IObject, error) {
 	cstr := C.CString(name)
 	defer C.free(unsafe.Pointer(cstr))
