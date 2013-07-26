@@ -279,3 +279,9 @@ get_message(GError *error)
 {
 	return error->message;
 }
+
+static const gchar *
+object_get_class_name(GObject *object)
+{
+	return G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(object));
+}

@@ -4119,43 +4119,33 @@ func (b *Builder) AddFromString(str string) error {
 	return nil
 }
 
-// getObject() is a wrapper around gtk_builder_get_object(). It returns
-// the native GObject and is intended to be used with other Get() methods.
-func (b *Builder) getObject(name string) (*C.GObject, error) {
+// GetObject() returns the builder's Object with the given name.
+func (b *Builder) GetObject(name string) (glib.IObject, error) {
 	cstr := C.CString(name)
 	defer C.free(unsafe.Pointer(cstr))
 	c := C.gtk_builder_get_object(b.Native(), (*C.gchar)(cstr))
 	if c == nil {
 		return nil, errors.New("object '" + name + "' not found")
 	}
-	return c, nil
-}
-
-// GetObject() returns the builder's Object with the given name.
-func (b *Builder) GetObject(name string) (*glib.Object, error) {
-	c, err := b.getObject(name)
+	obj, err := cast(c)
 	if err != nil {
 		return nil, err
 	}
-	return &glib.Object{glib.ToGObject(unsafe.Pointer(c))}, nil
+	return obj, nil
 }
 
-// GetWindow() returns the builder's Window with the given name.
-func (b *Builder) GetWindow(name string) (*Window, error) {
-	c, err := b.getObject(name)
-	if err != nil {
-		return nil, err
-	}
+// cast() is a private utility method for taking a native GObject and
+// casting it to the appropriate Go struct. It's returned as a glib.IObject,
+// so the caller will need to do a type assertion before using it.
+func cast(c *C.GObject) (glib.IObject, error) {
+	className := C.GoString((*C.char)(C.object_get_class_name(c)))
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	return &Window{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}, nil
-}
-
-// GetStatusbar() returns the builder's Statusbar with the given name.
-func (b *Builder) GetStatusbar(name string) (*Statusbar, error) {
-	c, err := b.getObject(name)
-	if err != nil {
-		return nil, err
+	switch className {
+	case "GtkWindow":
+		return &Window{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}, nil
+	case "GtkStatusbar":
+		return &Statusbar{Box{Container{Widget{glib.InitiallyUnowned{obj}}}}}, nil
+	default:
+		return nil, errors.New("unrecognized class name '" + className + "'")
 	}
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	return &Statusbar{Box{Container{Widget{glib.InitiallyUnowned{obj}}}}}, nil
 }
