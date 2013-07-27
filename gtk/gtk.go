@@ -511,7 +511,8 @@ func (v *Bin) GetChild() (*Widget, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	w := wrapWidget(obj)
-	ref(w)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return w, nil
 }
 
@@ -645,7 +646,8 @@ func ButtonNew() (*Button, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	b := wrapButton(obj)
-	ref(b)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return b, nil
 }
 
@@ -659,7 +661,8 @@ func ButtonNewWithLabel(label string) (*Button, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	b := wrapButton(obj)
-	ref(b)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return b, nil
 }
 
@@ -673,7 +676,8 @@ func ButtonNewFromStock(stock Stock) (*Button, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	b := wrapButton(obj)
-	ref(b)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return b, nil
 }
 
@@ -687,7 +691,8 @@ func ButtonNewWithMnemonic(label string) (*Button, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	b := wrapButton(obj)
-	ref(b)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return b, nil
 }
 
@@ -782,7 +787,8 @@ func (v *Button) GetImage() (*Widget, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	w := wrapWidget(obj)
-	ref(w)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return w, nil
 }
 
@@ -851,7 +857,8 @@ func BoxNew(orientation Orientation, spacing int) (*Box, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	b := wrapBox(obj)
-	ref(b)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return b, nil
 }
 
@@ -1036,7 +1043,8 @@ func CellRendererTextNew() (*CellRendererText, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	crt := wrapCellRendererText(obj)
-	ref(crt)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return crt, nil
 }
 
@@ -1137,7 +1145,8 @@ func ComboBoxNew() (*ComboBox, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	cb := wrapComboBox(obj)
-	ref(cb)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return cb, nil
 }
 
@@ -1149,7 +1158,8 @@ func ComboBoxNewWithEntry() (*ComboBox, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	cb := wrapComboBox(obj)
-	ref(cb)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return cb, nil
 }
 
@@ -1161,7 +1171,8 @@ func ComboBoxNewWithModel(model ITreeModel) (*ComboBox, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	cb := wrapComboBox(obj)
-	ref(cb)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return cb, nil
 }
 
@@ -1238,7 +1249,8 @@ func DialogNew() (*Dialog, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	d := wrapDialog(obj)
-	ref(d)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return d, nil
 }
 
@@ -1303,7 +1315,8 @@ func (v *Dialog) GetWidgetForResponse(id ResponseType) (*Widget, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	w := wrapWidget(obj)
-	ref(w)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return w, nil
 }
 
@@ -1315,7 +1328,8 @@ func (v *Dialog) GetActionArea() (*Widget, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	w := wrapWidget(obj)
-	ref(w)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return w, nil
 }
 
@@ -1376,7 +1390,8 @@ func EntryNew() (*Entry, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	e := wrapEntry(obj)
-	ref(e)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return e, nil
 }
 
@@ -1388,7 +1403,8 @@ func EntryNewWithBuffer(buffer *EntryBuffer) (*Entry, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	e := wrapEntry(obj)
-	ref(e)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return e, nil
 }
 
@@ -1877,7 +1893,8 @@ func EntryBufferNew(initialChars string, nInitialChars int) (*EntryBuffer, error
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	e := wrapEntryBuffer(obj)
-	ref(e)
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return e, nil
 }
 
@@ -2016,7 +2033,8 @@ func GridNew() (*Grid, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	g := wrapGrid(obj)
-	ref(g)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return g, nil
 }
 
@@ -2041,7 +2059,8 @@ func (v *Grid) GetChildAt(left, top int) (*Widget, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	w := wrapWidget(obj)
-	ref(w)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return w, nil
 }
 
@@ -2135,7 +2154,8 @@ func ImageNew() (*Image, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	i := wrapImage(obj)
-	ref(i)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return i, nil
 }
 
@@ -2149,7 +2169,8 @@ func ImageNewFromFile(filename string) (*Image, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	i := wrapImage(obj)
-	ref(i)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return i, nil
 }
 
@@ -2163,7 +2184,8 @@ func ImageNewFromResource(resourcePath string) (*Image, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	i := wrapImage(obj)
-	ref(i)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return i, nil
 }
 
@@ -2183,7 +2205,8 @@ func ImageNewFromStock(stock Stock, size IconSize) (*Image, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	i := wrapImage(obj)
-	ref(i)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return i, nil
 }
 
@@ -2210,7 +2233,8 @@ func ImageNewFromIconName(iconName string, size IconSize) (*Image, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	i := wrapImage(obj)
-	ref(i)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return i, nil
 }
 
@@ -2360,7 +2384,8 @@ func LabelNew(str string) (*Label, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	l := wrapLabel(obj)
-	ref(l)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return l, nil
 }
 
@@ -2433,7 +2458,8 @@ func LabelNewWithMnemonic(str string) (*Label, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	l := wrapLabel(obj)
-	ref(l)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return l, nil
 }
 
@@ -2495,7 +2521,8 @@ func ListStoreNew(types ...glib.Type) (*ListStore, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	ls := wrapListStore(obj)
-	ref(ls)
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return ls, nil
 }
 
@@ -2615,7 +2642,8 @@ func MenuNew() (*Menu, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	m := wrapMenu(obj)
-	ref(m)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return m, nil
 }
 
@@ -2649,7 +2677,8 @@ func MenuBarNew() (*MenuBar, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	m := wrapMenuBar(obj)
-	ref(m)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return m, nil
 }
 
@@ -2683,7 +2712,8 @@ func MenuItemNew() (*MenuItem, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	m := wrapMenuItem(obj)
-	ref(m)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return m, nil
 }
 
@@ -2697,7 +2727,8 @@ func MenuItemNewWithLabel(label string) (*MenuItem, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	m := wrapMenuItem(obj)
-	ref(m)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return m, nil
 }
 
@@ -2712,7 +2743,8 @@ func MenuItemNewWithMnemonic(label string) (*MenuItem, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	m := wrapMenuItem(obj)
-	ref(m)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return m, nil
 }
 
@@ -2786,7 +2818,8 @@ func MessageDialogNew(parent IWindow, flags DialogFlags, mType MessageType, butt
 		C.GtkButtonsType(buttons), cstr)
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	m := wrapMessageDialog(obj)
-	ref(m)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return m
 }
 
@@ -2842,7 +2875,8 @@ func NotebookNew() (*Notebook, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	n := wrapNotebook(obj)
-	ref(n)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return n, nil
 }
 
@@ -2959,7 +2993,8 @@ func (v *Notebook) GetMenuLabel(child IWidget) (*Widget, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	w := wrapWidget(obj)
-	ref(w)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return w, nil
 }
 
@@ -2971,7 +3006,8 @@ func (v *Notebook) GetNthPage(pageNum int) (*Widget, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	w := wrapWidget(obj)
-	ref(w)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return w, nil
 }
 
@@ -2989,7 +3025,8 @@ func (v *Notebook) GetTabLabel(child IWidget) (*Widget, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	w := wrapWidget(obj)
-	ref(w)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return w, nil
 }
 
@@ -3123,7 +3160,8 @@ func (v *Notebook) GetActionWidget(packType PackType) (*Widget, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	w := wrapWidget(obj)
-	ref(w)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return w, nil
 }
 
@@ -3199,7 +3237,8 @@ func ProgressBarNew() (*ProgressBar, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	p := wrapProgressBar(obj)
-	ref(p)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return p, nil
 }
 
@@ -3252,7 +3291,8 @@ func ScrolledWindowNew(hadjustment, vadjustment *Adjustment) (*ScrolledWindow, e
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	s := wrapScrolledWindow(obj)
-	ref(s)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return s, nil
 }
 
@@ -3300,7 +3340,8 @@ func SpinButtonNew(adjustment *Adjustment, climbRate float64, digits uint) (*Spi
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	s := wrapSpinButton(obj)
-	ref(s)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return s, nil
 }
 
@@ -3314,7 +3355,8 @@ func SpinButtonNewWithRange(min, max, step float64) (*SpinButton, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	s := wrapSpinButton(obj)
-	ref(s)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return s, nil
 }
 
@@ -3360,7 +3402,8 @@ func StatusbarNew() (*Statusbar, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	s := wrapStatusbar(obj)
-	ref(s)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return s, nil
 }
 
@@ -3632,7 +3675,8 @@ func TreeViewNew() (*TreeView, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	t := wrapTreeView(obj)
-	ref(t)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return t, nil
 }
 
@@ -3644,7 +3688,8 @@ func TreeViewNewWithModel(model ITreeModel) (*TreeView, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	t := wrapTreeView(obj)
-	ref(t)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return t, nil
 }
 
@@ -3656,7 +3701,8 @@ func (v *TreeView) GetModel() (*TreeModel, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	t := wrapTreeModel(obj)
-	ref(t)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return t, nil
 }
 
@@ -3673,7 +3719,8 @@ func (v *TreeView) GetSelection() (*TreeSelection, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	s := wrapTreeSelection(obj)
-	ref(s)
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return s, nil
 }
 
@@ -3713,7 +3760,8 @@ func TreeViewColumnNew() (*TreeViewColumn, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	t := wrapTreeViewColumn(obj)
-	ref(t)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return t, nil
 }
 
@@ -3732,7 +3780,8 @@ func TreeViewColumnNewWithAttribute(title string, renderer ICellRenderer, attrib
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	t := wrapTreeViewColumn(obj)
-	ref(t)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return t, nil
 }
 
@@ -3988,7 +4037,8 @@ func (v *Widget) GetParent() (*Widget, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	w := wrapWidget(obj)
-	ref(w)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return w, nil
 }
 
@@ -4077,7 +4127,8 @@ func (v *Widget) GetToplevel() (*Widget, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	w := wrapWidget(obj)
-	ref(w)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return w, nil
 }
 
@@ -4196,7 +4247,8 @@ func WindowNew(t WindowType) (*Window, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	w := wrapWindow(obj)
-	ref(w)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return w, nil
 }
 
@@ -4253,6 +4305,7 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		obj       = &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 		g         glib.IObject
 	)
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	switch className {
 	case "GtkAdjustment":
 		g = wrapAdjustment(obj)
@@ -4327,26 +4380,7 @@ func cast(c *C.GObject) (glib.IObject, error) {
 	case "GtkWindow":
 		g = wrapWindow(obj)
 	default:
-		ref(obj) // needed to set the finalizer
 		return nil, errors.New("unrecognized class name '" + className + "'")
 	}
-	ref(g)
 	return g, nil
-}
-
-// ref() sinks the floating reference on an initially unowned object
-// and increases the reference count on all other objects. In both cases
-// it sets the finalizer to unref.
-func ref(iobj glib.IObject) {
-	obj, ok := iobj.(*glib.Object)
-	if !ok {
-		panic("failed to type assert IObject to *glib.Object")
-	}
-
-	if _, ok := iobj.(*glib.InitiallyUnowned); ok {
-		obj.RefSink()
-	} else {
-		obj.Ref()
-	}
-	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 }
