@@ -4388,3 +4388,90 @@ func cast(c *C.GObject) (glib.IObject, error) {
 	}
 	return g, nil
 }
+
+// cast() takes a native GObject and casts it to the appropriate Go struct.
+func cast(c *C.GObject) (glib.IObject, error) {
+	var (
+		className = C.GoString((*C.char)(C.object_get_class_name(c)))
+		obj       = &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+		g         glib.IObject
+	)
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	switch className {
+	case "GtkAdjustment":
+		g = wrapAdjustment(obj)
+	case "GtkBin":
+		g = wrapBin(obj)
+	case "GtkBox":
+		g = wrapBox(obj)
+	case "GtkButton":
+		g = wrapButton(obj)
+	case "GtkCellLayout":
+		g = wrapCellLayout(obj)
+	case "GtkCellRenderer":
+		g = wrapCellRenderer(obj)
+	case "GtkCellRendererText":
+		g = wrapCellRendererText(obj)
+	case "GtkClipboard":
+		g = wrapClipboard(obj)
+	case "GtkComboBox":
+		g = wrapComboBox(obj)
+	case "GtkContainer":
+		g = wrapContainer(obj)
+	case "GtkDialog":
+		g = wrapDialog(obj)
+	case "GtkEntry":
+		g = wrapEntry(obj)
+	case "GtkEntryBuffer":
+		g = wrapEntryBuffer(obj)
+	case "GtkEntryCompletion":
+		g = wrapEntryCompletion(obj)
+	case "GtkGrid":
+		g = wrapGrid(obj)
+	case "GtkImage":
+		g = wrapImage(obj)
+	case "GtkLabel":
+		g = wrapLabel(obj)
+	case "GtkListStore":
+		g = wrapListStore(obj)
+	case "GtkMenu":
+		g = wrapMenu(obj)
+	case "GtkMenuBar":
+		g = wrapMenuBar(obj)
+	case "GtkMenuItem":
+		g = wrapMenuItem(obj)
+	case "GtkMenuShell":
+		g = wrapMenuShell(obj)
+	case "GtkMessageDialog":
+		g = wrapMessageDialog(obj)
+	case "GtkMisc":
+		g = wrapMisc(obj)
+	case "GtkNotebook":
+		g = wrapNotebook(obj)
+	case "GtkOrientable":
+		g = wrapOrientable(obj)
+	case "GtkProgressBar":
+		g = wrapProgressBar(obj)
+	case "GtkScrolledWindow":
+		g = wrapScrolledWindow(obj)
+	case "GtkSpinButton":
+		g = wrapSpinButton(obj)
+	case "GtkStatusbar":
+		g = wrapStatusbar(obj)
+	case "GtkTreeModel":
+		g = wrapTreeModel(obj)
+	case "GtkTreeSelection":
+		g = wrapTreeSelection(obj)
+	case "GtkTreeView":
+		g = wrapTreeView(obj)
+	case "GtkTreeViewColumn":
+		g = wrapTreeViewColumn(obj)
+	case "GtkWidget":
+		g = wrapWidget(obj)
+	case "GtkWindow":
+		g = wrapWindow(obj)
+	default:
+		return nil, errors.New("unrecognized class name '" + className + "'")
+	}
+	return g, nil
+}
