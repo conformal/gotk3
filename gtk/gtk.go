@@ -3490,6 +3490,10 @@ func (v *TextView) GetBuffer() (*TextBuffer, error) {
 	return t, nil
 }
 
+func (v *TextView) SetBuffer(buffer *TextBuffer) {
+	C.gtk_text_view_set_buffer(v.Native(), buffer.Native())
+}
+
 /*
  * GtkTextTagTable
  */
