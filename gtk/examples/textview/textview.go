@@ -19,32 +19,91 @@
 package main
 
 import (
-	"github.com/conformal/gotk3/gtk"
+	"fmt"
+	"github.com/weberc2/gotk3/gtk"
 	"log"
 )
 
-func main() {
-	// Initialize GTK without parsing any command line arguments.
-	gtk.Init(nil)
-
-	// Create a new toplevel window, set its title, and connect it to the
-	// "destroy" signal to exit the GTK main loop when it is destroyed.
+func setup_window(title string) *gtk.Window {
 	win, err := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
 	if err != nil {
 		log.Fatal("Unable to create window:", err)
 	}
-	win.SetTitle("Simple Example")
+	win.SetTitle(title)
 	win.Connect("destroy", func() {
 		gtk.MainQuit()
 	})
+	win.SetDefaultSize(800, 600)
+	win.SetPosition(gtk.WIN_POS_CENTER)
+	return win
+}
 
+func setup_box(orient gtk.Orientation) *gtk.Box {
+	box, err := gtk.BoxNew(orient, 0)
+	if err != nil {
+		log.Fatal("Unable to create box:", err)
+	}
+	return box
+}
+
+func setup_tview() *gtk.TextView {
 	tv, err := gtk.TextViewNew()
 	if err != nil {
 		log.Fatal("Unable to create TextView:", err)
 	}
-	win.Add(tv)
+	return tv
+}
 
-	win.SetDefaultSize(800, 600)
+func setup_btn(label string, onClick func()) *gtk.Button {
+	btn, err := gtk.ButtonNewWithLabel(label)
+	if err != nil {
+		log.Fatal("Unable to create button:", err)
+	}
+	btn.Connect("clicked", onClick)
+	return btn
+}
+
+func get_buffer_from_tview(tv *gtk.TextView) *gtk.TextBuffer {
+	buffer, err := tv.GetBuffer()
+	if err != nil {
+		log.Fatal("Unable to get buffer:", err)
+	}
+	return buffer
+}
+
+func get_text_from_tview(tv *gtk.TextView) string {
+	buffer := get_buffer_from_tview(tv)
+	var start, end gtk.TextIter
+	buffer.GetBounds(&start, &end)
+
+	text, err := buffer.GetText(&start, &end, true)
+	if err != nil {
+		log.Fatal("Unable to get text:", err)
+	}
+	return text
+}
+
+func set_text_in_tview(tv *gtk.TextView, text string) {
+	buffer := get_buffer_from_tview(tv)
+	buffer.SetText(text)
+}
+
+func main() {
+	gtk.Init(nil)
+
+	win := setup_window("Simple Example")
+	box := setup_box(gtk.ORIENTATION_VERTICAL)
+	win.Add(box)
+
+	tv := setup_tview()
+	set_text_in_tview(tv, "Hello there!")
+	box.PackStart(tv, true, true, 0)
+
+	btn := setup_btn("Submit", func() {
+		text := get_text_from_tview(tv)
+		fmt.Println(text)
+	})
+	box.Add(btn)
 
 	// Recursively show all widgets contained in this window.
 	win.ShowAll()
