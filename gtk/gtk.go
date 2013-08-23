@@ -3478,6 +3478,18 @@ func TextViewNew() (*TextView, error) {
 	return t, nil
 }
 
+func (v *TextView) GetBuffer() (*TextBuffer, error) {
+	c := C.gtk_text_view_get_buffer(v.Native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	t := wrapTextBuffer(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return t, nil
+}
+
 /*
  * GtkTextTagTable
  */
@@ -3544,6 +3556,48 @@ func TextBufferNew(table *TextTagTable) (*TextBuffer, error) {
 	obj.Ref()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return e, nil
+}
+
+func (v *TextBuffer) GetBounds(start, end *TextIter) {
+	cstrt := *start.Native()
+	cend := *end.Native()
+	C.gtk_text_buffer_get_bounds(v.Native(), &cstrt, &cend)
+	start.GtkTextIter = cstrt
+	end.GtkTextIter = cend
+}
+
+func (v *TextBuffer) GetText(start, end *TextIter, includeHiddenChars bool) (string, error) {
+	c := C.gtk_text_buffer_get_text(
+		v.Native(), start.Native(), end.Native(), gbool(includeHiddenChars),
+	)
+	if c == nil {
+		return "", nilPtrErr
+	}
+	return C.GoString((*C.char)(c)), nil
+}
+
+func (v *TextBuffer) SetText(text string) {
+	cstr := C.CString(text)
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_text_buffer_set_text(v.Native(), (*C.gchar)(cstr),
+		C.gint(len(text)))
+}
+
+/*
+ * GtkTextIter
+ */
+
+// TextIter is a representation of GTK's GtkTextIter
+type TextIter struct {
+	GtkTextIter C.GtkTextIter
+}
+
+func (v *TextIter) Native() *C.GtkTextIter {
+	return &v.GtkTextIter
+}
+
+func (v *TextIter) free() {
+	C.gtk_text_iter_free(v.Native())
 }
 
 /*

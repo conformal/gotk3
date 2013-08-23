@@ -71,3 +71,26 @@ func TestBox(t *testing.T) {
 	vbox.PackStart(start, true, true, 3)
 	vbox.PackEnd(end, true, true, 3)
 }
+
+func TestTextView(t *testing.T) {
+	tv, err := TextViewNew()
+	if err != nil {
+		t.Error("Unable to create text view")
+	}
+	buffer, err := tv.GetBuffer()
+	if err != nil {
+		t.Error("Unable to create text buffer")
+	}
+	expected := "Hello, World!"
+	buffer.SetText(expected)
+
+	var start, end TextIter
+	actual, err := buffer.GetText(&start, &end, true)
+	if err != nil {
+		t.Error("Unable to get text from buffer")
+	}
+
+	if actual != expected {
+		t.Errorf("Expected '%s'; Got '%s'", expected, actual)
+	}
+}
