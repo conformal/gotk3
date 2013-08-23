@@ -182,6 +182,12 @@ toGtkTextTagTable(void *p)
 	return (GTK_TEXT_TAG_TABLE(p));
 }
 
+static GtkTextBuffer *
+toGtkTextBuffer(void *p)
+{
+	return (GTK_TEXT_BUFFER(p));
+}
+
 static GtkTreeModel *
 toGtkTreeModel(void *p)
 {

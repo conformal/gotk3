@@ -3512,6 +3512,41 @@ func TextTagTableNew() (*TextTagTable, error) {
 }
 
 /*
+ * GtkTextBuffer
+ */
+
+// TextBuffer is a representation of GTK's GtkTextBuffer.
+type TextBuffer struct {
+	*glib.Object
+}
+
+// Native() returns a pointer to the underlying GtkTextBuffer.
+func (v *TextBuffer) Native() *C.GtkTextBuffer {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkTextBuffer(p)
+}
+
+func wrapTextBuffer(obj *glib.Object) *TextBuffer {
+	return &TextBuffer{obj}
+}
+
+// TextBufferNew() is a wrapper around gtk_text_buffer_new().
+func TextBufferNew(table *TextTagTable) (*TextBuffer, error) {
+	c := C.gtk_text_buffer_new(table.Native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	e := wrapTextBuffer(obj)
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return e, nil
+}
+
+/*
  * GtkTreeIter
  */
 
