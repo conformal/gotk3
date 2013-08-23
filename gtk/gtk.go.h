@@ -176,6 +176,12 @@ toGtkTextView(void *p)
 	return (GTK_TEXT_VIEW(p));
 }
 
+static GtkTextTagTable *
+toGtkTextTagTable(void *p)
+{
+	return (GTK_TEXT_TAG_TABLE(p));
+}
+
 static GtkTreeModel *
 toGtkTreeModel(void *p)
 {

@@ -3479,6 +3479,39 @@ func TextViewNew() (*TextView, error) {
 }
 
 /*
+ * GtkTextTagTable
+ */
+
+type TextTagTable struct {
+	*glib.Object
+}
+
+// Native() returns a pointer to the underlying GObject as a GtkTextTagTable.
+func (v *TextTagTable) Native() *C.GtkTextTagTable {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkTextTagTable(p)
+}
+
+func wrapTextTagTable(obj *glib.Object) *TextTagTable {
+	return &TextTagTable{obj}
+}
+
+func TextTagTableNew() (*TextTagTable, error) {
+	c := C.gtk_tree_view_new()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	t := wrapTextTagTable(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return t, nil
+}
+
+/*
  * GtkTreeIter
  */
 
