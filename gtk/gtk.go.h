@@ -194,6 +194,24 @@ toGtkCellLayout(void *p)
 	return (GTK_CELL_LAYOUT(p));
 }
 
+static GtkScrollable *
+toGtkScrollable(void *p)
+{
+	return (GTK_SCROLLABLE(p));
+}
+
+static GtkLayout *
+toGtkLayout(void *p)
+{
+	return (GTK_LAYOUT(p));
+}
+
+static GtkViewport *
+toGtkViewport(void *p)
+{
+	return (GTK_VIEWPORT(p));
+}
+
 static GtkOrientable *
 toGtkOrientable(void *p)
 {

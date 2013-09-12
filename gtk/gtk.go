@@ -477,7 +477,7 @@ func (v *Adjustment) Native() *C.GtkAdjustment {
 	return C.toGtkAdjustment(p)
 }
 
-func wrapAdjustment(obj *glib.Object) (*Adjustment) {
+func wrapAdjustment(obj *glib.Object) *Adjustment {
 	return &Adjustment{glib.InitiallyUnowned{obj}}
 }
 
@@ -499,7 +499,7 @@ func (v *Bin) Native() *C.GtkBin {
 	return C.toGtkBin(p)
 }
 
-func wrapBin(obj *glib.Object) (*Bin) {
+func wrapBin(obj *glib.Object) *Bin {
 	return &Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}
 }
 
@@ -634,7 +634,7 @@ func (v *Button) Native() *C.GtkButton {
 	return C.toGtkButton(p)
 }
 
-func wrapButton(obj *glib.Object) (*Button) {
+func wrapButton(obj *glib.Object) *Button {
 	return &Button{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}
 }
 
@@ -845,7 +845,7 @@ func (v *Box) Native() *C.GtkBox {
 	return C.toGtkBox(p)
 }
 
-func wrapBox(obj *glib.Object) (*Box) {
+func wrapBox(obj *glib.Object) *Box {
 	return &Box{Container{Widget{glib.InitiallyUnowned{obj}}}}
 }
 
@@ -919,6 +919,258 @@ func (v *Box) SetChildPacking(child IWidget, expand, fill bool, padding uint, pa
 }
 
 /*
+ * GtkScrollable
+ */
+
+// IScrollable is an interface type implemented by all structs
+// embedding a Scrollable.  It is meant to be used as an argument type
+// for wrapper functions that wrap around a C GTK function taking a
+// GtkScrollable.
+type IScrollable interface {
+	toScrollable() *C.GtkScrollable
+}
+
+// Scrollable is a representation of GTK's GtkScrollable GInterface.
+type Scrollable struct {
+	*glib.Object
+}
+
+// Native() returns a pointer to the underlying GObject as a GtkScrollable.
+func (v *Scrollable) Native() *C.GtkScrollable {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkScrollable(p)
+}
+
+func wrapScrollable(obj *glib.Object) *Scrollable {
+	return &Scrollable{obj}
+}
+
+func (v *Scrollable) toScrollable() *C.GtkScrollable {
+	if v == nil {
+		return nil
+	}
+	return v.Native()
+}
+
+// SetHAdjustment() is a wrapper around gtk_scrollable_set_hadjustment().
+func (v *Scrollable) SetHAdjustment(adjustment *Adjustment) {
+	C.gtk_scrollable_set_hadjustment(v.Native(), adjustment.Native())
+}
+
+// GetHAdjustment() is a wrapper around gtk_scrollable_get_hadjustment().
+func (v *Scrollable) GetHAdjustment() (*Adjustment, error) {
+	c := C.gtk_scrollable_get_hadjustment(v.Native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	a := &Adjustment{glib.InitiallyUnowned{obj}}
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return a, nil
+}
+
+// SetVAdjustment() is a wrapper around gtk_scrollable_set_vadjustment().
+func (v *Scrollable) SetVAdjustment(adjustment *Adjustment) {
+	C.gtk_scrollable_set_vadjustment(v.Native(), adjustment.Native())
+}
+
+// GetVAdjustment() is a wrapper around gtk_scrollable_get_vadjustment().
+func (v *Scrollable) GetVAdjustment() (*Adjustment, error) {
+	c := C.gtk_scrollable_get_vadjustment(v.Native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	a := &Adjustment{glib.InitiallyUnowned{obj}}
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return a, nil
+}
+
+// TODO: GtkScrollable's get/set h/v policy functions.
+
+/*
+ * GtkLayout
+ */
+
+// LayoutNew() is a wrapper around gtk_layout_new().
+func LayoutNew(hadjustment, vadjustment *Adjustment) (*Layout, error) {
+	c := C.gtk_layout_new(hadjustment.Native(), vadjustment.Native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	b := wrapLayout(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return b, nil
+}
+
+// Layout is a representation of GTK's GtkLayout GInterface.
+type Layout struct {
+	*glib.Object
+}
+
+// ILayout is an interface type implemented by all structs
+// embedding a Layout.  It is meant to be used as an argument type
+// for wrapper functions that wrap around a C GTK function taking a
+// GtkLayout.
+type ILayout interface {
+	toLayout() *C.GtkLayout
+}
+
+// Native() returns a pointer to the underlying GObject as a GtkLayout.
+func (v *Layout) Native() *C.GtkLayout {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkLayout(p)
+}
+
+func wrapLayout(obj *glib.Object) *Layout {
+	return &Layout{obj}
+}
+
+func (v *Layout) toLayout() *C.GtkLayout {
+	if v == nil {
+		return nil
+	}
+	return v.Native()
+}
+
+func (v *Layout) toScrollable() *C.GtkScrollable {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkScrollable(p)
+}
+
+// Put() is a wrapper around gtk_layout_put().
+func (v *Layout) Put(child IWidget, x, y int) {
+	C.gtk_layout_put(v.Native(), child.toWidget(),
+		C.gint(x), C.gint(y))
+}
+
+// Move() is a wrapper around gtk_layout_put().
+func (v *Layout) Move(child IWidget, x, y int) {
+	C.gtk_layout_move(v.Native(), child.toWidget(),
+		C.gint(x), C.gint(y))
+}
+
+// GetSize() is a wrapper around gtk_layout_get_size().
+func (v *Layout) GetSize() (width, height uint) {
+	var w, h C.guint
+	C.gtk_layout_get_size(v.Native(), &w, &h)
+	return uint(w), uint(h)
+}
+
+// SetSize() is a wrapper around gtk_layout_set_size().
+func (v *Layout) SetSize(width, height uint) {
+	C.gtk_layout_set_size(v.Native(), C.guint(width), C.guint(height))
+}
+
+func (v *Layout) SetHAdjustment(adjustment *Adjustment) {
+	wrapScrollable(v.Object).SetHAdjustment(adjustment)
+}
+
+func (v *Layout) GetHAdjustment() (*Adjustment, error) {
+	return wrapScrollable(v.Object).GetHAdjustment()
+}
+
+func (v *Layout) SetVAdjustment(adjustment *Adjustment) {
+	wrapScrollable(v.Object).SetVAdjustment(adjustment)
+}
+
+func (v *Layout) GetVAdjustment() (*Adjustment, error) {
+	return wrapScrollable(v.Object).GetVAdjustment()
+}
+
+// TODO gtk_layout_get_bin_window
+
+/*
+ * GtkViewport
+ */
+
+// ViewportNew() is a wrapper around gtk_viewport_new().
+func ViewportNew(hadjustment, vadjustment *Adjustment) (*Viewport, error) {
+	c := C.gtk_viewport_new(hadjustment.Native(), vadjustment.Native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	b := wrapViewport(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return b, nil
+}
+
+// Viewport is a representation of GTK's GtkViewport GInterface.
+type Viewport struct {
+	*glib.Object
+}
+
+// IViewport is an interface type implemented by all structs
+// embedding a Viewport.  It is meant to be used as an argument type
+// for wrapper functions that wrap around a C GTK function taking a
+// GtkViewport.
+type IViewport interface {
+	toViewport() *C.GtkViewport
+}
+
+// Native() returns a pointer to the underlying GObject as a GtkViewport.
+func (v *Viewport) Native() *C.GtkViewport {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkViewport(p)
+}
+
+func wrapViewport(obj *glib.Object) *Viewport {
+	return &Viewport{obj}
+}
+
+func (v *Viewport) toViewport() *C.GtkViewport {
+	if v == nil {
+		return nil
+	}
+	return v.Native()
+}
+
+func (v *Viewport) toScrollable() *C.GtkScrollable {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkScrollable(p)
+}
+
+func (v *Viewport) SetHAdjustment(adjustment *Adjustment) {
+	wrapScrollable(v.Object).SetHAdjustment(adjustment)
+}
+
+func (v *Viewport) GetHAdjustment() (*Adjustment, error) {
+	return wrapScrollable(v.Object).GetHAdjustment()
+}
+
+func (v *Viewport) SetVAdjustment(adjustment *Adjustment) {
+	wrapScrollable(v.Object).SetVAdjustment(adjustment)
+}
+
+func (v *Viewport) GetVAdjustment() (*Adjustment, error) {
+	return wrapScrollable(v.Object).GetVAdjustment()
+}
+
+// TODO gtk_viewport_get_bin_window, gtk_viewport_get_view_window,
+//  gtk_viewport_set_shadow_type, gtk_viewport_get_shadow_type
+
+/*
  * GtkCellLayout
  */
 
@@ -944,7 +1196,7 @@ func (v *CellLayout) Native() *C.GtkCellLayout {
 	return C.toGtkCellLayout(p)
 }
 
-func wrapCellLayout(obj *glib.Object) (*CellLayout) {
+func wrapCellLayout(obj *glib.Object) *CellLayout {
 	return &CellLayout{obj}
 }
 
@@ -1002,7 +1254,7 @@ func (v *CellRenderer) toCellRenderer() *C.GtkCellRenderer {
 	return v.Native()
 }
 
-func wrapCellRenderer(obj *glib.Object) (*CellRenderer) {
+func wrapCellRenderer(obj *glib.Object) *CellRenderer {
 	return &CellRenderer{glib.InitiallyUnowned{obj}}
 }
 
@@ -1031,7 +1283,7 @@ func (v *CellRendererText) toCellRenderer() *C.GtkCellRenderer {
 	return v.CellRenderer.Native()
 }
 
-func wrapCellRendererText(obj *glib.Object) (*CellRendererText) {
+func wrapCellRendererText(obj *glib.Object) *CellRendererText {
 	return &CellRendererText{CellRenderer{glib.InitiallyUnowned{obj}}}
 }
 
@@ -1066,7 +1318,7 @@ func (v *Clipboard) Native() *C.GtkClipboard {
 	return C.toGtkClipboard(p)
 }
 
-func wrapClipboard(obj *glib.Object) (*Clipboard) {
+func wrapClipboard(obj *glib.Object) *Clipboard {
 	return &Clipboard{obj}
 }
 
@@ -1132,7 +1384,7 @@ func (v *ComboBox) toCellLayout() *C.GtkCellLayout {
 	return C.toGtkCellLayout(unsafe.Pointer(v.GObject))
 }
 
-func wrapComboBox(obj *glib.Object) (*ComboBox) {
+func wrapComboBox(obj *glib.Object) *ComboBox {
 	cl := wrapCellLayout(obj)
 	return &ComboBox{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}, *cl}
 }
@@ -1205,7 +1457,7 @@ func (v *Container) Native() *C.GtkContainer {
 	return C.toGtkContainer(p)
 }
 
-func wrapContainer(obj *glib.Object) (*Container) {
+func wrapContainer(obj *glib.Object) *Container {
 	return &Container{Widget{glib.InitiallyUnowned{obj}}}
 }
 
@@ -1237,7 +1489,7 @@ func (v *Dialog) Native() *C.GtkDialog {
 	return C.toGtkDialog(p)
 }
 
-func wrapDialog(obj *glib.Object) (*Dialog) {
+func wrapDialog(obj *glib.Object) *Dialog {
 	return &Dialog{Window{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}}
 }
 
@@ -1378,7 +1630,7 @@ func (v *Entry) Native() *C.GtkEntry {
 	return C.toGtkEntry(p)
 }
 
-func wrapEntry(obj *glib.Object) (*Entry) {
+func wrapEntry(obj *glib.Object) *Entry {
 	return &Entry{Widget{glib.InitiallyUnowned{obj}}}
 }
 
@@ -1879,7 +2131,7 @@ func (v *EntryBuffer) Native() *C.GtkEntryBuffer {
 	return C.toGtkEntryBuffer(p)
 }
 
-func wrapEntryBuffer(obj *glib.Object) (*EntryBuffer) {
+func wrapEntryBuffer(obj *glib.Object) *EntryBuffer {
 	return &EntryBuffer{obj}
 }
 
@@ -1988,7 +2240,7 @@ func (v *EntryCompletion) Native() *C.GtkEntryCompletion {
 	return C.toGtkEntryCompletion(p)
 }
 
-func wrapEntryCompletion(obj *glib.Object) (*EntryCompletion) {
+func wrapEntryCompletion(obj *glib.Object) *EntryCompletion {
 	return &EntryCompletion{obj}
 }
 
@@ -2020,7 +2272,7 @@ func (v *Grid) toOrientable() *C.GtkOrientable {
 	return C.toGtkOrientable(unsafe.Pointer(v.GObject))
 }
 
-func wrapGrid(obj *glib.Object) (*Grid) {
+func wrapGrid(obj *glib.Object) *Grid {
 	o := wrapOrientable(obj)
 	return &Grid{Container{Widget{glib.InitiallyUnowned{obj}}}, *o}
 }
@@ -2142,7 +2394,7 @@ func (v *Image) Native() *C.GtkImage {
 	return C.toGtkImage(p)
 }
 
-func wrapImage(obj *glib.Object) (*Image) {
+func wrapImage(obj *glib.Object) *Image {
 	return &Image{Misc{Widget{glib.InitiallyUnowned{obj}}}}
 }
 
@@ -2370,7 +2622,7 @@ func (v *Label) Native() *C.GtkLabel {
 	return C.toGtkLabel(p)
 }
 
-func wrapLabel(obj *glib.Object) (*Label) {
+func wrapLabel(obj *glib.Object) *Label {
 	return &Label{Misc{Widget{glib.InitiallyUnowned{obj}}}}
 }
 
@@ -2496,7 +2748,7 @@ func (v *ListStore) Native() *C.GtkListStore {
 	return C.toGtkListStore(p)
 }
 
-func wrapListStore(obj *glib.Object) (*ListStore) {
+func wrapListStore(obj *glib.Object) *ListStore {
 	tm := wrapTreeModel(obj)
 	return &ListStore{obj, *tm}
 }
@@ -2630,7 +2882,7 @@ func (v *Menu) Native() *C.GtkMenu {
 	return C.toGtkMenu(p)
 }
 
-func wrapMenu(obj *glib.Object) (*Menu) {
+func wrapMenu(obj *glib.Object) *Menu {
 	return &Menu{MenuShell{Container{Widget{glib.InitiallyUnowned{obj}}}}}
 }
 
@@ -2665,7 +2917,7 @@ func (v *MenuBar) Native() *C.GtkMenuBar {
 	return C.toGtkMenuBar(p)
 }
 
-func wrapMenuBar(obj *glib.Object) (*MenuBar) {
+func wrapMenuBar(obj *glib.Object) *MenuBar {
 	return &MenuBar{MenuShell{Container{Widget{glib.InitiallyUnowned{obj}}}}}
 }
 
@@ -2700,7 +2952,7 @@ func (v *MenuItem) Native() *C.GtkMenuItem {
 	return C.toGtkMenuItem(p)
 }
 
-func wrapMenuItem(obj *glib.Object) (*MenuItem) {
+func wrapMenuItem(obj *glib.Object) *MenuItem {
 	return &MenuItem{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}
 }
 
@@ -2771,7 +3023,7 @@ func (v *MenuShell) Native() *C.GtkMenuShell {
 	return C.toGtkMenuShell(p)
 }
 
-func wrapMenuShell(obj *glib.Object) (*MenuShell) {
+func wrapMenuShell(obj *glib.Object) *MenuShell {
 	return &MenuShell{Container{Widget{glib.InitiallyUnowned{obj}}}}
 }
 
@@ -2798,7 +3050,7 @@ func (v *MessageDialog) Native() *C.GtkMessageDialog {
 	return C.toGtkMessageDialog(p)
 }
 
-func wrapMessageDialog(obj *glib.Object) (*MessageDialog) {
+func wrapMessageDialog(obj *glib.Object) *MessageDialog {
 	return &MessageDialog{Dialog{Window{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}}}
 }
 
@@ -2841,7 +3093,7 @@ func (v *Misc) Native() *C.GtkMisc {
 	return C.toGtkMisc(p)
 }
 
-func wrapMisc(obj *glib.Object) (*Misc) {
+func wrapMisc(obj *glib.Object) *Misc {
 	return &Misc{Widget{glib.InitiallyUnowned{obj}}}
 }
 
@@ -2863,7 +3115,7 @@ func (v *Notebook) Native() *C.GtkNotebook {
 	return C.toGtkNotebook(p)
 }
 
-func wrapNotebook(obj *glib.Object) (*Notebook) {
+func wrapNotebook(obj *glib.Object) *Notebook {
 	return &Notebook{Container{Widget{glib.InitiallyUnowned{obj}}}}
 }
 
@@ -3191,7 +3443,7 @@ func (v *Orientable) Native() *C.GtkOrientable {
 	return C.toGtkOrientable(p)
 }
 
-func wrapOrientable(obj *glib.Object) (*Orientable) {
+func wrapOrientable(obj *glib.Object) *Orientable {
 	return &Orientable{obj}
 }
 
@@ -3225,7 +3477,7 @@ func (v *ProgressBar) Native() *C.GtkProgressBar {
 	return C.toGtkProgressBar(p)
 }
 
-func wrapProgressBar(obj *glib.Object) (*ProgressBar) {
+func wrapProgressBar(obj *glib.Object) *ProgressBar {
 	return &ProgressBar{Widget{glib.InitiallyUnowned{obj}}}
 }
 
@@ -3278,7 +3530,7 @@ func (v *ScrolledWindow) Native() *C.GtkScrolledWindow {
 	return C.toGtkScrolledWindow(p)
 }
 
-func wrapScrolledWindow(obj *glib.Object) (*ScrolledWindow) {
+func wrapScrolledWindow(obj *glib.Object) *ScrolledWindow {
 	return &ScrolledWindow{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}
 }
 
@@ -3321,7 +3573,7 @@ func (v *SpinButton) Native() *C.GtkSpinButton {
 	return C.toGtkSpinButton(p)
 }
 
-func wrapSpinButton(obj *glib.Object) (*SpinButton) {
+func wrapSpinButton(obj *glib.Object) *SpinButton {
 	return &SpinButton{Entry{Widget{glib.InitiallyUnowned{obj}}}}
 }
 
@@ -3395,7 +3647,7 @@ func (v *Statusbar) Native() *C.GtkStatusbar {
 	return C.toGtkStatusbar(p)
 }
 
-func wrapStatusbar(obj *glib.Object) (*Statusbar) {
+func wrapStatusbar(obj *glib.Object) *Statusbar {
 	return &Statusbar{Box{Container{Widget{glib.InitiallyUnowned{obj}}}}}
 }
 
@@ -3506,7 +3758,7 @@ func (v *TreeModel) toTreeModel() *C.GtkTreeModel {
 	return v.Native()
 }
 
-func wrapTreeModel(obj *glib.Object) (*TreeModel) {
+func wrapTreeModel(obj *glib.Object) *TreeModel {
 	return &TreeModel{obj}
 }
 
@@ -3632,7 +3884,7 @@ func (v *TreeSelection) Native() *C.GtkTreeSelection {
 	return C.toGtkTreeSelection(p)
 }
 
-func wrapTreeSelection(obj *glib.Object) (*TreeSelection) {
+func wrapTreeSelection(obj *glib.Object) *TreeSelection {
 	return &TreeSelection{obj}
 }
 
@@ -3668,7 +3920,7 @@ func (v *TreeView) Native() *C.GtkTreeView {
 	return C.toGtkTreeView(p)
 }
 
-func wrapTreeView(obj *glib.Object) (*TreeView) {
+func wrapTreeView(obj *glib.Object) *TreeView {
 	return &TreeView{Container{Widget{glib.InitiallyUnowned{obj}}}}
 }
 
@@ -3753,7 +4005,7 @@ func (v *TreeViewColumn) Native() *C.GtkTreeViewColumn {
 	return C.toGtkTreeViewColumn(p)
 }
 
-func wrapTreeViewColumn(obj *glib.Object) (*TreeViewColumn) {
+func wrapTreeViewColumn(obj *glib.Object) *TreeViewColumn {
 	return &TreeViewColumn{glib.InitiallyUnowned{obj}}
 }
 
@@ -3853,7 +4105,7 @@ func (v *Widget) toWidget() *C.GtkWidget {
 	return v.Native()
 }
 
-func wrapWidget(obj *glib.Object) (*Widget) {
+func wrapWidget(obj *glib.Object) *Widget {
 	return &Widget{glib.InitiallyUnowned{obj}}
 }
 
@@ -4324,6 +4576,12 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapBox(obj)
 	case "GtkButton":
 		g = wrapButton(obj)
+	case "GtkScrollable":
+		g = wrapScrollable(obj)
+	case "GtkLayout":
+		g = wrapLayout(obj)
+	case "GtkViewport":
+		g = wrapViewport(obj)
 	case "GtkCellLayout":
 		g = wrapCellLayout(obj)
 	case "GtkCellRenderer":
