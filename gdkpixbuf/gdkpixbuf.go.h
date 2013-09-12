@@ -19,46 +19,10 @@
 #include <stdlib.h>
 
 // Type Casting
-static GdkAtom
-toGdkAtom(void *p)
+static GdkPixbufLoader *
+toGdkPixbufLoader(void *p)
 {
-	return ((GdkAtom)p);
-}
-
-static GdkDevice *
-toGdkDevice(void *p)
-{
-	return (GDK_DEVICE(p));
-}
-
-static GdkDeviceManager *
-toGdkDeviceManager(void *p)
-{
-	return (GDK_DEVICE_MANAGER(p));
-}
-
-static GdkDisplay *
-toGdkDisplay(void *p)
-{
-	return (GDK_DISPLAY(p));
-}
-
-static GdkScreen *
-toGdkScreen(void *p)
-{
-	return (GDK_SCREEN(p));
-}
-
-static GdkWindow *
-toGdkWindow(void *p)
-{
-	return (GDK_WINDOW(p));
-}
-
-static GdkPixbuf *
-toGdkPixbuf(void *p)
-{
-	return (GDK_PIXBUF(p));
+	return (GDK_PIXBUF_LOADER(p));
 }
 
 static gchar *
