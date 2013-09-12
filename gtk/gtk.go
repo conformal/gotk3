@@ -1020,7 +1020,7 @@ func LayoutNew(hadjustment, vadjustment *Adjustment) (*Layout, error) {
 
 // Layout is a representation of GTK's GtkLayout GInterface.
 type Layout struct {
-	*glib.Object
+	Bin
 }
 
 // ILayout is an interface type implemented by all structs
@@ -1041,7 +1041,7 @@ func (v *Layout) Native() *C.GtkLayout {
 }
 
 func wrapLayout(obj *glib.Object) *Layout {
-	return &Layout{obj}
+	return &Layout{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}
 }
 
 func (v *Layout) toLayout() *C.GtkLayout {
@@ -1120,7 +1120,7 @@ func ViewportNew(hadjustment, vadjustment *Adjustment) (*Viewport, error) {
 
 // Viewport is a representation of GTK's GtkViewport GInterface.
 type Viewport struct {
-	*glib.Object
+	Bin
 }
 
 // IViewport is an interface type implemented by all structs
@@ -1141,7 +1141,7 @@ func (v *Viewport) Native() *C.GtkViewport {
 }
 
 func wrapViewport(obj *glib.Object) *Viewport {
-	return &Viewport{obj}
+	return &Viewport{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}
 }
 
 func (v *Viewport) toViewport() *C.GtkViewport {
@@ -2530,9 +2530,22 @@ func (v *Image) SetFromResource(resourcePath string) {
 	C.gtk_image_set_from_resource(v.Native(), (*C.gchar)(cstr))
 }
 
-// SetFromResource() is a wrapper around gtk_image_set_from_pixbuf().
+// SetFromPixbuf() is a wrapper around gtk_image_set_from_pixbuf().
 func (v *Image) SetFromPixbuf(pixbuf *gdkpixbuf.Pixbuf) {
 	C.gtk_image_set_from_pixbuf(v.Native(), pixbuf.Native())
+}
+
+// GetPixbuf() is a wrapper around gtk_image_get_pixbuf().
+func (v *Image) GetPixbuf() (*gdkpixbuf.Pixbuf, error) {
+	c := C.gtk_image_get_pixbuf(v.Native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	p := &gdkpixbuf.Pixbuf{obj}
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return p, nil
 }
 
 // SetFromStock() is a wrapper around gtk_image_set_from_stock().
