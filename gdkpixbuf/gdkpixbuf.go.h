@@ -19,6 +19,12 @@
 #include <stdlib.h>
 
 // Type Casting
+static GdkPixbuf *
+toGdkPixbuf(void *p)
+{
+	return (GDK_PIXBUF(p));
+}
+
 static GdkPixbufLoader *
 toGdkPixbufLoader(void *p)
 {

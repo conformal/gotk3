@@ -54,15 +54,3 @@ toGdkWindow(void *p)
 {
 	return (GDK_WINDOW(p));
 }
-
-static GdkPixbuf *
-toGdkPixbuf(void *p)
-{
-	return (GDK_PIXBUF(p));
-}
-
-static gchar *
-error_get_message(GError *error)
-{
-	return error->message;
-}

@@ -56,6 +56,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/conformal/gotk3/gdk"
+	"github.com/conformal/gotk3/gdkpixbuf"
 	"github.com/conformal/gotk3/glib"
 	"runtime"
 	"unsafe"
@@ -2449,7 +2450,7 @@ func ImageNewFromResource(resourcePath string) (*Image, error) {
 }
 
 // ImageNewFromStock() is a wrapper around gtk_image_new_from_pixbuf().
-func ImageNewFromPixbuf(pixbuf *gdk.Pixbuf) (*Image, error) {
+func ImageNewFromPixbuf(pixbuf *gdkpixbuf.Pixbuf) (*Image, error) {
 	c := C.gtk_image_new_from_pixbuf(pixbuf.Native())
 	if c == nil {
 		return nil, nilPtrErr
@@ -2530,7 +2531,7 @@ func (v *Image) SetFromResource(resourcePath string) {
 }
 
 // SetFromResource() is a wrapper around gtk_image_set_from_pixbuf().
-func (v *Image) SetFromPixbuf(pixbuf *gdk.Pixbuf) {
+func (v *Image) SetFromPixbuf(pixbuf *gdkpixbuf.Pixbuf) {
 	C.gtk_image_set_from_pixbuf(v.Native(), pixbuf.Native())
 }
 
