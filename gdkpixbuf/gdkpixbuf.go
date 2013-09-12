@@ -40,6 +40,28 @@ import (
 var nilPtrErr = errors.New("cgo returned unexpected nil pointer")
 
 /*
+ * Constants
+ */
+
+type InterpType C.GdkInterpType
+
+const (
+	INTERP_NEAREST InterpType = iota
+	INTERP_TILES
+	INTERP_BILINEAR
+	INTERP_HYPER
+)
+
+type PixbufRotation C.GdkPixbufRotation
+
+const (
+	PIXBUF_ROTATE_NONE             PixbufRotation = 0
+	PIXBUF_ROTATE_COUNTERCLOCKWISE                = 90
+	PIXBUF_ROTATE_UPSIDEDOWN                      = 180
+	PIXBUF_ROTATE_CLOCKWISE                       = 270
+)
+
+/*
  * Type conversions
  */
 
@@ -61,6 +83,7 @@ func gobool(b C.gboolean) bool {
  */
 
 // PixbufLoader is a representation of GDK's GdkPixbufLoader.
+// Users of PixbufLoader are expected to call Close() when they are finished.
 type PixbufLoader struct {
 	*glib.Object
 }
@@ -139,3 +162,44 @@ func (v *PixbufLoader) GetPixbuf() (*gdk.Pixbuf, error) {
 
 // TODO GdkPixbufFormat, GdkPixbufAnimation,
 // gdk_pixbuf_loader_new_with_type, gdk_pixbuf_loader_new_with_mime_type
+
+// PixbufScaleSimple is a wrapper around gdk_pixbuf_scale_simple().
+func PixbufScaleSimple(src *gdk.Pixbuf, width, height int, interp InterpType) (*gdk.Pixbuf, error) {
+	c := C.gdk_pixbuf_scale_simple(src.Native(), C.int(width), C.int(height), C.GdkInterpType(interp))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	p := &gdk.Pixbuf{obj}
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return p, nil
+}
+
+// PixbufScale is a wrapper around gdk_pixbuf_scale().
+func PixbufScale(src, dst *gdk.Pixbuf, x, y, width, height int, offsetX, offsetY, scaleX, scaleY float64, interp InterpType) {
+	C.gdk_pixbuf_scale(src.Native(), dst.Native(), C.int(x), C.int(y), C.int(width), C.int(height), C.double(offsetX), C.double(offsetY), C.double(scaleX), C.double(scaleY), C.GdkInterpType(interp))
+}
+
+// PixbufRotateSimple is a wrapper around gdk_pixbuf_rotate_simple().
+func PixbufRotateSimple(src *gdk.Pixbuf, angle PixbufRotation) (*gdk.Pixbuf, error) {
+	c := C.gdk_pixbuf_rotate_simple(src.Native(), C.GdkPixbufRotation(angle))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	p := &gdk.Pixbuf{obj}
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return p, nil
+}
+
+// PixbufFlip is a wrapper around gdk_pixbuf_flip().
+func PixbufFlip(src *gdk.Pixbuf, horizontal bool) (*gdk.Pixbuf, error) {
+	c := C.gdk_pixbuf_flip(src.Native(), gbool(horizontal))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	p := &gdk.Pixbuf{obj}
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return p, nil
+}
