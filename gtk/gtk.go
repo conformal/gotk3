@@ -413,6 +413,13 @@ const (
 	WINDOW_POPUP               = C.GTK_WINDOW_POPUP
 )
 
+// Allocation is a representation of GTK's GtkAllocation type.
+type Allocation gdk.Rectangle
+
+func (r *Allocation) Native() *C.GtkAllocation {
+	return (*C.GtkAllocation)(unsafe.Pointer(r))
+}
+
 /*
  * Init and main event loop
  */
@@ -4194,11 +4201,20 @@ func (v *Widget) Unmap() {
 //                                    GDestroyNotify notify);
 //void gtk_widget_remove_tick_callback(GtkWidget *widget, guint id);
 
-// TODO(jrick) GtkAllocation
-/*
-func (v *Widget) SizeAllocate() {
+func (v *Widget) GetAllocation() *Allocation {
+	// TODO Should we avoid new here an expect a pointer as an argument?
+	allocation := new(Allocation)
+	C.gtk_widget_get_allocation(v.Native(), allocation.Native())
+	return allocation
 }
-*/
+
+func (v *Widget) SetAllocation(allocation *Allocation) {
+	C.gtk_widget_set_allocation(v.Native(), allocation.Native())
+}
+
+func (v *Widget) SizeAllocate(allocation *Allocation) {
+	C.gtk_widget_size_allocate(v.Native(), allocation.Native())
+}
 
 // TODO(jrick) GtkAccelGroup GdkModifierType GtkAccelFlags
 /*

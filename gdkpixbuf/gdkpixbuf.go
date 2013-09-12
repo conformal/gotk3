@@ -82,7 +82,6 @@ func PixbufLoaderNew() (*PixbufLoader, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	l := &PixbufLoader{obj}
-	obj.Ref()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 
 	return l, nil

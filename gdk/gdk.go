@@ -486,7 +486,6 @@ func PixbufNewFromFile(fileName string) (*Pixbuf, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	p := wrapPixbuf(obj)
-	obj.Ref()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return p, nil
 }
@@ -503,7 +502,6 @@ func PixbufNewFromFileAtSize(fileName string, width, height int) (*Pixbuf, error
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	p := wrapPixbuf(obj)
-	obj.RefSink()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return p, nil
 }
@@ -520,9 +518,24 @@ func PixbufNewFromFileAtScale(fileName string, width, height int, preserveAspect
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	p := wrapPixbuf(obj)
-	obj.RefSink()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return p, nil
 }
 
 // TODO gdk_pixbuf_get_file_info, resource and stream related functions.
+
+/*
+ * GdkRectangle
+ */
+
+// Rectangle is a representation of GDK's GdkRectangle type.
+type Rectangle struct {
+	// TODO Rectangle is a fairly simple struct, but maybe it's not a good practise
+	// to manually define it here?
+	X, Y          int32
+	Width, Height int32
+}
+
+func (r *Rectangle) Native() *C.GdkRectangle {
+	return (*C.GdkRectangle)(unsafe.Pointer(r))
+}
