@@ -2441,11 +2441,18 @@ func ImageNewFromResource(resourcePath string) (*Image, error) {
 	return i, nil
 }
 
-// TODO(jrick) GdkPixbuf
-/*
-func ImageNewFromPixbuf() {
+// ImageNewFromStock() is a wrapper around gtk_image_new_from_pixbuf().
+func ImageNewFromPixbuf(pixbuf *gdk.Pixbuf) (*Image, error) {
+	c := C.gtk_image_new_from_pixbuf(v.Native(), pixbuf)
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	i := wrapImage(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return i, nil
 }
-*/
 
 // ImageNewFromStock() is a wrapper around gtk_image_new_from_stock().
 func ImageNewFromStock(stock Stock, size IconSize) (*Image, error) {
@@ -2515,11 +2522,10 @@ func (v *Image) SetFromResource(resourcePath string) {
 	C.gtk_image_set_from_resource(v.Native(), (*C.gchar)(cstr))
 }
 
-// TODO(jrick) GdkPixbuf
-/*
-func (v *Image) SetFromPixbuf() {
+// SetFromResource() is a wrapper around gtk_image_set_from_pixbuf().
+func (v *Image) SetFromPixbuf(pixbuf *gdk.Pixbuf) {
+	C.gtk_image_set_from_pixbuf(v.Native(), pixbuf.Native())
 }
-*/
 
 // SetFromStock() is a wrapper around gtk_image_set_from_stock().
 func (v *Image) SetFromStock(stock Stock, size IconSize) {
