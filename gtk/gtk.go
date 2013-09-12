@@ -2443,7 +2443,7 @@ func ImageNewFromResource(resourcePath string) (*Image, error) {
 
 // ImageNewFromStock() is a wrapper around gtk_image_new_from_pixbuf().
 func ImageNewFromPixbuf(pixbuf *gdk.Pixbuf) (*Image, error) {
-	c := C.gtk_image_new_from_pixbuf(v.Native(), pixbuf)
+	c := C.gtk_image_new_from_pixbuf(pixbuf.Native())
 	if c == nil {
 		return nil, nilPtrErr
 	}
