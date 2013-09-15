@@ -406,6 +406,16 @@ const (
 	WIN_POS_CENTER_ON_PARENT                = C.GTK_WIN_POS_CENTER_ON_PARENT
 )
 
+// FileChooserAction is a representation of GTK's GtkFileChooserAction.
+type FileChooserAction int
+
+const (
+	FILE_CHOOSER_ACTION_OPEN          FileChooserAction = C.GTK_FILE_CHOOSER_ACTION_OPEN
+	FILE_CHOOSER_ACTION_SAVE                            = C.GTK_FILE_CHOOSER_ACTION_SAVE
+	FILE_CHOOSER_ACTION_SELECT_FOLDER                   = C.GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER
+	FILE_CHOOSER_ACTION_CREATE_FOLDER                   = C.GTK_FILE_CHOOSER_ACTION_CREATE_FOLDER
+)
+
 // WindowType is a representation of GTK's GtkWindowType.
 type WindowType int
 
@@ -3033,6 +3043,30 @@ func (v *MenuItem) SetSubmenu(submenu IWidget) {
 }
 
 /*
+ * GtkImageMenuItem
+ */
+
+// ImageMenuItem is a representation of GTK's GtkImageMenuItem.
+type ImageMenuItem struct {
+	MenuItem
+}
+
+// Native() returns a pointer to the underlying GtkImageMenuItem.
+func (v *ImageMenuItem) Native() *C.GtkImageMenuItem {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkImageMenuItem(p)
+}
+
+func wrapImageMenuItem(obj *glib.Object) *ImageMenuItem {
+	return &ImageMenuItem{MenuItem{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}}
+}
+
+// TODO: ImageMenuItem functions.
+
+/*
  * GtkMenuShell
  */
 
@@ -3099,6 +3133,105 @@ func MessageDialogNew(parent IWindow, flags DialogFlags, mType MessageType, butt
 	m := wrapMessageDialog(obj)
 	obj.RefSink()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return m
+}
+
+/*
+ * GtkAboutDialog
+ */
+
+// AboutDialog is a representation of GTK's GtkAboutDialog.
+type AboutDialog struct {
+	Dialog
+}
+
+// Native() returns a pointer to the underlying GtkAboutDialog.
+func (v *AboutDialog) Native() *C.GtkAboutDialog {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkAboutDialog(p)
+}
+
+func wrapAboutDialog(obj *glib.Object) *AboutDialog {
+	return &AboutDialog{Dialog{Window{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}}}
+}
+
+/*
+ * GtkFileChooserDialog
+ */
+
+// FileChooserDialog is a representation of GTK's GtkFileChooserDialog.
+type FileChooserDialog struct {
+	Dialog
+}
+
+// Native() returns a pointer to the underlying GtkFileChooserDialog.
+func (v *FileChooserDialog) Native() *C.GtkFileChooserDialog {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkFileChooserDialog(p)
+}
+
+func wrapFileChooserDialog(obj *glib.Object) *FileChooserDialog {
+	return &FileChooserDialog{Dialog{Window{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}}}
+}
+
+// Borrowed from github.com/mattn/go-gtk
+func variadicButtonsToArrays(buttons []interface{}) ([]string, []ResponseType) {
+	if len(buttons)%2 != 0 {
+		panic("variadic parameter must be even (couples of string-ResponseType (button label - button response)")
+	}
+	text := make([]string, len(buttons)/2)
+	res := make([]ResponseType, len(buttons)/2)
+	for i := 0; i < len(text); i++ {
+		btext, ok := buttons[2*i].(string)
+		if !ok {
+			panic("button text must be a string")
+		}
+		bresponse, ok := buttons[2*i+1].(ResponseType)
+		if !ok {
+			panic("button response must be an ResponseType")
+		}
+		text[i] = btext
+		res[i] = bresponse
+	}
+	return text, res
+}
+
+// FileChooserDialogNew() is a wrapper around gtk_file_chooser_dialog_new().
+// Variable argument should be (button string, id ResponseType) pairs if not omitted,
+// or just the label for the first button.
+func FileChooserDialogNew(title string, parent IWindow, fileChooserAction FileChooserAction, b ...interface{}) *FileChooserDialog {
+	ctitle := C.CString(title)
+	defer C.free(unsafe.Pointer(ctitle))
+	var w *C.GtkWindow = nil
+	if parent != nil {
+		w = parent.toWindow()
+	}
+	var cfirstButton *C.char
+	if len(b) == 1 {
+		cfirstButton = C.CString(b[0].(string))
+		defer C.free(unsafe.Pointer(ctitle))
+	}
+	c := C._gtk_file_chooser_dialog_new(ctitle, w, C.GtkFileChooserAction(fileChooserAction), cfirstButton)
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	m := wrapFileChooserDialog(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+
+	if len(b) == 1 {
+		return m
+	}
+
+	text, response := variadicButtonsToArrays(b)
+	for i := range text {
+		m.AddButton(text[i], response[i])
+	}
+
 	return m
 }
 
@@ -4652,10 +4785,16 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapMenuBar(obj)
 	case "GtkMenuItem":
 		g = wrapMenuItem(obj)
+	case "GtkImageMenuItem":
+		g = wrapImageMenuItem(obj)
 	case "GtkMenuShell":
 		g = wrapMenuShell(obj)
 	case "GtkMessageDialog":
 		g = wrapMessageDialog(obj)
+	case "GtkAboutDialog":
+		g = wrapAboutDialog(obj)
+	case "GtkFileChooserDialog":
+		g = wrapFileChooserDialog(obj)
 	case "GtkMisc":
 		g = wrapMisc(obj)
 	case "GtkNotebook":
