@@ -458,12 +458,10 @@ func (v *Window) Native() *C.GdkWindow {
 
 // Rectangle is a representation of GDK's GdkRectangle type.
 type Rectangle struct {
-	// TODO Rectangle is a fairly simple struct, but maybe it's not a good practise
-	// to manually define it here?
-	X, Y          int32
-	Width, Height int32
+	GdkRectangle C.GdkRectangle
 }
 
+// Native() returns a pointer to the underlying GdkRectangle.
 func (r *Rectangle) Native() *C.GdkRectangle {
-	return (*C.GdkRectangle)(unsafe.Pointer(r))
+	return &r.GdkRectangle
 }

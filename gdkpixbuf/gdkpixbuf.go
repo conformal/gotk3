@@ -55,9 +55,9 @@ type PixbufRotation C.GdkPixbufRotation
 
 const (
 	PIXBUF_ROTATE_NONE             PixbufRotation = 0
-	PIXBUF_ROTATE_COUNTERCLOCKWISE                = 90
-	PIXBUF_ROTATE_UPSIDEDOWN                      = 180
-	PIXBUF_ROTATE_CLOCKWISE                       = 270
+	PIXBUF_ROTATE_COUNTERCLOCKWISE PixbufRotation = 90
+	PIXBUF_ROTATE_UPSIDEDOWN       PixbufRotation = 180
+	PIXBUF_ROTATE_CLOCKWISE        PixbufRotation = 270
 )
 
 /*
@@ -90,7 +90,7 @@ func wrapPixbuf(obj *glib.Object) *Pixbuf {
 	return &Pixbuf{obj}
 }
 
-// Native() returns a pointer to the underlying GdkWindow.
+// Native() returns a pointer to the underlying GdkPixbuf.
 func (v *Pixbuf) Native() *C.GdkPixbuf {
 	if v == nil || v.GObject == nil {
 		return nil
@@ -107,7 +107,8 @@ func PixbufNewFromFile(fileName string) (*Pixbuf, error) {
 	c := C.gdk_pixbuf_new_from_file(cstr, &cerr)
 	if c == nil {
 		defer C.g_error_free(cerr)
-		return nil, errors.New(C.GoString((*C.char)(C.error_get_message(cerr))))
+		errstr := C.GoString((*C.char)(C.error_get_message(cerr)))
+		return nil, errors.New(errstr)
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	p := wrapPixbuf(obj)
@@ -115,15 +116,18 @@ func PixbufNewFromFile(fileName string) (*Pixbuf, error) {
 	return p, nil
 }
 
-// PixbufNewFromFileAtSize() is a wrapper around gdk_pixbuf_new_from_file_at_size().
+// PixbufNewFromFileAtSize() is a wrapper around
+// gdk_pixbuf_new_from_file_at_size().
 func PixbufNewFromFileAtSize(fileName string, width, height int) (*Pixbuf, error) {
 	var cerr *C.GError
 	cstr := C.CString(fileName)
 	defer C.free(unsafe.Pointer(cstr))
-	c := C.gdk_pixbuf_new_from_file_at_size(cstr, C.int(width), C.int(height), &cerr)
+	c := C.gdk_pixbuf_new_from_file_at_size(cstr, C.int(width),
+		C.int(height), &cerr)
 	if c == nil {
 		defer C.g_error_free(cerr)
-		return nil, errors.New(C.GoString((*C.char)(C.error_get_message(cerr))))
+		errstr := C.GoString((*C.char)(C.error_get_message(cerr)))
+		return nil, errors.New(errstr)
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	p := wrapPixbuf(obj)
@@ -131,15 +135,18 @@ func PixbufNewFromFileAtSize(fileName string, width, height int) (*Pixbuf, error
 	return p, nil
 }
 
-// PixbufNewFromFileAtScale() is a wrapper around gdk_pixbuf_new_from_file_at_scale().
+// PixbufNewFromFileAtScale() is a wrapper around
+// gdk_pixbuf_new_from_file_at_scale().
 func PixbufNewFromFileAtScale(fileName string, width, height int, preserveAspectRatio bool) (*Pixbuf, error) {
 	var cerr *C.GError
 	cstr := C.CString(fileName)
 	defer C.free(unsafe.Pointer(cstr))
-	c := C.gdk_pixbuf_new_from_file_at_scale(cstr, C.int(width), C.int(height), gbool(preserveAspectRatio), &cerr)
+	c := C.gdk_pixbuf_new_from_file_at_scale(cstr, C.int(width),
+		C.int(height), gbool(preserveAspectRatio), &cerr)
 	if c == nil {
 		defer C.g_error_free(cerr)
-		return nil, errors.New(C.GoString((*C.char)(C.error_get_message(cerr))))
+		errstr := C.GoString((*C.char)(C.error_get_message(cerr)))
+		return nil, errors.New(errstr)
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	p := wrapPixbuf(obj)
@@ -149,19 +156,23 @@ func PixbufNewFromFileAtScale(fileName string, width, height int, preserveAspect
 
 // ScaleSimple is a wrapper around gdk_pixbuf_scale_simple().
 func (v *Pixbuf) ScaleSimple(width, height int, interp InterpType) (*Pixbuf, error) {
-	c := C.gdk_pixbuf_scale_simple(v.Native(), C.int(width), C.int(height), C.GdkInterpType(interp))
+	c := C.gdk_pixbuf_scale_simple(v.Native(), C.int(width), C.int(height),
+		C.GdkInterpType(interp))
 	if c == nil {
 		return nil, nilPtrErr
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	p := &Pixbuf{obj}
+	p := wrapPixbuf(obj)
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return p, nil
 }
 
 // Scale is a wrapper around gdk_pixbuf_scale().
 func (v *Pixbuf) Scale(dst *Pixbuf, x, y, width, height int, offsetX, offsetY, scaleX, scaleY float64, interp InterpType) {
-	C.gdk_pixbuf_scale(v.Native(), dst.Native(), C.int(x), C.int(y), C.int(width), C.int(height), C.double(offsetX), C.double(offsetY), C.double(scaleX), C.double(scaleY), C.GdkInterpType(interp))
+	C.gdk_pixbuf_scale(v.Native(), dst.Native(), C.int(x), C.int(y),
+		C.int(width), C.int(height), C.double(offsetX),
+		C.double(offsetY), C.double(scaleX), C.double(scaleY),
+		C.GdkInterpType(interp))
 }
 
 // RotateSimple is a wrapper around gdk_pixbuf_rotate_simple().
@@ -171,7 +182,7 @@ func (v *Pixbuf) RotateSimple(angle PixbufRotation) (*Pixbuf, error) {
 		return nil, nilPtrErr
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	p := &Pixbuf{obj}
+	p := wrapPixbuf(obj)
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return p, nil
 }
@@ -183,7 +194,7 @@ func (v *Pixbuf) Flip(horizontal bool) (*Pixbuf, error) {
 		return nil, nilPtrErr
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	p := &Pixbuf{obj}
+	p := wrapPixbuf(obj)
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return p, nil
 }
@@ -210,13 +221,17 @@ type PixbufLoader struct {
 	*glib.Object
 }
 
-// Native() returns a pointer to the underlying GdkWindow.
+// Native() returns a pointer to the underlying GdkPixbufLoader.
 func (v *PixbufLoader) Native() *C.GdkPixbufLoader {
 	if v == nil || v.GObject == nil {
 		return nil
 	}
 	p := unsafe.Pointer(v.GObject)
 	return C.toGdkPixbufLoader(p)
+}
+
+func wrapPixbufLoader(obj *glib.Object) *PixbufLoader {
+	return &PixbufLoader{obj}
 }
 
 // PixbufLoaderNew() is a wrapper around gdk_pixbuf_loader_new().
@@ -226,13 +241,14 @@ func PixbufLoaderNew() (*PixbufLoader, error) {
 		return nil, nilPtrErr
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	l := &PixbufLoader{obj}
+	l := wrapPixbufLoader(obj)
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
-
 	return l, nil
 }
 
-// Write() is a wrapper around gdk_pixbuf_loader_write().
+// Write() is a wrapper around gdk_pixbuf_loader_write().  The
+// function signature differs from the C equivalent to satisify the
+// io.Writer interface.
 func (v *PixbufLoader) Write(data []byte) (n int, err error) {
 	// n is set to 0 on error, and set to len(data) otherwise.
 	// This is a tiny hacky to satisfy io.Writer and io.WriteCloser,
@@ -244,39 +260,45 @@ func (v *PixbufLoader) Write(data []byte) (n int, err error) {
 	}
 
 	var cerr *C.GError
-	ok := gobool(C.gdk_pixbuf_loader_write(v.Native(), (*C.guchar)(unsafe.Pointer(&data[0])), C.gsize(len(data)), &cerr))
-	if !ok {
+	c := C.gdk_pixbuf_loader_write(v.Native(),
+		(*C.guchar)(unsafe.Pointer(&data[0])), C.gsize(len(data)),
+		&cerr)
+	if !gobool(c) {
 		defer C.g_error_free(cerr)
-		return 0, errors.New(C.GoString((*C.char)(C.error_get_message(cerr))))
+		errstr := C.GoString((*C.char)(C.error_get_message(cerr)))
+		return 0, errors.New(errstr)
 	}
 
 	return len(data), nil
 }
 
-// Close() is a wrapper around gdk_pixbuf_loader_close().
+// Close is a wrapper around gdk_pixbuf_loader_close().  An error is
+// returned instead of a bool like the native C function to support the
+// io.Closer interface.
 func (v *PixbufLoader) Close() error {
 	var cerr *C.GError
 
 	if ok := gobool(C.gdk_pixbuf_loader_close(v.Native(), &cerr)); !ok {
 		defer C.g_error_free(cerr)
-		return errors.New(C.GoString((*C.char)(C.error_get_message(cerr))))
+		errstr := C.GoString((*C.char)(C.error_get_message(cerr)))
+		return errors.New(errstr)
 	}
 	return nil
 }
 
-// SetSize() is a wrapper around gdk_pixbuf_loader_set_size().
+// SetSize is a wrapper around gdk_pixbuf_loader_set_size().
 func (v *PixbufLoader) SetSize(width, height int) {
 	C.gdk_pixbuf_loader_set_size(v.Native(), C.int(width), C.int(height))
 }
 
-// GetPixbuf() is a wrapper around gdk_pixbuf_loader_get_pixbuf().
+// GetPixbuf is a wrapper around gdk_pixbuf_loader_get_pixbuf().
 func (v *PixbufLoader) GetPixbuf() (*Pixbuf, error) {
 	c := C.gdk_pixbuf_loader_get_pixbuf(v.Native())
 	if c == nil {
 		return nil, nilPtrErr
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	p := &Pixbuf{obj}
+	p := wrapPixbuf(obj)
 	obj.Ref()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return p, nil

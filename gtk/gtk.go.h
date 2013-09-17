@@ -323,11 +323,20 @@ object_get_class_name(GObject *object)
 }
 
 static GtkWidget*
-_gtk_file_chooser_dialog_new(const char* title,
-		GtkWindow* parent, GtkFileChooserAction file_chooser_action, const char *firstButton) {
-	return gtk_file_chooser_dialog_new(
-			title,
-			parent,
-			file_chooser_action,
-			firstButton, NULL);
+_gtk_file_chooser_dialog_new_zero(const char* title, GtkWindow* parent,
+    GtkFileChooserAction action) {
+	GtkWidget		*fcd;
+
+	fcd = gtk_file_chooser_dialog_new(title, parent, action, NULL, NULL);
+	return (fcd);
+}
+
+static GtkWidget*
+_gtk_file_chooser_dialog_new_one(const char* title, GtkWindow* parent,
+    GtkFileChooserAction action, const char *firstButton, GtkResponseType res) {
+	GtkWidget		*fcd;
+
+	fcd = gtk_file_chooser_dialog_new(title, parent, action, firstButton,
+		res, NULL);
+	return (fcd);
 }

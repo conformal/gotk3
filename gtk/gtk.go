@@ -411,9 +411,9 @@ type FileChooserAction int
 
 const (
 	FILE_CHOOSER_ACTION_OPEN          FileChooserAction = C.GTK_FILE_CHOOSER_ACTION_OPEN
-	FILE_CHOOSER_ACTION_SAVE                            = C.GTK_FILE_CHOOSER_ACTION_SAVE
-	FILE_CHOOSER_ACTION_SELECT_FOLDER                   = C.GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER
-	FILE_CHOOSER_ACTION_CREATE_FOLDER                   = C.GTK_FILE_CHOOSER_ACTION_CREATE_FOLDER
+	FILE_CHOOSER_ACTION_SAVE          FileChooserAction = C.GTK_FILE_CHOOSER_ACTION_SAVE
+	FILE_CHOOSER_ACTION_SELECT_FOLDER FileChooserAction = C.GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER
+	FILE_CHOOSER_ACTION_CREATE_FOLDER FileChooserAction = C.GTK_FILE_CHOOSER_ACTION_CREATE_FOLDER
 )
 
 // WindowType is a representation of GTK's GtkWindowType.
@@ -427,8 +427,9 @@ const (
 // Allocation is a representation of GTK's GtkAllocation type.
 type Allocation gdk.Rectangle
 
-func (r *Allocation) Native() *C.GtkAllocation {
-	return (*C.GtkAllocation)(unsafe.Pointer(r))
+// Native returns a pointer to the underlying GtkAllocation.
+func (v *Allocation) Native() *C.GtkAllocation {
+	return (*C.GtkAllocation)(unsafe.Pointer(&v.GdkRectangle))
 }
 
 /*
@@ -973,37 +974,37 @@ func (v *Scrollable) toScrollable() *C.GtkScrollable {
 	return v.Native()
 }
 
-// SetHAdjustment() is a wrapper around gtk_scrollable_set_hadjustment().
+// SetHAdjustment is a wrapper around gtk_scrollable_set_hadjustment().
 func (v *Scrollable) SetHAdjustment(adjustment *Adjustment) {
 	C.gtk_scrollable_set_hadjustment(v.Native(), adjustment.Native())
 }
 
-// GetHAdjustment() is a wrapper around gtk_scrollable_get_hadjustment().
+// GetHAdjustment is a wrapper around gtk_scrollable_get_hadjustment().
 func (v *Scrollable) GetHAdjustment() (*Adjustment, error) {
 	c := C.gtk_scrollable_get_hadjustment(v.Native())
 	if c == nil {
 		return nil, nilPtrErr
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	a := &Adjustment{glib.InitiallyUnowned{obj}}
+	a := wrapAdjustment(obj)
 	obj.RefSink()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return a, nil
 }
 
-// SetVAdjustment() is a wrapper around gtk_scrollable_set_vadjustment().
+// SetVAdjustment is a wrapper around gtk_scrollable_set_vadjustment().
 func (v *Scrollable) SetVAdjustment(adjustment *Adjustment) {
 	C.gtk_scrollable_set_vadjustment(v.Native(), adjustment.Native())
 }
 
-// GetVAdjustment() is a wrapper around gtk_scrollable_get_vadjustment().
+// GetVAdjustment is a wrapper around gtk_scrollable_get_vadjustment().
 func (v *Scrollable) GetVAdjustment() (*Adjustment, error) {
 	c := C.gtk_scrollable_get_vadjustment(v.Native())
 	if c == nil {
 		return nil, nilPtrErr
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	a := &Adjustment{glib.InitiallyUnowned{obj}}
+	a := wrapAdjustment(obj)
 	obj.RefSink()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return a, nil
@@ -1015,22 +1016,12 @@ func (v *Scrollable) GetVAdjustment() (*Adjustment, error) {
  * GtkLayout
  */
 
-// LayoutNew() is a wrapper around gtk_layout_new().
-func LayoutNew(hadjustment, vadjustment *Adjustment) (*Layout, error) {
-	c := C.gtk_layout_new(hadjustment.Native(), vadjustment.Native())
-	if c == nil {
-		return nil, nilPtrErr
-	}
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	b := wrapLayout(obj)
-	obj.RefSink()
-	runtime.SetFinalizer(obj, (*glib.Object).Unref)
-	return b, nil
-}
-
 // Layout is a representation of GTK's GtkLayout GInterface.
 type Layout struct {
-	Bin
+	Container
+
+	// Interfaces
+	Scrollable
 }
 
 // ILayout is an interface type implemented by all structs
@@ -1051,7 +1042,12 @@ func (v *Layout) Native() *C.GtkLayout {
 }
 
 func wrapLayout(obj *glib.Object) *Layout {
-	return &Layout{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}
+	c := wrapContainer(obj)
+	s := wrapScrollable(obj)
+	return &Layout{
+		Container: *c,
+		Scrollable: *s,
+	}
 }
 
 func (v *Layout) toLayout() *C.GtkLayout {
@@ -1061,52 +1057,41 @@ func (v *Layout) toLayout() *C.GtkLayout {
 	return v.Native()
 }
 
-func (v *Layout) toScrollable() *C.GtkScrollable {
-	if v == nil || v.GObject == nil {
-		return nil
+// LayoutNew() is a wrapper around gtk_layout_new().
+func LayoutNew(hadjustment, vadjustment *Adjustment) (*Layout, error) {
+	c := C.gtk_layout_new(hadjustment.Native(), vadjustment.Native())
+	if c == nil {
+		return nil, nilPtrErr
 	}
-	p := unsafe.Pointer(v.GObject)
-	return C.toGtkScrollable(p)
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	b := wrapLayout(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return b, nil
 }
 
-// Put() is a wrapper around gtk_layout_put().
+// Put is a wrapper around gtk_layout_put().
 func (v *Layout) Put(child IWidget, x, y int) {
 	C.gtk_layout_put(v.Native(), child.toWidget(),
 		C.gint(x), C.gint(y))
 }
 
-// Move() is a wrapper around gtk_layout_put().
+// Move is a wrapper around gtk_layout_put().
 func (v *Layout) Move(child IWidget, x, y int) {
 	C.gtk_layout_move(v.Native(), child.toWidget(),
 		C.gint(x), C.gint(y))
 }
 
-// GetSize() is a wrapper around gtk_layout_get_size().
+// GetSize is a wrapper around gtk_layout_get_size().
 func (v *Layout) GetSize() (width, height uint) {
 	var w, h C.guint
 	C.gtk_layout_get_size(v.Native(), &w, &h)
 	return uint(w), uint(h)
 }
 
-// SetSize() is a wrapper around gtk_layout_set_size().
+// SetSize is a wrapper around gtk_layout_set_size().
 func (v *Layout) SetSize(width, height uint) {
 	C.gtk_layout_set_size(v.Native(), C.guint(width), C.guint(height))
-}
-
-func (v *Layout) SetHAdjustment(adjustment *Adjustment) {
-	wrapScrollable(v.Object).SetHAdjustment(adjustment)
-}
-
-func (v *Layout) GetHAdjustment() (*Adjustment, error) {
-	return wrapScrollable(v.Object).GetHAdjustment()
-}
-
-func (v *Layout) SetVAdjustment(adjustment *Adjustment) {
-	wrapScrollable(v.Object).SetVAdjustment(adjustment)
-}
-
-func (v *Layout) GetVAdjustment() (*Adjustment, error) {
-	return wrapScrollable(v.Object).GetVAdjustment()
 }
 
 // TODO gtk_layout_get_bin_window
@@ -1115,22 +1100,12 @@ func (v *Layout) GetVAdjustment() (*Adjustment, error) {
  * GtkViewport
  */
 
-// ViewportNew() is a wrapper around gtk_viewport_new().
-func ViewportNew(hadjustment, vadjustment *Adjustment) (*Viewport, error) {
-	c := C.gtk_viewport_new(hadjustment.Native(), vadjustment.Native())
-	if c == nil {
-		return nil, nilPtrErr
-	}
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	b := wrapViewport(obj)
-	obj.RefSink()
-	runtime.SetFinalizer(obj, (*glib.Object).Unref)
-	return b, nil
-}
-
 // Viewport is a representation of GTK's GtkViewport GInterface.
 type Viewport struct {
 	Bin
+
+	// Interfaces
+	Scrollable
 }
 
 // IViewport is an interface type implemented by all structs
@@ -1151,7 +1126,12 @@ func (v *Viewport) Native() *C.GtkViewport {
 }
 
 func wrapViewport(obj *glib.Object) *Viewport {
-	return &Viewport{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}
+	b := wrapBin(obj)
+	s := wrapScrollable(obj)
+	return &Viewport{
+		Bin: *b,
+		Scrollable: *s,
+	}
 }
 
 func (v *Viewport) toViewport() *C.GtkViewport {
@@ -1161,12 +1141,17 @@ func (v *Viewport) toViewport() *C.GtkViewport {
 	return v.Native()
 }
 
-func (v *Viewport) toScrollable() *C.GtkScrollable {
-	if v == nil || v.GObject == nil {
-		return nil
+// ViewportNew() is a wrapper around gtk_viewport_new().
+func ViewportNew(hadjustment, vadjustment *Adjustment) (*Viewport, error) {
+	c := C.gtk_viewport_new(hadjustment.Native(), vadjustment.Native())
+	if c == nil {
+		return nil, nilPtrErr
 	}
-	p := unsafe.Pointer(v.GObject)
-	return C.toGtkScrollable(p)
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	b := wrapViewport(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return b, nil
 }
 
 func (v *Viewport) SetHAdjustment(adjustment *Adjustment) {
@@ -3051,7 +3036,7 @@ type ImageMenuItem struct {
 	MenuItem
 }
 
-// Native() returns a pointer to the underlying GtkImageMenuItem.
+// Native returns a pointer to the underlying GtkImageMenuItem.
 func (v *ImageMenuItem) Native() *C.GtkImageMenuItem {
 	if v == nil || v.GObject == nil {
 		return nil
@@ -3061,7 +3046,8 @@ func (v *ImageMenuItem) Native() *C.GtkImageMenuItem {
 }
 
 func wrapImageMenuItem(obj *glib.Object) *ImageMenuItem {
-	return &ImageMenuItem{MenuItem{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}}
+	return &ImageMenuItem{MenuItem{Bin{Container{Widget{
+		glib.InitiallyUnowned{obj}}}}}}
 }
 
 // TODO: ImageMenuItem functions.
@@ -3155,7 +3141,8 @@ func (v *AboutDialog) Native() *C.GtkAboutDialog {
 }
 
 func wrapAboutDialog(obj *glib.Object) *AboutDialog {
-	return &AboutDialog{Dialog{Window{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}}}
+	return &AboutDialog{Dialog{Window{Bin{Container{Widget{
+		glib.InitiallyUnowned{obj}}}}}}}
 }
 
 /*
@@ -3177,62 +3164,55 @@ func (v *FileChooserDialog) Native() *C.GtkFileChooserDialog {
 }
 
 func wrapFileChooserDialog(obj *glib.Object) *FileChooserDialog {
-	return &FileChooserDialog{Dialog{Window{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}}}
-}
-
-// Borrowed from github.com/mattn/go-gtk
-func variadicButtonsToArrays(buttons []interface{}) ([]string, []ResponseType) {
-	if len(buttons)%2 != 0 {
-		panic("variadic parameter must be even (couples of string-ResponseType (button label - button response)")
-	}
-	text := make([]string, len(buttons)/2)
-	res := make([]ResponseType, len(buttons)/2)
-	for i := 0; i < len(text); i++ {
-		btext, ok := buttons[2*i].(string)
-		if !ok {
-			panic("button text must be a string")
-		}
-		bresponse, ok := buttons[2*i+1].(ResponseType)
-		if !ok {
-			panic("button response must be an ResponseType")
-		}
-		text[i] = btext
-		res[i] = bresponse
-	}
-	return text, res
+	return &FileChooserDialog{Dialog{Window{Bin{Container{Widget{
+		glib.InitiallyUnowned{obj}}}}}}}
 }
 
 // FileChooserDialogNew() is a wrapper around gtk_file_chooser_dialog_new().
-// Variable argument should be (button string, id ResponseType) pairs if not omitted,
-// or just the label for the first button.
-func FileChooserDialogNew(title string, parent IWindow, fileChooserAction FileChooserAction, b ...interface{}) *FileChooserDialog {
+// The length of the texts and responses slices must be equal.  If
+// both are equal, it is the equivalent to passing NULL as the first
+// button text, otherwise each text/id pair is added to the dialog.
+func FileChooserDialogNew(title string, parent IWindow,
+	fileChooserAction FileChooserAction, texts []string,
+	responses []ResponseType) (*FileChooserDialog, error) {
+
+	if len(texts) != len(responses) {
+		return nil, fmt.Errorf("Inequal lengths of button text and response slices.")
+	}
+
 	ctitle := C.CString(title)
 	defer C.free(unsafe.Pointer(ctitle))
 	var w *C.GtkWindow = nil
 	if parent != nil {
 		w = parent.toWindow()
 	}
-	var cfirstButton *C.char
-	if len(b) == 1 {
-		cfirstButton = C.CString(b[0].(string))
-		defer C.free(unsafe.Pointer(ctitle))
+
+	var c *C.GtkWidget
+	if len(texts) == 0 {
+		c = C._gtk_file_chooser_dialog_new_zero(ctitle, w,
+			C.GtkFileChooserAction(fileChooserAction))
+	} else {
+		cfirstText := C.CString(texts[0])
+		defer C.free(unsafe.Pointer(cfirstText))
+		c = C._gtk_file_chooser_dialog_new_one(ctitle, w,
+			C.GtkFileChooserAction(fileChooserAction), cfirstText,
+			C.GtkResponseType(responses[0]))
 	}
-	c := C._gtk_file_chooser_dialog_new(ctitle, w, C.GtkFileChooserAction(fileChooserAction), cfirstButton)
+	if c == nil {
+		return nil, nilPtrErr
+	}
+
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	m := wrapFileChooserDialog(obj)
+	f := wrapFileChooserDialog(obj)
 	obj.RefSink()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 
-	if len(b) == 1 {
-		return m
+	// Add additional buttons
+	for i := 1; i < len(texts); i++ {
+		f.AddButton(texts[i], responses[i])
 	}
 
-	text, response := variadicButtonsToArrays(b)
-	for i := range text {
-		m.AddButton(text[i], response[i])
-	}
-
-	return m
+	return f, nil
 }
 
 /*
@@ -4349,10 +4329,9 @@ func (v *Widget) Unmap() {
 //void gtk_widget_remove_tick_callback(GtkWidget *widget, guint id);
 
 func (v *Widget) GetAllocation() *Allocation {
-	// TODO Should we avoid new here an expect a pointer as an argument?
-	allocation := new(Allocation)
-	C.gtk_widget_get_allocation(v.Native(), allocation.Native())
-	return allocation
+	var a Allocation
+	C.gtk_widget_get_allocation(v.Native(), a.Native())
+	return &a
 }
 
 func (v *Widget) SetAllocation(allocation *Allocation) {
