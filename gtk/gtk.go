@@ -4224,7 +4224,7 @@ type IWindow interface {
 	toWindow() *C.GtkWindow
 }
 
-// Native() returns a pointer to the underlying GtkWindow.
+// Native() returns a pointer to the underlying GtkWindow
 func (v *Window) Native() *C.GtkWindow {
 	if v == nil || v.GObject == nil {
 		return nil
@@ -4244,7 +4244,7 @@ func wrapWindow(obj *glib.Object) *Window {
 	return &Window{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}
 }
 
-// WindowNew() is a wrapper around gtk_window_new().
+// WindowNew() is a wrapper around gtk_window_new()
 func WindowNew(t WindowType) (*Window, error) {
 	c := C.gtk_window_new(C.GtkWindowType(t))
 	if c == nil {
@@ -4257,7 +4257,7 @@ func WindowNew(t WindowType) (*Window, error) {
 	return w, nil
 }
 
-// SetTitle() is a wrapper around gtk_window_set_title().
+// SetTitle() is a wrapper around gtk_window_set_title()
 func (v *Window) SetTitle(title string) {
 	cstr := C.CString(title)
 	defer C.free(unsafe.Pointer(cstr))
@@ -4296,12 +4296,12 @@ func (v *Window) SetModal(modal bool) {
 	C.gtk_window_set_modal(v.Native(), gbool(modal))
 }
 
-// SetDefaultSize() is a wrapper around gtk_window_set_default_size().
+// SetDefaultSize() is a wrapper around gtk_window_set_default_size()
 func (v *Window) SetDefaultSize(width, height int) {
 	C.gtk_window_set_default_size(v.Native(), C.gint(width), C.gint(height))
 }
 
-// SetDefaultGeometry() is a wrapper around gtk_window_set_default_geometry().
+// SetDefaultGeometry() is a wrapper around gtk_window_set_default_geometry()
 func (v *Window) SetDefaultGeometry(width, height int) {
 	C.gtk_window_set_default_geometry(v.Native(), C.gint(width),
 		C.gint(height))
@@ -4330,7 +4330,7 @@ func (v *Window) SetPosition(position WindowPosition) {
 	C.gtk_window_set_position(v.Native(), C.GtkWindowPosition(position))
 }
 
-// SetTransientFor() is a wrapper around gtk_window_set_transient_for().
+// SetTransientFor() is a wrapper around gtk_window_set_transient_for()
 func (v *Window) SetTransientFor(parent IWindow) {
 	var pw *C.GtkWindow = nil
 	if parent != nil {
@@ -4346,7 +4346,8 @@ func (v *Window) SetDestroyWithParent(setting bool) {
 	C.gtk_window_set_destroy_with_parent(v.Native(), gbool(setting))
 }
 
-// SetHideTitlebarWhenMaximized() is a wrapper around gtk_window_set_hide_titlebar_when_maximized()
+// SetHideTitlebarWhenMaximized() is a wrapper around
+// gtk_window_set_hide_titlebar_when_maximized()
 func (v *Window) SetHideTitlebarWhenMaximized(setting bool) {
 	C.gtk_window_set_hide_titlebar_when_maximized(v.Native(), gbool(setting))
 }
@@ -4609,7 +4610,8 @@ func (v *Window) Move(x, y int) {
 
 // TODO gtk_window_parse_geometry()
 
-// ReshowWithInitialSize() is a wrapper around gtk_window_reshow_with_initial_size()
+// ReshowWithInitialSize() is a wrapper around
+// gtk_window_reshow_with_initial_size()
 func (v *Window) ReshowWithInitialSize() {
 	C.gtk_window_reshow_with_initial_size(v.Native())
 }
@@ -4640,28 +4642,12 @@ func (v *Window) ResizeToGeometry(width, height int) {
 
 // TODO gtk_window_set_icon_name()
 
-// SetAutoStartupNotification() is a wrapper around gtk_window_set_auto_startup_notification()
+// SetAutoStartupNotification() is a wrapper around
+// gtk_window_set_auto_startup_notification()
 // This doesn't seem write.  Might need to rethink?
 /*
 func (v *Window) SetAutoStartupNotification(setting bool) {
 	C.gtk_window_set_auto_startup_notification(gbool(setting))
-}
-*/
-
-// GetOpacity() is a wrapper around gtk_window_get_opacity()
-// Apparently this is deprecated in favor of gtk_widget_get_opacity()
-/*
-func (v *Window) GetOpacity() float64 {
-	o := C.gtk_window_get_opacity(v.Native())
-	return gdouble(o)
-}
-*/
-
-// SetOpacity() is a wrapper around gtk_window_set_opacity()
-// Apparently this is deprecated in favor of gtk_widget_set_opacity()
-/*
-func (v *Window) SetOpacity(opacity float64) {
-	C.gtk_window_set_opacity(v.Native(), gdouble(opacity))
 }
 */
 
@@ -4698,7 +4684,8 @@ func (v *Window) GetHasResizeGrip() bool {
 	return gobool(c)
 }
 
-// ResizeGripIsVisible() is a wrapper around gtk_window_resize_grip_is_visible()
+// ResizeGripIsVisible() is a wrapper around
+// gtk_window_resize_grip_is_visible()
 func (v *Window) ResizeGripIsVisible() bool {
 	c := C.gtk_window_resize_grip_is_visible(v.Native())
 	return gobool(c)
@@ -4709,11 +4696,6 @@ func (v *Window) ResizeGripIsVisible() bool {
 // TODO gtk_window_set_application()
 
 // TODO gtk_window_get_application()
-
-// SetHasUserRefCount() is a wrapper around gtk_window_set_has_user_ref_count()
-func (v *Window) SetHasUserRefCount(setting bool) {
-	C.gtk_window_set_has_user_ref_count(v.Native(), gbool(setting))
-}
 
 // cast() takes a native GObject and casts it to the appropriate Go struct.
 func cast(c *C.GObject) (glib.IObject, error) {
