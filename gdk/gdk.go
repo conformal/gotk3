@@ -465,3 +465,23 @@ type Rectangle struct {
 func (r *Rectangle) Native() *C.GdkRectangle {
 	return &r.GdkRectangle
 }
+
+// GetX returns x field of the underlying GdkRectangle.
+func (r *Rectangle) GetX() int {
+	return int(r.Native().x)
+}
+
+// GetY returns y field of the underlying GdkRectangle.
+func (r *Rectangle) GetY() int {
+	return int(r.Native().y)
+}
+
+// GetWidth returns width field of the underlying GdkRectangle.
+func (r *Rectangle) GetWidth() int {
+	return int(r.Native().width)
+}
+
+// GetHeight returns height field of the underlying GdkRectangle.
+func (r *Rectangle) GetHeight() int {
+	return int(r.Native().height)
+}

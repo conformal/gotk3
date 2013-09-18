@@ -425,7 +425,9 @@ const (
 )
 
 // Allocation is a representation of GTK's GtkAllocation type.
-type Allocation gdk.Rectangle
+type Allocation struct {
+	gdk.Rectangle
+}
 
 // Native returns a pointer to the underlying GtkAllocation.
 func (v *Allocation) Native() *C.GtkAllocation {
@@ -1045,7 +1047,7 @@ func wrapLayout(obj *glib.Object) *Layout {
 	c := wrapContainer(obj)
 	s := wrapScrollable(obj)
 	return &Layout{
-		Container: *c,
+		Container:  *c,
 		Scrollable: *s,
 	}
 }
@@ -1129,7 +1131,7 @@ func wrapViewport(obj *glib.Object) *Viewport {
 	b := wrapBin(obj)
 	s := wrapScrollable(obj)
 	return &Viewport{
-		Bin: *b,
+		Bin:        *b,
 		Scrollable: *s,
 	}
 }
@@ -3146,12 +3148,83 @@ func wrapAboutDialog(obj *glib.Object) *AboutDialog {
 }
 
 /*
+ * GtkFileChooser
+ */
+
+// IFileChooser is an interface type implemented by all structs
+// embedding a FileChooser.  It is meant to be used as an argument type
+// for wrapper functions that wrap around a C GTK function taking a
+// GtkFileChooser.
+type IFileChooser interface {
+	toFileChooser() *C.GtkFileChooser
+}
+
+// FileChooser is a representation of GTK's GtkFileChooser GInterface.
+type FileChooser struct {
+	*glib.Object
+}
+
+// Native() returns a pointer to the underlying GObject as a GtkScrollable.
+func (v *FileChooser) Native() *C.GtkFileChooser {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkFileChooser(p)
+}
+
+func wrapFileChooser(obj *glib.Object) *FileChooser {
+	return &FileChooser{obj}
+}
+
+func (v *FileChooser) toFileChooser() *C.GtkFileChooser {
+	if v == nil {
+		return nil
+	}
+	return v.Native()
+}
+
+// GetFilename is a wrapper around gtk_file_chooser_get_filename().
+func (v *FileChooser) GetFilename() (string, error) {
+	c := C.gtk_file_chooser_get_filename(v.Native())
+	if c == nil {
+		return "", nilPtrErr
+	}
+	return C.GoString((*C.char)(c)), nil
+}
+
+// SetFilename is a wrapper around gtk_file_chooser_set_filename().
+func (v *FileChooser) SetFilename(filename string) {
+	cfilename := C.CString(filename)
+	defer C.free(unsafe.Pointer(cfilename))
+	C.gtk_file_chooser_set_filename(v.Native(), cfilename)
+}
+
+// GetCurrentFolder is a wrapper around gtk_file_chooser_get_filename().
+func (v *FileChooser) GetCurrentFolder() (string, error) {
+	c := C.gtk_file_chooser_get_current_folder(v.Native())
+	if c == nil {
+		return "", nilPtrErr
+	}
+	return C.GoString((*C.char)(c)), nil
+}
+
+// SetCurrentFolder is a wrapper around gtk_file_chooser_set_filename().
+func (v *FileChooser) SetCurrentFolder(folder string) {
+	cfolder := C.CString(folder)
+	defer C.free(unsafe.Pointer(cfolder))
+	C.gtk_file_chooser_set_current_folder(v.Native(), (*C.gchar)(cfolder))
+}
+
+/*
  * GtkFileChooserDialog
  */
 
 // FileChooserDialog is a representation of GTK's GtkFileChooserDialog.
 type FileChooserDialog struct {
 	Dialog
+	// Interfaces
+	FileChooser
 }
 
 // Native() returns a pointer to the underlying GtkFileChooserDialog.
@@ -3164,8 +3237,12 @@ func (v *FileChooserDialog) Native() *C.GtkFileChooserDialog {
 }
 
 func wrapFileChooserDialog(obj *glib.Object) *FileChooserDialog {
-	return &FileChooserDialog{Dialog{Window{Bin{Container{Widget{
-		glib.InitiallyUnowned{obj}}}}}}}
+	d := wrapDialog(obj)
+	f := wrapFileChooser(obj)
+	return &FileChooserDialog{
+		Dialog:      *d,
+		FileChooser: *f,
+	}
 }
 
 // FileChooserDialogNew() is a wrapper around gtk_file_chooser_dialog_new().
@@ -4772,6 +4849,8 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapMessageDialog(obj)
 	case "GtkAboutDialog":
 		g = wrapAboutDialog(obj)
+	case "GtkFileChooser":
+		g = wrapFileChooser(obj)
 	case "GtkFileChooserDialog":
 		g = wrapFileChooserDialog(obj)
 	case "GtkMisc":

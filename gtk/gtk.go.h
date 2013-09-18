@@ -266,6 +266,12 @@ toGtkAboutDialog(void *p)
 	return (GTK_ABOUT_DIALOG(p));
 }
 
+static GtkFileChooser *
+toGtkFileChooser(void *p)
+{
+	return (GTK_FILE_CHOOSER(p));
+}
+
 static GtkFileChooserDialog *
 toGtkFileChooserDialog(void *p)
 {
