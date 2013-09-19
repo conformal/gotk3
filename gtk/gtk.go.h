@@ -62,6 +62,18 @@ toGtkToolbar(void *p)
 	return (GTK_TOOLBAR(p));
 }
 
+static GtkToolItem *
+toGtkToolItem(void *p)
+{
+	return (GTK_TOOL_ITEM(p));
+}
+
+static GtkToolButton *
+toGtkToolButton(void *p)
+{
+	return (GTK_TOOL_BUTTON(p));
+}
+
 static GtkBox *
 toGtkBox(void *p)
 {

@@ -878,6 +878,54 @@ func wrapToolbar(obj *glib.Object) *Toolbar {
 // TODO GtkToolbar functions
 
 /*
+ * GtkToolItem
+ */
+
+// ToolItem is a representation of GTK's GtkToolItem.
+type ToolItem struct {
+	Bin
+}
+
+// Native() returns a pointer to the underlying GtkToolItem.
+func (v *ToolItem) Native() *C.GtkToolItem {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkToolItem(p)
+}
+
+func wrapToolItem(obj *glib.Object) *ToolItem {
+	return &ToolItem{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}
+}
+
+// TODO GtkToolItem functions
+
+/*
+ * GtkToolItem
+ */
+
+// ToolButton is a representation of GTK's GtkToolButton.
+type ToolButton struct {
+	ToolItem
+}
+
+// Native() returns a pointer to the underlying GtkToolButton.
+func (v *ToolButton) Native() *C.GtkToolButton {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkToolButton(p)
+}
+
+func wrapToolButton(obj *glib.Object) *ToolButton {
+	return &ToolButton{ToolItem{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}}
+}
+
+// TODO GtkToolButton functions
+
+/*
  * GtkBox
  */
 
@@ -4840,6 +4888,10 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapBin(obj)
 	case "GtkToolbar":
 		g = wrapToolbar(obj)
+	case "GtkToolItem":
+		g = wrapToolItem(obj)
+	case "GtkToolButton":
+		g = wrapToolButton(obj)
 	case "GtkBox":
 		g = wrapBox(obj)
 	case "GtkButton":
