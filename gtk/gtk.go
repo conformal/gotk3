@@ -3137,6 +3137,39 @@ func wrapImageMenuItem(obj *glib.Object) *ImageMenuItem {
 // TODO: ImageMenuItem functions.
 
 /*
+ * GtkCheckMenuItem
+ */
+
+// CheckMenuItem is a representation of GTK's GtkCheckMenuItem.
+type CheckMenuItem struct {
+	MenuItem
+}
+
+// Native returns a pointer to the underlying GtkCheckMenuItem.
+func (v *CheckMenuItem) Native() *C.GtkCheckMenuItem {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkCheckMenuItem(p)
+}
+
+func wrapCheckMenuItem(obj *glib.Object) *CheckMenuItem {
+	return &CheckMenuItem{MenuItem{Bin{Container{Widget{
+		glib.InitiallyUnowned{obj}}}}}}
+}
+
+func (v *CheckMenuItem) GetActive() bool {
+	return gobool(C.gtk_check_menu_item_get_active(v.Native()))
+}
+
+func (v *CheckMenuItem) SetActive(active bool) {
+	C.gtk_check_menu_item_set_active(v.Native(), gbool(active))
+}
+
+// TODO: CheckMenuItem functions.
+
+/*
  * GtkMenuShell
  */
 
@@ -4841,6 +4874,16 @@ func (v *Window) GetSize() (width, height int) {
 	return int(w), int(h)
 }
 
+// Fullscreen is a wrapper around gtk_window_fullscreen().
+func (v *Window) Fullscreen() {
+	C.gtk_window_fullscreen(v.Native())
+}
+
+// Unfullscreen is a wrapper around gtk_window_unfullscreen().
+func (v *Window) Unfullscreen() {
+	C.gtk_window_unfullscreen(v.Native())
+}
+
 // TODO(jrick) GdkGeometry GdkWindowHints
 /*
 func (v *Window) SetGeometryHints() {
@@ -4938,6 +4981,8 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapMenuItem(obj)
 	case "GtkImageMenuItem":
 		g = wrapImageMenuItem(obj)
+	case "GtkCheckMenuItem":
+		g = wrapCheckMenuItem(obj)
 	case "GtkMenuShell":
 		g = wrapMenuShell(obj)
 	case "GtkMessageDialog":
