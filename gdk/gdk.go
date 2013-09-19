@@ -416,6 +416,34 @@ func (v *Event) free() {
 	C.gdk_event_free(v.Native())
 }
 
+func ToEvent(c glib.CallbackArg) *Event {
+	return &Event{GdkEvent: (*C.GdkEvent)(unsafe.Pointer(c))}
+}
+
+func (v *Event) Configure() *EventConfigure {
+	c := C.toGdkEventConfigure(v.Native())
+	return &EventConfigure{
+		Type:      EventType(c._type),
+		Window:    &Window{(*glib.Object)(unsafe.Pointer(c.window))},
+		SendEvent: int8(c.send_event),
+		X:         int(c.x),
+		Y:         int(c.y),
+		Width:     int(c.width),
+		Height:    int(c.height),
+	}
+}
+
+type EventType C.GdkEventType
+
+type EventConfigure struct {
+	Type      EventType
+	Window    *Window
+	SendEvent int8
+	X, Y      int
+	Width     int
+	Height    int
+}
+
 /*
  * GdkScreen
  */

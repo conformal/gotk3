@@ -502,6 +502,7 @@ func wrapAdjustment(obj *glib.Object) *Adjustment {
 	return &Adjustment{glib.InitiallyUnowned{obj}}
 }
 
+// GetPageSize is a wrapper around gtk_adjustment_get_page_size().
 func (v *Adjustment) GetPageSize() float64 {
 	return float64(C.gtk_adjustment_get_page_size(v.Native()))
 }
@@ -873,6 +874,8 @@ func (v *Toolbar) Native() *C.GtkToolbar {
 func wrapToolbar(obj *glib.Object) *Toolbar {
 	return &Toolbar{Container{Widget{glib.InitiallyUnowned{obj}}}}
 }
+
+// TODO GtkToolbar functions
 
 /*
  * GtkBox
@@ -1502,7 +1505,7 @@ func (v *Container) Remove(w IWidget) {
 	C.gtk_container_remove(v.Native(), w.toWidget())
 }
 
-// ResizeChildren() is a wrapper around gtk_container_resize_children().
+// ResizeChildren is a wrapper around gtk_container_resize_children().
 func (v *Container) ResizeChildren() {
 	C.gtk_container_resize_children(v.Native())
 }
@@ -3195,7 +3198,7 @@ type FileChooser struct {
 	*glib.Object
 }
 
-// Native() returns a pointer to the underlying GObject as a GtkScrollable.
+// Native() returns a pointer to the underlying GObject as a GtkFileChooser.
 func (v *FileChooser) Native() *C.GtkFileChooser {
 	if v == nil || v.GObject == nil {
 		return nil
@@ -4783,8 +4786,9 @@ func (v *Window) SetDefaultGeometry(width, height int) {
 		C.gint(height))
 }
 
+// GetSize is a wrapper around gtk_window_get_size().
 func (v *Window) GetSize() (width, height int) {
-	var w,h C.gint
+	var w, h C.gint
 	C.gtk_window_get_size(v.Native(), &w, &h)
 	return int(w), int(h)
 }

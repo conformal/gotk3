@@ -54,3 +54,9 @@ toGdkWindow(void *p)
 {
 	return (GDK_WINDOW(p));
 }
+
+static GdkEventConfigure *
+toGdkEventConfigure(GdkEvent *p)
+{
+	return &p->configure;
+}
