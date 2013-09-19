@@ -4471,7 +4471,7 @@ func (v *Window) SetSkipPagerHint(setting bool) {
 	C.gtk_window_set_skip_pager_hint(v.Native(), gbool(setting))
 }
 
-// SetSkipPagerHint() is a wrapper around gtk_window_set_urgency_hint().
+// SetUrgencyHint() is a wrapper around gtk_window_set_urgency_hint().
 func (v *Window) SetUrgencyHint(setting bool) {
 	C.gtk_window_set_urgency_hint(v.Native(), gbool(setting))
 }
