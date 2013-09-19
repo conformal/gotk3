@@ -502,6 +502,10 @@ func wrapAdjustment(obj *glib.Object) *Adjustment {
 	return &Adjustment{glib.InitiallyUnowned{obj}}
 }
 
+func (v *Adjustment) GetPageSize() float64 {
+	return float64(C.gtk_adjustment_get_page_size(v.Native()))
+}
+
 /*
  * GtkBin
  */
@@ -846,6 +850,28 @@ func (v *Button) GetEventWindow() (*gdk.Window, error) {
 	w.Ref()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return w, nil
+}
+
+/*
+ * GtkToolbar
+ */
+
+// Toolbar is a representation of GTK's GtkToolbar.
+type Toolbar struct {
+	Container
+}
+
+// Native() returns a pointer to the underlying GtkToolbar.
+func (v *Toolbar) Native() *C.GtkToolbar {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkToolbar(p)
+}
+
+func wrapToolbar(obj *glib.Object) *Toolbar {
+	return &Toolbar{Container{Widget{glib.InitiallyUnowned{obj}}}}
 }
 
 /*
@@ -1474,6 +1500,11 @@ func (v *Container) Add(w IWidget) {
 // Remove() is a wrapper around gtk_container_remove().
 func (v *Container) Remove(w IWidget) {
 	C.gtk_container_remove(v.Native(), w.toWidget())
+}
+
+// ResizeChildren() is a wrapper around gtk_container_resize_children().
+func (v *Container) ResizeChildren() {
+	C.gtk_container_resize_children(v.Native())
 }
 
 /*
@@ -4752,6 +4783,12 @@ func (v *Window) SetDefaultGeometry(width, height int) {
 		C.gint(height))
 }
 
+func (v *Window) GetSize() (width, height int) {
+	var w,h C.gint
+	C.gtk_window_get_size(v.Native(), &w, &h)
+	return int(w), int(h)
+}
+
 // TODO(jrick) GdkGeometry GdkWindowHints
 /*
 func (v *Window) SetGeometryHints() {
@@ -4797,6 +4834,8 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapAdjustment(obj)
 	case "GtkBin":
 		g = wrapBin(obj)
+	case "GtkToolbar":
+		g = wrapToolbar(obj)
 	case "GtkBox":
 		g = wrapBox(obj)
 	case "GtkButton":

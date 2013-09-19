@@ -56,6 +56,12 @@ toGtkWindow(void *p)
 	return (GTK_WINDOW(p));
 }
 
+static GtkToolbar *
+toGtkToolbar(void *p)
+{
+	return (GTK_TOOLBAR(p));
+}
+
 static GtkBox *
 toGtkBox(void *p)
 {
