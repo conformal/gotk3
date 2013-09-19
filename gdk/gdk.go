@@ -433,6 +433,23 @@ func (v *Event) Configure() *EventConfigure {
 	}
 }
 
+func (v *Event) Key() *EventKey {
+	c := C.toGdkEventKey(v.Native())
+	return &EventKey{
+		Type:            EventType(c._type),
+		Window:          &Window{(*glib.Object)(unsafe.Pointer(c.window))},
+		SendEvent:       int8(c.send_event),
+		Time:            int32(c.time),
+		State:           int(c.state),
+		Keyval:          int(c.keyval),
+		Length:          int(c.length),
+		String:          C.GoString((*C.char)(c.string)),
+		HardwareKeycode: uint16(c.hardware_keycode),
+		Group:           uint8(c.group),
+		//IsModifier: c.is_modifier != 0,
+	}
+}
+
 type EventType C.GdkEventType
 
 type EventConfigure struct {
@@ -442,6 +459,20 @@ type EventConfigure struct {
 	X, Y      int
 	Width     int
 	Height    int
+}
+
+type EventKey struct {
+	Type            EventType
+	Window          *Window
+	SendEvent       int8
+	Time            int32
+	State           int
+	Keyval          int
+	Length          int
+	String          string
+	HardwareKeycode uint16
+	Group           uint8
+	IsModifier      bool
 }
 
 /*

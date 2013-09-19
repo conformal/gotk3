@@ -60,3 +60,9 @@ toGdkEventConfigure(GdkEvent *p)
 {
 	return &p->configure;
 }
+
+static GdkEventKey *
+toGdkEventKey(GdkEvent *p)
+{
+	return &p->key;
+}
