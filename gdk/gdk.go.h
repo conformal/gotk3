@@ -66,3 +66,15 @@ toGdkEventKey(GdkEvent *p)
 {
 	return &p->key;
 }
+
+static gboolean
+getGdkEventKeyIsModifier(GdkEventKey *p)
+{
+	return p->is_modifier;
+}
+
+static gboolean
+setGdkEventKeyIsModifier(GdkEventKey *p, gboolean b)
+{
+	return p->is_modifier = b;
+}

@@ -416,63 +416,103 @@ func (v *Event) free() {
 	C.gdk_event_free(v.Native())
 }
 
+type EventType C.GdkEventType
+
 func ToEvent(c glib.CallbackArg) *Event {
+	// TODO: check Type field and confirm it's a valid one.
 	return &Event{GdkEvent: (*C.GdkEvent)(unsafe.Pointer(c))}
 }
 
+// TODO It is possible to use Type field in various places.
+
 func (v *Event) Configure() *EventConfigure {
+	// TODO: check Type field and confirm it's a valid one.
 	c := C.toGdkEventConfigure(v.Native())
 	return &EventConfigure{
 		Type:      EventType(c._type),
 		Window:    &Window{(*glib.Object)(unsafe.Pointer(c.window))},
 		SendEvent: int8(c.send_event),
-		X:         int(c.x),
-		Y:         int(c.y),
-		Width:     int(c.width),
-		Height:    int(c.height),
+		X:         int32(c.x),
+		Y:         int32(c.y),
+		Width:     int32(c.width),
+		Height:    int32(c.height),
 	}
 }
 
 func (v *Event) Key() *EventKey {
+	// TODO: check Type field and confirm it's a valid one.
 	c := C.toGdkEventKey(v.Native())
 	return &EventKey{
 		Type:            EventType(c._type),
 		Window:          &Window{(*glib.Object)(unsafe.Pointer(c.window))},
 		SendEvent:       int8(c.send_event),
-		Time:            int32(c.time),
-		State:           int(c.state),
-		Keyval:          int(c.keyval),
-		Length:          int(c.length),
+		Time:            uint32(c.time),
+		State:           uint32(c.state),
+		Keyval:          uint32(c.keyval),
+		Length:          int32(c.length),
 		String:          C.GoString((*C.char)(c.string)),
 		HardwareKeycode: uint16(c.hardware_keycode),
 		Group:           uint8(c.group),
-		//IsModifier: c.is_modifier != 0,
+		IsModifier:      gobool(C.getGdkEventKeyIsModifier(c)),
 	}
 }
 
-type EventType C.GdkEventType
-
-type EventConfigure struct {
-	Type      EventType
-	Window    *Window
-	SendEvent int8
-	X, Y      int
-	Width     int
-	Height    int
+func free(p unsafe.Pointer) {
+	C.free(p)
 }
 
 type EventKey struct {
 	Type            EventType
 	Window          *Window
 	SendEvent       int8
-	Time            int32
-	State           int
-	Keyval          int
-	Length          int
+	Time            uint32
+	State           uint32
+	Keyval          uint32
+	Length          int32
 	String          string
 	HardwareKeycode uint16
 	Group           uint8
 	IsModifier      bool
+}
+
+func (v *EventKey) toNative() *C.GdkEventKey {
+	c := &C.GdkEventKey{
+		_type:            C.GdkEventType(v.Type),
+		window:           v.Window.Native(),
+		send_event:       C.gint8(v.SendEvent),
+		time:             C.guint32(v.Time),
+		state:            C.guint(v.State),
+		keyval:           C.guint(v.Keyval),
+		length:           C.gint(v.Length),
+		string:           (*C.gchar)(C.CString(v.String)),
+		hardware_keycode: C.guint16(v.HardwareKeycode),
+		group:            C.guint8(v.Group),
+	}
+
+	C.setGdkEventKeyIsModifier(c, gbool(v.IsModifier))
+	runtime.SetFinalizer(unsafe.Pointer(c.string), free)
+	return c
+}
+
+type EventConfigure struct {
+	Type      EventType
+	Window    *Window
+	SendEvent int8
+	X, Y      int32
+	Width     int32
+	Height    int32
+}
+
+func (v *EventConfigure) toNative() *C.GdkEventConfigure {
+	return &C.GdkEventConfigure{
+		_type:      C.GdkEventType(v.Type),
+		window:     v.Window.Native(),
+		send_event: C.gint8(v.SendEvent),
+		x:          C.gint(v.X),
+		y:          C.gint(v.Y),
+		width:      C.gint(v.Width),
+		height:     C.gint(v.Height),
+	}
 }
 
 /*
