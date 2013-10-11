@@ -1,51 +1,47 @@
-/*
- * Copyright (c) 2013 Conformal Systems <info@conformal.com>
- *
- * This file originated from: http://opensource.conformal.com/
- *
- * Permission to use, copy, modify, and distribute this software for any
- * purpose with or without fee is hereby granted, provided that the above
- * copyright notice and this permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
- * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
- * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
+// Copyright (c) 2013 Conformal Systems <info@conformal.com>
+//
+// This file originated from: http://opensource.conformal.com/
+//
+// Permission to use, copy, modify, and distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+//
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-/*
-Go bindings for GTK+ 3.  Supports version 3.8 and later.
-
-Functions use the same names as the native C function calls, but use
-CamelCase.  In cases where native GTK uses pointers to values to
-simulate multiple return values, Go's native multiple return values
-are used instead.  Whenever a native GTK call could return an
-unexpected NULL pointer, an additonal error is returned in the Go
-binding.
-
-GTK's C API documentation can be very useful for understanding how the
-functions in this package work and what each type is for.  This
-documentation can be found at https://developer.gnome.org/gtk3/.
-
-In addition to Go versions of the C GTK functions, every struct type
-includes a function called Native(), taking itself as a receiver,
-which returns the native C type or a pointer (in the case of
-GObjects).  The returned C types are scoped to this gtk package and
-must be converted to a local package before they can be used as
-arguments to native GTK calls using cgo.
-
-Memory management is handled in proper Go fashion, using runtime
-finalizers to properly free memory when it is no longer needed.  Each
-time a Go type is created with a pointer to a GObject, a reference is
-added for Go, sinking the floating reference when necessary.  After
-going out of scope and the next time Go's garbage collector is run, a
-finalizer is run to remove Go's reference to the GObject.  When this
-reference count hits zero (when neither Go nor GTK holds ownership)
-the object will be freed internally by GTK.
-*/
+// Go bindings for GTK+ 3.  Supports version 3.8 and later.
+//
+// Functions use the same names as the native C function calls, but use
+// CamelCase.  In cases where native GTK uses pointers to values to
+// simulate multiple return values, Go's native multiple return values
+// are used instead.  Whenever a native GTK call could return an
+// unexpected NULL pointer, an additonal error is returned in the Go
+// binding.
+//
+// GTK's C API documentation can be very useful for understanding how the
+// functions in this package work and what each type is for.  This
+// documentation can be found at https://developer.gnome.org/gtk3/.
+//
+// In addition to Go versions of the C GTK functions, every struct type
+// includes a function called Native(), taking itself as a receiver,
+// which returns the native C type or a pointer (in the case of
+// GObjects).  The returned C types are scoped to this gtk package and
+// must be converted to a local package before they can be used as
+// arguments to native GTK calls using cgo.
+//
+// Memory management is handled in proper Go fashion, using runtime
+// finalizers to properly free memory when it is no longer needed.  Each
+// time a Go type is created with a pointer to a GObject, a reference is
+// added for Go, sinking the floating reference when necessary.  After
+// going out of scope and the next time Go's garbage collector is run, a
+// finalizer is run to remove Go's reference to the GObject.  When this
+// reference count hits zero (when neither Go nor GTK holds ownership)
+// the object will be freed internally by GTK.
 package gtk
 
 // #cgo pkg-config: gtk+-3.0
@@ -270,121 +266,6 @@ const (
 	RESPONSE_NO                        = C.GTK_RESPONSE_NO
 	RESPONSE_APPLY                     = C.GTK_RESPONSE_APPLY
 	RESPONSE_HELP                      = C.GTK_RESPONSE_HELP
-)
-
-// Stock is a special type that does not have an equivalent type in
-// GTK.  It is the type used as a parameter anytime an identifier for
-// stock icons are needed.  A Stock must be type converted to string when
-// function parameters may take a Stock, but when other string values are
-// valid as well.
-type Stock string
-
-const (
-	STOCK_ABOUT                         Stock = C.GTK_STOCK_ABOUT
-	STOCK_ADD                                 = C.GTK_STOCK_ADD
-	STOCK_APPLY                               = C.GTK_STOCK_APPLY
-	STOCK_BOLD                                = C.GTK_STOCK_BOLD
-	STOCK_CANCEL                              = C.GTK_STOCK_CANCEL
-	STOCK_CAPS_LOCK_WARNING                   = C.GTK_STOCK_CAPS_LOCK_WARNING
-	STOCK_CDROM                               = C.GTK_STOCK_CDROM
-	STOCK_CLEAR                               = C.GTK_STOCK_CLEAR
-	STOCK_CLOSE                               = C.GTK_STOCK_CLOSE
-	STOCK_COLOR_PICKER                        = C.GTK_STOCK_COLOR_PICKER
-	STOCK_CONNECT                             = C.GTK_STOCK_CONNECT
-	STOCK_CONVERT                             = C.GTK_STOCK_CONVERT
-	STOCK_COPY                                = C.GTK_STOCK_COPY
-	STOCK_CUT                                 = C.GTK_STOCK_CUT
-	STOCK_DELETE                              = C.GTK_STOCK_DELETE
-	STOCK_DIALOG_AUTHENTICATION               = C.GTK_STOCK_DIALOG_AUTHENTICATION
-	STOCK_DIALOG_INFO                         = C.GTK_STOCK_DIALOG_INFO
-	STOCK_DIALOG_WARNING                      = C.GTK_STOCK_DIALOG_WARNING
-	STOCK_DIALOG_ERROR                        = C.GTK_STOCK_DIALOG_ERROR
-	STOCK_DIALOG_QUESTION                     = C.GTK_STOCK_DIALOG_QUESTION
-	STOCK_DIRECTORY                           = C.GTK_STOCK_DIRECTORY
-	STOCK_DISCARD                             = C.GTK_STOCK_DISCARD
-	STOCK_DISCONNECT                          = C.GTK_STOCK_DISCONNECT
-	STOCK_DND                                 = C.GTK_STOCK_DND
-	STOCK_DND_MULTIPLE                        = C.GTK_STOCK_DND_MULTIPLE
-	STOCK_EDIT                                = C.GTK_STOCK_EDIT
-	STOCK_EXECUTE                             = C.GTK_STOCK_EXECUTE
-	STOCK_FILE                                = C.GTK_STOCK_FILE
-	STOCK_FIND                                = C.GTK_STOCK_FIND
-	STOCK_FIND_AND_REPLACE                    = C.GTK_STOCK_FIND_AND_REPLACE
-	STOCK_FLOPPY                              = C.GTK_STOCK_FLOPPY
-	STOCK_FULLSCREEN                          = C.GTK_STOCK_FULLSCREEN
-	STOCK_GOTO_BOTTOM                         = C.GTK_STOCK_GOTO_BOTTOM
-	STOCK_GOTO_FIRST                          = C.GTK_STOCK_GOTO_FIRST
-	STOCK_GOTO_LAST                           = C.GTK_STOCK_GOTO_LAST
-	STOCK_GOTO_TOP                            = C.GTK_STOCK_GOTO_TOP
-	STOCK_GO_BACK                             = C.GTK_STOCK_GO_BACK
-	STOCK_GO_DOWN                             = C.GTK_STOCK_GO_DOWN
-	STOCK_GO_FORWARD                          = C.GTK_STOCK_GO_FORWARD
-	STOCK_GO_UP                               = C.GTK_STOCK_GO_UP
-	STOCK_HARDDISK                            = C.GTK_STOCK_HARDDISK
-	STOCK_HELP                                = C.GTK_STOCK_HELP
-	STOCK_HOME                                = C.GTK_STOCK_HOME
-	STOCK_INDEX                               = C.GTK_STOCK_INDEX
-	STOCK_INDENT                              = C.GTK_STOCK_INDENT
-	STOCK_INFO                                = C.GTK_STOCK_INFO
-	STOCK_ITALIC                              = C.GTK_STOCK_ITALIC
-	STOCK_JUMP_TO                             = C.GTK_STOCK_JUMP_TO
-	STOCK_JUSTIFY_CENTER                      = C.GTK_STOCK_JUSTIFY_CENTER
-	STOCK_JUSTIFY_FILL                        = C.GTK_STOCK_JUSTIFY_FILL
-	STOCK_JUSTIFY_LEFT                        = C.GTK_STOCK_JUSTIFY_LEFT
-	STOCK_JUSTIFY_RIGHT                       = C.GTK_STOCK_JUSTIFY_RIGHT
-	STOCK_LEAVE_FULLSCREEN                    = C.GTK_STOCK_LEAVE_FULLSCREEN
-	STOCK_MISSING_IMAGE                       = C.GTK_STOCK_MISSING_IMAGE
-	STOCK_MEDIA_FORWARD                       = C.GTK_STOCK_MEDIA_FORWARD
-	STOCK_MEDIA_NEXT                          = C.GTK_STOCK_MEDIA_NEXT
-	STOCK_MEDIA_PAUSE                         = C.GTK_STOCK_MEDIA_PAUSE
-	STOCK_MEDIA_PLAY                          = C.GTK_STOCK_MEDIA_PLAY
-	STOCK_MEDIA_PREVIOUS                      = C.GTK_STOCK_MEDIA_PREVIOUS
-	STOCK_MEDIA_RECORD                        = C.GTK_STOCK_MEDIA_RECORD
-	STOCK_MEDIA_REWIND                        = C.GTK_STOCK_MEDIA_REWIND
-	STOCK_MEDIA_STOP                          = C.GTK_STOCK_MEDIA_STOP
-	STOCK_NETWORK                             = C.GTK_STOCK_NETWORK
-	STOCK_NEW                                 = C.GTK_STOCK_NEW
-	STOCK_NO                                  = C.GTK_STOCK_NO
-	STOCK_OK                                  = C.GTK_STOCK_OK
-	STOCK_OPEN                                = C.GTK_STOCK_OPEN
-	STOCK_ORIENTATION_PORTRAIT                = C.GTK_STOCK_ORIENTATION_PORTRAIT
-	STOCK_ORIENTATION_LANDSCAPE               = C.GTK_STOCK_ORIENTATION_LANDSCAPE
-	STOCK_ORIENTATION_REVERSE_LANDSCAPE       = C.GTK_STOCK_ORIENTATION_REVERSE_LANDSCAPE
-	STOCK_ORIENTATION_REVERSE_PORTRAIT        = C.GTK_STOCK_ORIENTATION_REVERSE_PORTRAIT
-	STOCK_PAGE_SETUP                          = C.GTK_STOCK_PAGE_SETUP
-	STOCK_PASTE                               = C.GTK_STOCK_PASTE
-	STOCK_PREFERENCES                         = C.GTK_STOCK_PREFERENCES
-	STOCK_PRINT                               = C.GTK_STOCK_PRINT
-	STOCK_PRINT_ERROR                         = C.GTK_STOCK_PRINT_ERROR
-	STOCK_PRINT_PAUSED                        = C.GTK_STOCK_PRINT_PAUSED
-	STOCK_PRINT_PREVIEW                       = C.GTK_STOCK_PRINT_PREVIEW
-	STOCK_PRINT_REPORT                        = C.GTK_STOCK_PRINT_REPORT
-	STOCK_PRINT_WARNING                       = C.GTK_STOCK_PRINT_WARNING
-	STOCK_PROPERTIES                          = C.GTK_STOCK_PROPERTIES
-	STOCK_QUIT                                = C.GTK_STOCK_QUIT
-	STOCK_REDO                                = C.GTK_STOCK_REDO
-	STOCK_REFRESH                             = C.GTK_STOCK_REFRESH
-	STOCK_REMOVE                              = C.GTK_STOCK_REMOVE
-	STOCK_REVERT_TO_SAVED                     = C.GTK_STOCK_REVERT_TO_SAVED
-	STOCK_SAVE                                = C.GTK_STOCK_SAVE
-	STOCK_SAVE_AS                             = C.GTK_STOCK_SAVE_AS
-	STOCK_SELECT_ALL                          = C.GTK_STOCK_SELECT_ALL
-	STOCK_SELECT_COLOR                        = C.GTK_STOCK_SELECT_COLOR
-	STOCK_SELECT_FONT                         = C.GTK_STOCK_SELECT_FONT
-	STOCK_SORT_ASCENDING                      = C.GTK_STOCK_SORT_ASCENDING
-	STOCK_SORT_DESCENDING                     = C.GTK_STOCK_SORT_DESCENDING
-	STOCK_SPELL_CHECK                         = C.GTK_STOCK_SPELL_CHECK
-	STOCK_STOP                                = C.GTK_STOCK_STOP
-	STOCK_STRIKETHROUGH                       = C.GTK_STOCK_STRIKETHROUGH
-	STOCK_UNDELETE                            = C.GTK_STOCK_UNDELETE
-	STOCK_UNDERLINE                           = C.GTK_STOCK_UNDERLINE
-	STOCK_UNDO                                = C.GTK_STOCK_UNDO
-	STOCK_UNINDENT                            = C.GTK_STOCK_UNINDENT
-	STOCK_YES                                 = C.GTK_STOCK_YES
-	STOCK_ZOOM_100                            = C.GTK_STOCK_ZOOM_100
-	STOCK_ZOOM_FIT                            = C.GTK_STOCK_ZOOM_FIT
-	STOCK_ZOOM_IN                             = C.GTK_STOCK_ZOOM_IN
-	STOCK_ZOOM_OUT                            = C.GTK_STOCK_ZOOM_OUT
 )
 
 // TreeModelFlags is a representation of GTK's GtkTreeModelFlags.
@@ -692,21 +573,6 @@ func ButtonNewWithLabel(label string) (*Button, error) {
 	return b, nil
 }
 
-// ButtonNewFromStock() is a wrapper around gtk_button_new_from_stock().
-func ButtonNewFromStock(stock Stock) (*Button, error) {
-	cstr := C.CString(string(stock))
-	defer C.free(unsafe.Pointer(cstr))
-	c := C.gtk_button_new_from_stock((*C.gchar)(cstr))
-	if c == nil {
-		return nil, nilPtrErr
-	}
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	b := wrapButton(obj)
-	obj.RefSink()
-	runtime.SetFinalizer(obj, (*glib.Object).Unref)
-	return b, nil
-}
-
 // ButtonNewWithMnemonic() is a wrapper around gtk_button_new_with_mnemonic().
 func ButtonNewWithMnemonic(label string) (*Button, error) {
 	cstr := C.CString(label)
@@ -762,17 +628,6 @@ func (v *Button) SetUseUnderline(useUnderline bool) {
 // GetUseUnderline() is a wrapper around gtk_button_get_use_underline().
 func (v *Button) GetUseUnderline() bool {
 	c := C.gtk_button_get_use_underline(v.Native())
-	return gobool(c)
-}
-
-// SetUseStock() is a wrapper around gtk_button_set_use_stock().
-func (v *Button) SetUseStock(useStock bool) {
-	C.gtk_button_set_use_stock(v.Native(), gbool(useStock))
-}
-
-// GetUseStock() is a wrapper around gtk_button_get_use_stock().
-func (v *Button) GetUseStock() bool {
-	c := C.gtk_button_get_use_stock(v.Native())
 	return gobool(c)
 }
 
@@ -1605,8 +1460,8 @@ func (v *Dialog) Response(response ResponseType) {
 }
 
 // AddButton() is a wrapper around gtk_dialog_add_button().  text may
-// be either the literal button text, or a Stock type converted to a
-// string.
+// be either the literal button text, or if using GTK 3.8, a Stock type
+// converted to a string.
 func (v *Dialog) AddButton(text string, id ResponseType) (*Button, error) {
 	cstr := C.CString(text)
 	defer C.free(unsafe.Pointer(cstr))
@@ -2027,14 +1882,6 @@ func (v *Entry) SetIconFromPixbuf() {
 }
 */
 
-// SetIconFromStock() is a wrapper around gtk_entry_set_icon_from_stock().
-func (v *Entry) SetIconFromStock(iconPos EntryIconPosition, stockID string) {
-	cstr := C.CString(stockID)
-	defer C.free(unsafe.Pointer(cstr))
-	C.gtk_entry_set_icon_from_stock(v.Native(),
-		C.GtkEntryIconPosition(iconPos), (*C.gchar)(cstr))
-}
-
 // SetIconFromIconName() is a wrapper around
 // gtk_entry_set_icon_from_icon_name().
 func (v *Entry) SetIconFromIconName(iconPos EntryIconPosition, name string) {
@@ -2062,16 +1909,6 @@ func (v *Entry) GetIconStorageType(iconPos EntryIconPosition) ImageType {
 func (v *Entry) GetIconPixbuf() {
 }
 */
-
-// GetIconStock() is a wrapper around gtk_entry_get_icon_stock().
-func (v *Entry) GetIconStock(iconPos EntryIconPosition) (string, error) {
-	c := C.gtk_entry_get_icon_stock(v.Native(),
-		C.GtkEntryIconPosition(iconPos))
-	if c == nil {
-		return "", nilPtrErr
-	}
-	return C.GoString((*C.char)(c)), nil
-}
 
 // GetIconName() is a wrapper around gtk_entry_get_icon_name().
 func (v *Entry) GetIconName(iconPos EntryIconPosition) (string, error) {
@@ -2541,21 +2378,6 @@ func ImageNewFromPixbuf(pixbuf *gdkpixbuf.Pixbuf) (*Image, error) {
 	return i, nil
 }
 
-// ImageNewFromStock() is a wrapper around gtk_image_new_from_stock().
-func ImageNewFromStock(stock Stock, size IconSize) (*Image, error) {
-	cstr := C.CString(string(stock))
-	defer C.free(unsafe.Pointer(cstr))
-	c := C.gtk_image_new_from_stock((*C.gchar)(cstr), C.GtkIconSize(size))
-	if c == nil {
-		return nil, nilPtrErr
-	}
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	i := wrapImage(obj)
-	obj.RefSink()
-	runtime.SetFinalizer(obj, (*glib.Object).Unref)
-	return i, nil
-}
-
 // TODO(jrick) GtkIconSet
 /*
 func ImageNewFromIconSet() {
@@ -2625,14 +2447,6 @@ func (v *Image) GetPixbuf() (*gdkpixbuf.Pixbuf, error) {
 	obj.Ref()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return p, nil
-}
-
-// SetFromStock() is a wrapper around gtk_image_set_from_stock().
-func (v *Image) SetFromStock(stock Stock, size IconSize) {
-	cstr := C.CString(string(stock))
-	defer C.free(unsafe.Pointer(cstr))
-	C.gtk_image_set_from_stock(v.Native(), (*C.gchar)(cstr),
-		C.GtkIconSize(size))
 }
 
 // TODO(jrick) GtkIconSet
@@ -3888,6 +3702,41 @@ func (v *ScrolledWindow) SetPolicy(hScrollbarPolicy, vScrollbarPolicy PolicyType
 }
 
 /*
+ * GtkSeparatorMenuItem
+ */
+
+// SeparatorMenuItem is a representation of GTK's GtkSeparatorMenuItem.
+type SeparatorMenuItem struct {
+	MenuItem
+}
+
+// Native() returns a pointer to the underlying GtkSeparatorMenuItem.
+func (v *SeparatorMenuItem) Native() *C.GtkSeparatorMenuItem {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkSeparatorMenuItem(p)
+}
+
+func wrapSeparatorMenuItem(obj *glib.Object) *SeparatorMenuItem {
+	return &SeparatorMenuItem{MenuItem{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}}
+}
+
+// SeparatorMenuItemNew is a wrapper around gtk_separator_menu_item_new().
+func SeparatorMenuItemNew() (*SeparatorMenuItem, error) {
+	c := C.gtk_separator_menu_item_new()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	s := wrapSeparatorMenuItem(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return s, nil
+}
+
+/*
  * GtkSpinButton
  */
 
@@ -5003,6 +4852,8 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapProgressBar(obj)
 	case "GtkScrolledWindow":
 		g = wrapScrolledWindow(obj)
+	case "GtkSeparatorMenuItem":
+		g = wrapSeparatorMenuItem(obj)
 	case "GtkSpinButton":
 		g = wrapSpinButton(obj)
 	case "GtkStatusbar":
