@@ -3297,6 +3297,166 @@ func (v *Statusbar) GetMessageArea() (*Box, error) {
 }
 
 /*
+ * GtkTextView
+ */
+
+// TextView is a representation of GTK's GtkTextView
+type TextView struct {
+	Container
+}
+
+// Native() returns a pointer to the underlying GtkTextView.
+func (v *TextView) Native() *C.GtkTextView {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkTextView(p)
+}
+
+func wrapTextView(obj *glib.Object) *TextView {
+	return &TextView{Container{Widget{glib.InitiallyUnowned{obj}}}}
+}
+
+func TextViewNew() (*TextView, error) {
+	c := C.gtk_text_view_new()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	t := wrapTextView(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return t, nil
+}
+
+func (v *TextView) GetBuffer() (*TextBuffer, error) {
+	c := C.gtk_text_view_get_buffer(v.Native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	t := wrapTextBuffer(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return t, nil
+}
+
+func (v *TextView) SetBuffer(buffer *TextBuffer) {
+	C.gtk_text_view_set_buffer(v.Native(), buffer.Native())
+}
+
+/*
+ * GtkTextTagTable
+ */
+
+type TextTagTable struct {
+	*glib.Object
+}
+
+// Native() returns a pointer to the underlying GObject as a GtkTextTagTable.
+func (v *TextTagTable) Native() *C.GtkTextTagTable {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkTextTagTable(p)
+}
+
+func wrapTextTagTable(obj *glib.Object) *TextTagTable {
+	return &TextTagTable{obj}
+}
+
+func TextTagTableNew() (*TextTagTable, error) {
+	c := C.gtk_tree_view_new()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	t := wrapTextTagTable(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return t, nil
+}
+
+/*
+ * GtkTextBuffer
+ */
+
+// TextBuffer is a representation of GTK's GtkTextBuffer.
+type TextBuffer struct {
+	*glib.Object
+}
+
+// Native() returns a pointer to the underlying GtkTextBuffer.
+func (v *TextBuffer) Native() *C.GtkTextBuffer {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkTextBuffer(p)
+}
+
+func wrapTextBuffer(obj *glib.Object) *TextBuffer {
+	return &TextBuffer{obj}
+}
+
+// TextBufferNew() is a wrapper around gtk_text_buffer_new().
+func TextBufferNew(table *TextTagTable) (*TextBuffer, error) {
+	c := C.gtk_text_buffer_new(table.Native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	e := wrapTextBuffer(obj)
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return e, nil
+}
+
+func (v *TextBuffer) GetBounds(start, end *TextIter) {
+	cstrt := *start.Native()
+	cend := *end.Native()
+	C.gtk_text_buffer_get_bounds(v.Native(), &cstrt, &cend)
+	start.GtkTextIter = cstrt
+	end.GtkTextIter = cend
+}
+
+func (v *TextBuffer) GetText(start, end *TextIter, includeHiddenChars bool) (string, error) {
+	c := C.gtk_text_buffer_get_text(
+		v.Native(), start.Native(), end.Native(), gbool(includeHiddenChars),
+	)
+	if c == nil {
+		return "", nilPtrErr
+	}
+	return C.GoString((*C.char)(c)), nil
+}
+
+func (v *TextBuffer) SetText(text string) {
+	cstr := C.CString(text)
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_text_buffer_set_text(v.Native(), (*C.gchar)(cstr),
+		C.gint(len(text)))
+}
+
+/*
+ * GtkTextIter
+ */
+
+// TextIter is a representation of GTK's GtkTextIter
+type TextIter struct {
+	GtkTextIter C.GtkTextIter
+}
+
+func (v *TextIter) Native() *C.GtkTextIter {
+	return &v.GtkTextIter
+}
+
+func (v *TextIter) free() {
+	C.gtk_text_iter_free(v.Native())
+}
+
+/*
  * GtkTreeIter
  */
 
