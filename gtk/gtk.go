@@ -47,7 +47,6 @@ package gtk
 // #cgo pkg-config: gtk+-3.0
 // #include <gtk/gtk.h>
 // #include "gtk.go.h"
-// #cgo CFLAGS: -Wno-deprecated-declarations
 import "C"
 import (
 	"errors"
@@ -1496,11 +1495,6 @@ func (v *Container) Add(w IWidget) {
 // Remove() is a wrapper around gtk_container_remove().
 func (v *Container) Remove(w IWidget) {
 	C.gtk_container_remove(v.Native(), w.toWidget())
-}
-
-// ResizeChildren is a wrapper around gtk_container_resize_children().
-func (v *Container) ResizeChildren() {
-	C.gtk_container_resize_children(v.Native())
 }
 
 /*
@@ -3117,31 +3111,6 @@ func MenuItemNewWithMnemonic(label string) (*MenuItem, error) {
 func (v *MenuItem) SetSubmenu(submenu IWidget) {
 	C.gtk_menu_item_set_submenu(v.Native(), submenu.toWidget())
 }
-
-/*
- * GtkImageMenuItem
- */
-
-// ImageMenuItem is a representation of GTK's GtkImageMenuItem.
-type ImageMenuItem struct {
-	MenuItem
-}
-
-// Native returns a pointer to the underlying GtkImageMenuItem.
-func (v *ImageMenuItem) Native() *C.GtkImageMenuItem {
-	if v == nil || v.GObject == nil {
-		return nil
-	}
-	p := unsafe.Pointer(v.GObject)
-	return C.toGtkImageMenuItem(p)
-}
-
-func wrapImageMenuItem(obj *glib.Object) *ImageMenuItem {
-	return &ImageMenuItem{MenuItem{Bin{Container{Widget{
-		glib.InitiallyUnowned{obj}}}}}}
-}
-
-// TODO: ImageMenuItem functions.
 
 /*
  * GtkCheckMenuItem
@@ -5257,8 +5226,6 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapMenuBar(obj)
 	case "GtkMenuItem":
 		g = wrapMenuItem(obj)
-	case "GtkImageMenuItem":
-		g = wrapImageMenuItem(obj)
 	case "GtkCheckMenuItem":
 		g = wrapCheckMenuItem(obj)
 	case "GtkMenuShell":

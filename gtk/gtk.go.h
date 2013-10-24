@@ -152,12 +152,6 @@ toGtkMenuItem(void *p)
 	return (GTK_MENU_ITEM(p));
 }
 
-static GtkImageMenuItem *
-toGtkImageMenuItem(void *p)
-{
-	return (GTK_IMAGE_MENU_ITEM(p));
-}
-
 static GtkCheckMenuItem *
 toGtkCheckMenuItem(void *p)
 {
