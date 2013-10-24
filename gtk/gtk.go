@@ -47,6 +47,7 @@ package gtk
 // #cgo pkg-config: gtk+-3.0
 // #include <gtk/gtk.h>
 // #include "gtk.go.h"
+// #cgo CFLAGS: -Wno-deprecated-declarations
 import "C"
 import (
 	"errors"

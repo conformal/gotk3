@@ -20,6 +20,7 @@ package gdk
 // #cgo pkg-config: gdk-3.0
 // #include <gdk/gdk.h>
 // #include "gdk.go.h"
+// #cgo CFLAGS: -Wno-deprecated-declarations
 import "C"
 import (
 	"errors"
