@@ -3857,6 +3857,26 @@ func wrapRange(obj *glib.Object) *Range {
 	return &Range{Widget{glib.InitiallyUnowned{obj}}}
 }
 
+// GetValue() is a wrapper around gtk_scrolled_window_new().
+func (v *Range) GetValue() float64 {
+	return float64(C.gtk_range_get_value(v.Native()))
+}
+
+// SetValue() is a wrapper around gtk_scrolled_window_new().
+func (v *Range) SetValue(value float64)  {
+	C.gtk_range_set_value(v.Native(), C.gdouble(value))
+}
+
+// SetIncrements() is a wrapper around gtk_range_set_increments().
+func (v *Range) SetIncrements(step, page float64)  {
+	C.gtk_range_set_increments(v.Native(), C.gdouble(step), C.gdouble(page))
+}
+
+// SetRange() is a wrapper around gtk_range_set_range().
+func (v *Range) SetRange(min, max float64)  {
+	C.gtk_range_set_range(v.Native(), C.gdouble(min), C.gdouble(max))
+}
+
 /*
  * GtkScrollbar
  */
@@ -4113,6 +4133,17 @@ func (v *SpinButton) GetValue() float64 {
 	c := C.gtk_spin_button_get_value(v.Native())
 	return float64(c)
 }
+
+// SetRange() is a wrapper around gtk_spin_button_set_range().
+func (v *SpinButton) SetRange(min, max float64) {
+	C.gtk_spin_button_set_range(v.Native(), C.gdouble(min), C.gdouble(max))
+}
+
+// SetIncrements() is a wrapper around gtk_spin_button_set_range().
+func (v *SpinButton) SetIncrements(step, page float64) {
+	C.gtk_spin_button_set_increments(v.Native(), C.gdouble(step), C.gdouble(page))
+}
+
 
 /*
  * GtkStatusbar
