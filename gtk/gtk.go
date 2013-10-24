@@ -197,6 +197,16 @@ const (
 	INPUT_PURPOSE_PIN                    = C.GTK_INPUT_PURPOSE_PIN
 )
 
+// Justify is a representation of GTK's GtkJustification.
+type Justification int
+
+const (
+	JUSTIFY_LEFT   Justification = C.GTK_JUSTIFY_LEFT
+	JUSTIFY_RIGHT  Justification = C.GTK_JUSTIFY_RIGHT
+	JUSTIFY_CENTER Justification = C.GTK_JUSTIFY_CENTER
+	JUSTIFY_FILL   Justification = C.GTK_JUSTIFY_FILL
+)
+
 // MessageType is a representation of GTK's GtkMessageType.
 type MessageType int
 
@@ -267,6 +277,17 @@ const (
 	RESPONSE_NO                        = C.GTK_RESPONSE_NO
 	RESPONSE_APPLY                     = C.GTK_RESPONSE_APPLY
 	RESPONSE_HELP                      = C.GTK_RESPONSE_HELP
+)
+
+// ShadowType is a representation of GTK's GtkShadowType.
+type ShadowType int
+
+const (
+	SHADOW_NONE       ShadowType = C.GTK_SHADOW_NONE
+	SHADOW_IN         ShadowType = C.GTK_SHADOW_IN
+	SHADOW_OUT        ShadowType = C.GTK_SHADOW_OUT
+	SHADOW_ETCHED_IN  ShadowType = C.GTK_SHADOW_ETCHED_IN
+	SHADOW_ETCHED_OUT ShadowType = C.GTK_SHADOW_ETCHED_OUT
 )
 
 // TreeModelFlags is a representation of GTK's GtkTreeModelFlags.
@@ -1239,6 +1260,74 @@ func CellRendererTextNew() (*CellRendererText, error) {
 }
 
 /*
+ * GtkCheckButton
+ */
+
+// CheckButton is a wrapper around GTK's GtkCheckButton.
+type CheckButton struct {
+	ToggleButton
+}
+
+// Native returns a pointer to the underlying GtkCheckButton.
+func (v *CheckButton) Native() *C.GtkCheckButton {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkCheckButton(p)
+}
+
+func wrapCheckButton(obj *glib.Object) *CheckButton {
+	return &CheckButton{ToggleButton{Button{Bin{Container{Widget{
+		glib.InitiallyUnowned{obj}}}}}}}
+}
+
+// CheckButtonNew is a wrapper around gtk_check_button_new().
+func CheckButtonNew() (*CheckButton, error) {
+	c := C.gtk_check_button_new()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	cb := wrapCheckButton(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return cb, nil
+}
+
+// CheckButtonNewWithLabel is a wrapper around
+// gtk_check_button_new_with_label().
+func CheckButtonNewWithLabel(label string) (*CheckButton, error) {
+	cstr := C.CString(label)
+	defer C.free(unsafe.Pointer(cstr))
+	c := C.gtk_check_button_new_with_label((*C.gchar)(cstr))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	cb := wrapCheckButton(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return cb, nil
+}
+
+// CheckButtonNewWithMnemonic is a wrapper around
+// gtk_check_button_new_with_mnemonic().
+func CheckButtonNewWithMnemonic(label string) (*CheckButton, error) {
+	cstr := C.CString(label)
+	defer C.free(unsafe.Pointer(cstr))
+	c := C.gtk_check_button_new_with_mnemonic((*C.gchar)(cstr))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	cb := wrapCheckButton(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return cb, nil
+}
+
+/*
  * GtkClipboard
  */
 
@@ -2170,6 +2259,98 @@ func wrapEntryCompletion(obj *glib.Object) *EntryCompletion {
 }
 
 /*
+ * GtkFrame
+ */
+
+// Frame is a representation of GTK's GtkFrame.
+type Frame struct {
+	Bin
+}
+
+// Native returns a pointer to the underlying GtkFrame.
+func (v *Frame) Native() *C.GtkFrame {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkFrame(p)
+}
+
+func wrapFrame(obj *glib.Object) *Frame {
+	return &Frame{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}
+}
+
+// FrameNew is a wrapper around gtk_frame_new().
+func FrameNew(label string) (*Frame, error) {
+	cstr := C.CString(label)
+	defer C.free(unsafe.Pointer(cstr))
+	c := C.gtk_frame_new((*C.gchar)(cstr))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	f := wrapFrame(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return f, nil
+}
+
+// SetLabel is a wrapper around gtk_frame_set_label().
+func (v *Frame) SetLabel(label string) {
+	cstr := C.CString(label)
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_frame_set_label(v.Native(), (*C.gchar)(cstr))
+}
+
+// SetLabelWidget is a wrapper around gtk_frame_set_label_widget().
+func (v *Frame) SetLabelWidget(labelWidget IWidget) {
+	C.gtk_frame_set_label_widget(v.Native(), labelWidget.toWidget())
+}
+
+// SetLabelAlign is a wrapper around gtk_frame_set_label_align().
+func (v *Frame) SetLabelAlign(xAlign, yAlign float32) {
+	C.gtk_frame_set_label_align(v.Native(), C.gfloat(xAlign),
+		C.gfloat(yAlign))
+}
+
+// SetShadowType is a wrapper around gtk_frame_set_shadow_type().
+func (v *Frame) SetShadowType(t ShadowType) {
+	C.gtk_frame_set_shadow_type(v.Native(), C.GtkShadowType(t))
+}
+
+// GetLabel is a wrapper around gtk_frame_get_label().
+func (v *Frame) GetLabel() string {
+	c := C.gtk_frame_get_label(v.Native())
+	return C.GoString((*C.char)(c))
+}
+
+// GetLabelAlign is a wrapper around gtk_frame_get_label_align().
+func (v *Frame) GetLabelAlign() (xAlign, yAlign float32) {
+	var x, y C.gfloat
+	C.gtk_frame_get_label_align(v.Native(), &x, &y)
+	return float32(x), float32(y)
+}
+
+// GetLabelWidget is a wrapper around gtk_frame_get_label_widget().
+func (v *Frame) GetLabelWidget() (*Widget, error) {
+	c := C.gtk_frame_get_label_widget(v.Native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	w := wrapWidget(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return w, nil
+}
+
+// GetShadowType is a wrapper around gtk_frame_get_shadow_type().
+func (v *Frame) GetShadowType() ShadowType {
+	c := C.gtk_frame_get_shadow_type(v.Native())
+	return ShadowType(c)
+}
+
+/*
  * GtkGrid
  */
 
@@ -2591,6 +2772,11 @@ func (v *Label) SetPattern(patern string) {
 	C.gtk_label_set_pattern(v.Native(), (*C.gchar)(cstr))
 }
 
+// SetJustify is a wrapper around gtk_label_set_justify().
+func (v *Label) SetJustify(jtype Justification) {
+	C.gtk_label_set_justify(v.Native(), C.GtkJustification(jtype))
+}
+
 // SetWidthChars() is a wrapper around gtk_label_set_width_chars().
 func (v *Label) SetWidthChars(nChars int) {
 	C.gtk_label_set_width_chars(v.Native(), C.gint(nChars))
@@ -2619,6 +2805,12 @@ func (v *Label) GetText() (string, error) {
 		return "", nilPtrErr
 	}
 	return C.GoString((*C.char)(c)), nil
+}
+
+// GetJustify is a wrapper around gtk_label_get_justify().
+func (v *Label) GetJustify() Justification {
+	c := C.gtk_label_get_justify(v.Native())
+	return Justification(c)
 }
 
 // LabelNewWithMnemonic() is a wrapper around gtk_label_new_with_mnemonic().
@@ -3244,6 +3436,18 @@ func wrapMisc(obj *glib.Object) *Misc {
 	return &Misc{Widget{glib.InitiallyUnowned{obj}}}
 }
 
+// GetAlignment is a wrapper around gtk_misc_get_alignment().
+func (v *Misc) GetAlignment() (xAlign, yAlign float32) {
+	var x, y C.gfloat
+	C.gtk_misc_get_alignment(v.Native(), &x, &y)
+	return float32(x), float32(y)
+}
+
+// SetAlignment is a wrapper around gtk_misc_set_alignment().
+func (v *Misc) SetAlignment(xAlign, yAlign float32) {
+	C.gtk_misc_set_alignment(v.Native(), C.gfloat(xAlign), C.gfloat(yAlign))
+}
+
 /*
  * GtkNotebook
  */
@@ -3281,8 +3485,11 @@ func NotebookNew() (*Notebook, error) {
 
 // AppendPage() is a wrapper around gtk_notebook_append_page().
 func (v *Notebook) AppendPage(child IWidget, tabLabel IWidget) int {
-	c := C.gtk_notebook_append_page(v.Native(), child.toWidget(),
-		tabLabel.toWidget())
+	var cTabLabel *C.GtkWidget
+	if tabLabel != nil {
+		cTabLabel = tabLabel.toWidget()
+	}
+	c := C.gtk_notebook_append_page(v.Native(), child.toWidget(), cTabLabel)
 	return int(c)
 }
 
@@ -3660,6 +3867,63 @@ func (v *ProgressBar) SetText(text string) {
 }
 
 /*
+ * GtkRange
+ */
+
+// Range is a representation of GTK's GtkRange.
+type Range struct {
+	Widget
+}
+
+// Native returns a pointer to the underlying GtkRange.
+func (v *Range) Native() *C.GtkRange {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkRange(p)
+}
+
+func wrapRange(obj *glib.Object) *Range {
+	return &Range{Widget{glib.InitiallyUnowned{obj}}}
+}
+
+/*
+ * GtkScrollbar
+ */
+
+// Scrollbar is a representation of GTK's GtkScrollbar.
+type Scrollbar struct {
+	Range
+}
+
+// Native returns a pointer to the underlying GtkScrollbar.
+func (v *Scrollbar) Native() *C.GtkScrollbar {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkScrollbar(p)
+}
+
+func wrapScrollbar(obj *glib.Object) *Scrollbar {
+	return &Scrollbar{Range{Widget{glib.InitiallyUnowned{obj}}}}
+}
+
+// ScrollbarNew is a wrapper around gtk_scrollbar_new().
+func ScrollbarNew(orientation Orientation, adjustment *Adjustment) (*Scrollbar, error) {
+	c := C.gtk_scrollbar_new(C.GtkOrientation(orientation), adjustment.Native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	s := wrapScrollbar(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return s, nil
+}
+
+/*
  * GtkScrolledWindow
  */
 
@@ -3700,6 +3964,76 @@ func (v *ScrolledWindow) SetPolicy(hScrollbarPolicy, vScrollbarPolicy PolicyType
 	C.gtk_scrolled_window_set_policy(v.Native(),
 		C.GtkPolicyType(hScrollbarPolicy),
 		C.GtkPolicyType(vScrollbarPolicy))
+}
+
+/*
+ * GtkSearchEntry
+ */
+
+// SearchEntry is a reprensentation of GTK's GtkSearchEntry.
+type SearchEntry struct {
+	Entry
+}
+
+// Native returns a pointer to the underlying GtkSearchEntry.
+func (v *SearchEntry) Native() *C.GtkSearchEntry {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkSearchEntry(p)
+}
+
+func wrapSearchEntry(obj *glib.Object) *SearchEntry {
+	return &SearchEntry{Entry{Widget{glib.InitiallyUnowned{obj}}}}
+}
+
+// SearchEntryNew is a wrapper around gtk_search_entry_new().
+func SearchEntryNew() (*SearchEntry, error) {
+	c := C.gtk_search_entry_new()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	s := wrapSearchEntry(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return s, nil
+}
+
+/*
+ * GtkSeparator
+ */
+
+// Separator is a representation of GTK's GtkSeparator.
+type Separator struct {
+	Widget
+}
+
+// Native returns a pointer to the underlying GtkSeperator.
+func (v *Separator) Native() *C.GtkSeparator {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkSeparator(p)
+}
+
+func wrapSeparator(obj *glib.Object) *Separator {
+	return &Separator{Widget{glib.InitiallyUnowned{obj}}}
+}
+
+// SeparatorNew is a wrapper around gtk_separator_new().
+func SeparatorNew(orientation Orientation) (*Separator, error) {
+	c := C.gtk_separator_new(C.GtkOrientation(orientation))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	s := wrapSeparator(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return s, nil
 }
 
 /*
@@ -3876,6 +4210,85 @@ func (v *Statusbar) GetMessageArea() (*Box, error) {
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	return &Box{Container{Widget{glib.InitiallyUnowned{obj}}}}, nil
+}
+
+/*
+ * GtkToggleButton
+ */
+
+// ToggleButton is a representation of GTK's GtkToggleButton.
+type ToggleButton struct {
+	Button
+}
+
+// Native returns a pointer to the underlying GtkToggleButton.
+func (v *ToggleButton) Native() *C.GtkToggleButton {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkToggleButton(p)
+}
+
+func wrapToggleButton(obj *glib.Object) *ToggleButton {
+	return &ToggleButton{Button{Bin{Container{Widget{
+		glib.InitiallyUnowned{obj}}}}}}
+}
+
+// ToggleButtonNew is a wrapper around gtk_toggle_button_new().
+func ToggleButtonNew() (*ToggleButton, error) {
+	c := C.gtk_toggle_button_new()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	tb := wrapToggleButton(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return tb, nil
+}
+
+// ToggleButtonNewWithLabel is a wrapper around
+// gtk_toggle_button_new_with_label().
+func ToggleButtonNewWithLabel(label string) (*ToggleButton, error) {
+	cstr := C.CString(label)
+	defer C.free(unsafe.Pointer(cstr))
+	c := C.gtk_toggle_button_new_with_label((*C.gchar)(cstr))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	tb := wrapToggleButton(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return tb, nil
+}
+
+// ToggleButtonNewWithMnemonic is a wrapper around
+// gtk_toggle_button_new_with_mnemonic().
+func ToggleButtonNewWithMnemonic(label string) (*ToggleButton, error) {
+	cstr := C.CString(label)
+	defer C.free(unsafe.Pointer(cstr))
+	c := C.gtk_toggle_button_new_with_mnemonic((*C.gchar)(cstr))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	tb := wrapToggleButton(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return tb, nil
+}
+
+// GetActive is a wrapper around gtk_toggle_button_get_active().
+func (v *ToggleButton) GetActive() bool {
+	c := C.gtk_toggle_button_get_active(v.Native())
+	return gobool(c)
+}
+
+// SetActive is a wrapper around gtk_toggle_button_set_active().
+func (v *ToggleButton) SetActive(isActive bool) {
+	C.gtk_toggle_button_set_active(v.Native(), gbool(isActive))
 }
 
 /*
@@ -4734,6 +5147,17 @@ func (v *Window) Unfullscreen() {
 	C.gtk_window_unfullscreen(v.Native())
 }
 
+// GetDeletable is a wrapper around gtk_window_set_deletable().
+func (v *Window) GetDeletable() bool {
+	c := C.gtk_window_get_deletable(v.Native())
+	return gobool(c)
+}
+
+// SetDeletable is a wrapper around gtk_window_set_deletable().
+func (v *Window) SetDeletable(setting bool) {
+	C.gtk_window_set_deletable(v.Native(), gbool(setting))
+}
+
 // TODO(jrick) GdkGeometry GdkWindowHints
 /*
 func (v *Window) SetGeometryHints() {
@@ -4801,6 +5225,8 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapCellRenderer(obj)
 	case "GtkCellRendererText":
 		g = wrapCellRendererText(obj)
+	case "GtkCheckButton":
+		g = wrapCheckButton(obj)
 	case "GtkClipboard":
 		g = wrapClipboard(obj)
 	case "GtkComboBox":
@@ -4815,6 +5241,8 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapEntryBuffer(obj)
 	case "GtkEntryCompletion":
 		g = wrapEntryCompletion(obj)
+	case "GtkFrame":
+		g = wrapFrame(obj)
 	case "GtkGrid":
 		g = wrapGrid(obj)
 	case "GtkImage":
@@ -4851,14 +5279,24 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapOrientable(obj)
 	case "GtkProgressBar":
 		g = wrapProgressBar(obj)
+	case "GtkRange":
+		g = wrapRange(obj)
+	case "GtkScrollbar":
+		g = wrapScrollbar(obj)
 	case "GtkScrolledWindow":
 		g = wrapScrolledWindow(obj)
+	case "GtkSearchEntry":
+		g = wrapSearchEntry(obj)
+	case "GtkSeparator":
+		g = wrapSeparator(obj)
 	case "GtkSeparatorMenuItem":
 		g = wrapSeparatorMenuItem(obj)
 	case "GtkSpinButton":
 		g = wrapSpinButton(obj)
 	case "GtkStatusbar":
 		g = wrapStatusbar(obj)
+	case "GtkToggleButton":
+		g = wrapToggleButton(obj)
 	case "GtkTreeModel":
 		g = wrapTreeModel(obj)
 	case "GtkTreeSelection":
