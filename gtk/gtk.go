@@ -51,8 +51,8 @@ import "C"
 import (
 	"errors"
 	"fmt"
-	"github.com/conformal/gotk3/gdk"
-	"github.com/conformal/gotk3/glib"
+	"github.com/sqs/gotk3/gdk"
+	"github.com/sqs/gotk3/glib"
 	"runtime"
 	"unsafe"
 )
