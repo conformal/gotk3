@@ -97,8 +97,10 @@ _g_signal_connect(void *obj, gchar *name, int func_n)
 	GSignalQuery    query;
 	guint           sig_id;
 	cbinfo          *cbi;
+	gchar           *signal_name;
 
-	sig_id = g_signal_lookup(name, G_OBJECT_TYPE(obj));
+	signal_name = g_str_has_prefix(name, "notify::") ? "notify" : name;
+	sig_id = g_signal_lookup(signal_name, G_OBJECT_TYPE(obj));
 	g_signal_query(sig_id, &query);
 	cbi = (cbinfo *)malloc(sizeof(cbinfo));
 	cbi->name = g_strdup(name);
