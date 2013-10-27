@@ -22,6 +22,10 @@ import (
 	"testing"
 )
 
+func init() {
+	Init(nil)
+}
+
 // TestBoolConvs tests the conversion between Go bools and gboolean
 // types.
 func TestBoolConvs(t *testing.T) {
