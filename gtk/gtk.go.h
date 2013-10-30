@@ -158,6 +158,12 @@ toGtkCheckMenuItem(void *p)
 	return (GTK_CHECK_MENU_ITEM(p));
 }
 
+static GtkRadioMenuItem *
+toGtkRadioMenuItem(void *p)
+{
+	return (GTK_RADIO_MENU_ITEM(p));
+}
+
 static GtkMenu *
 toGtkMenu(void *p)
 {

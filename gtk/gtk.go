@@ -3145,6 +3145,25 @@ func (v *CheckMenuItem) SetActive(active bool) {
 
 // TODO: CheckMenuItem functions.
 
+// RadioMenuItem is a representation of GTK's GtkRadioMenuItem.
+type RadioMenuItem struct {
+	CheckMenuItem
+}
+
+// Native returns a pointer to the underlying GtkRadioMenuItem.
+func (v *RadioMenuItem) Native() *C.GtkRadioMenuItem {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkRadioMenuItem(p)
+}
+
+func wrapRadioMenuItem(obj *glib.Object) *RadioMenuItem {
+	return &RadioMenuItem{CheckMenuItem{MenuItem{Bin{Container{Widget{
+		glib.InitiallyUnowned{obj}}}}}}}
+}
+
 /*
  * GtkMenuShell
  */
@@ -5259,6 +5278,8 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapMenuItem(obj)
 	case "GtkCheckMenuItem":
 		g = wrapCheckMenuItem(obj)
+	case "GtkRadioMenuItem":
+		g = wrapRadioMenuItem(obj)
 	case "GtkMenuShell":
 		g = wrapMenuShell(obj)
 	case "GtkMessageDialog":
