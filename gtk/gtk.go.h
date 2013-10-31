@@ -56,6 +56,24 @@ toGtkWindow(void *p)
 	return (GTK_WINDOW(p));
 }
 
+static GtkToolbar *
+toGtkToolbar(void *p)
+{
+	return (GTK_TOOLBAR(p));
+}
+
+static GtkToolItem *
+toGtkToolItem(void *p)
+{
+	return (GTK_TOOL_ITEM(p));
+}
+
+static GtkToolButton *
+toGtkToolButton(void *p)
+{
+	return (GTK_TOOL_BUTTON(p));
+}
+
 static GtkBox *
 toGtkBox(void *p)
 {
@@ -134,6 +152,18 @@ toGtkMenuItem(void *p)
 	return (GTK_MENU_ITEM(p));
 }
 
+static GtkCheckMenuItem *
+toGtkCheckMenuItem(void *p)
+{
+	return (GTK_CHECK_MENU_ITEM(p));
+}
+
+static GtkRadioMenuItem *
+toGtkRadioMenuItem(void *p)
+{
+	return (GTK_RADIO_MENU_ITEM(p));
+}
+
 static GtkMenu *
 toGtkMenu(void *p)
 {
@@ -194,6 +224,24 @@ toGtkCellLayout(void *p)
 	return (GTK_CELL_LAYOUT(p));
 }
 
+static GtkScrollable *
+toGtkScrollable(void *p)
+{
+	return (GTK_SCROLLABLE(p));
+}
+
+static GtkLayout *
+toGtkLayout(void *p)
+{
+	return (GTK_LAYOUT(p));
+}
+
+static GtkViewport *
+toGtkViewport(void *p)
+{
+	return (GTK_VIEWPORT(p));
+}
+
 static GtkOrientable *
 toGtkOrientable(void *p)
 {
@@ -234,6 +282,24 @@ static GtkMessageDialog *
 toGtkMessageDialog(void *p)
 {
 	return (GTK_MESSAGE_DIALOG(p));
+}
+
+static GtkAboutDialog *
+toGtkAboutDialog(void *p)
+{
+	return (GTK_ABOUT_DIALOG(p));
+}
+
+static GtkFileChooser *
+toGtkFileChooser(void *p)
+{
+	return (GTK_FILE_CHOOSER(p));
+}
+
+static GtkFileChooserDialog *
+toGtkFileChooserDialog(void *p)
+{
+	return (GTK_FILE_CHOOSER_DIALOG(p));
 }
 
 static GtkBuilder *
@@ -332,4 +398,23 @@ static const gchar *
 object_get_class_name(GObject *object)
 {
 	return G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(object));
+}
+
+static GtkWidget*
+_gtk_file_chooser_dialog_new_zero(const char* title, GtkWindow* parent,
+    GtkFileChooserAction action) {
+	GtkWidget		*fcd;
+
+	fcd = gtk_file_chooser_dialog_new(title, parent, action, NULL, NULL);
+	return (fcd);
+}
+
+static GtkWidget*
+_gtk_file_chooser_dialog_new_one(const char* title, GtkWindow* parent,
+    GtkFileChooserAction action, const char *firstButton, GtkResponseType res) {
+	GtkWidget		*fcd;
+
+	fcd = gtk_file_chooser_dialog_new(title, parent, action, firstButton,
+		res, NULL);
+	return (fcd);
 }

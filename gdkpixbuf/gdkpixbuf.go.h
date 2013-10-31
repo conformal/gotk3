@@ -19,62 +19,34 @@
 #include <stdlib.h>
 
 // Type Casting
-static GdkAtom
-toGdkAtom(void *p)
+static GdkPixbuf *
+toGdkPixbuf(void *p)
 {
-	return ((GdkAtom)p);
+	return (GDK_PIXBUF(p));
 }
 
-static GdkDevice *
-toGdkDevice(void *p)
+static GdkPixbufLoader *
+toGdkPixbufLoader(void *p)
 {
-	return (GDK_DEVICE(p));
+	return (GDK_PIXBUF_LOADER(p));
 }
 
-static GdkDeviceManager *
-toGdkDeviceManager(void *p)
+static gchar *
+error_get_message(GError *error)
 {
-	return (GDK_DEVICE_MANAGER(p));
-}
-
-static GdkDisplay *
-toGdkDisplay(void *p)
-{
-	return (GDK_DISPLAY(p));
-}
-
-static GdkScreen *
-toGdkScreen(void *p)
-{
-	return (GDK_SCREEN(p));
-}
-
-static GdkWindow *
-toGdkWindow(void *p)
-{
-	return (GDK_WINDOW(p));
-}
-
-static GdkEventConfigure *
-toGdkEventConfigure(GdkEvent *p)
-{
-	return &p->configure;
-}
-
-static GdkEventKey *
-toGdkEventKey(GdkEvent *p)
-{
-	return &p->key;
+	return error->message;
 }
 
 static gboolean
-getGdkEventKeyIsModifier(GdkEventKey *p)
+_gdk_pixbuf_save_png(GdkPixbuf *pixbuf,
+const char *filename, GError ** err, const char *compression)
 {
-	return p->is_modifier;
+	return gdk_pixbuf_save(pixbuf, filename, "png", err, "compression", compression, NULL);
 }
 
 static gboolean
-setGdkEventKeyIsModifier(GdkEventKey *p, gboolean b)
+_gdk_pixbuf_save_jpeg(GdkPixbuf *pixbuf,
+const char *filename, GError ** err, const char *quality)
 {
-	return p->is_modifier = b;
+	return gdk_pixbuf_save(pixbuf, filename, "jpeg", err, "quality", quality, NULL);
 }

@@ -212,3 +212,8 @@ const (
 	STOCK_ZOOM_IN                       Stock = C.GTK_STOCK_ZOOM_IN
 	STOCK_ZOOM_OUT                      Stock = C.GTK_STOCK_ZOOM_OUT
 )
+
+// ResizeChildren is a wrapper around gtk_container_resize_children().
+func (v *Container) ResizeChildren() {
+	C.gtk_container_resize_children(v.Native())
+}
