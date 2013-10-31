@@ -29,6 +29,7 @@ import (
 	"errors"
 	"github.com/conformal/gotk3/glib"
 	"runtime"
+	"strconv"
 	"unsafe"
 )
 
@@ -197,6 +198,42 @@ func (v *Pixbuf) Flip(horizontal bool) (*Pixbuf, error) {
 	p := wrapPixbuf(obj)
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return p, nil
+}
+
+// SavePNG is a wrapper around gdk_pixbuf_save().
+// Compression is a number between 0...9
+func (v *Pixbuf) SavePNG(path string, compression int) error {
+	cpath := C.CString(path)
+	ccompression := C.CString(strconv.Itoa(compression))
+	defer C.free(unsafe.Pointer(cpath))
+	defer C.free(unsafe.Pointer(ccompression))
+
+	var cerr *C.GError
+	c := C._gdk_pixbuf_save_png(v.Native(), cpath, &cerr, ccompression);
+	if !gobool(c) {
+		defer C.g_error_free(cerr)
+		errstr := C.GoString((*C.char)(C.error_get_message(cerr)))
+		return errors.New(errstr)
+	}
+	return nil
+}
+
+// SaveJPEG is a wrapper around gdk_pixbuf_save().
+// Quality is a number between 0...100
+func (v *Pixbuf) SaveJPEG(path string, quality int) error {
+	cpath := C.CString(path)
+	cquality := C.CString(strconv.Itoa(quality))
+	defer C.free(unsafe.Pointer(cpath))
+	defer C.free(unsafe.Pointer(cquality))
+
+	var cerr *C.GError
+	c := C._gdk_pixbuf_save_jpeg(v.Native(), cpath, &cerr, cquality);
+	if !gobool(c) {
+		defer C.g_error_free(cerr)
+		errstr := C.GoString((*C.char)(C.error_get_message(cerr)))
+		return errors.New(errstr)
+	}
+	return nil
 }
 
 // GetWidth is a wrapper around gdk_pixbuf_get_width().
