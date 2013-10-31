@@ -409,6 +409,23 @@ func (v *Adjustment) GetPageSize() float64 {
 	return float64(C.gtk_adjustment_get_page_size(v.Native()))
 }
 
+// Configure is a wrapper around gtk_adjustment_configure().
+func (v *Adjustment) Configure(value, lower, upper, stepIncrement, pageIncrement, pageSize float64) {
+	C.gtk_adjustment_configure(v.Native(), C.gdouble(value),
+		C.gdouble(lower), C.gdouble(upper), C.gdouble(stepIncrement),
+		C.gdouble(pageIncrement), C.gdouble(pageSize))
+}
+
+// SetValue is a wrapper around gtk_adjustment_set_value().
+func (v *Adjustment) SetValue(value float64) {
+	C.gtk_adjustment_set_value(v.Native(), C.gdouble(value))
+}
+
+// GetValue is a wrapper around gtk_adjustment_get_value().
+func (v *Adjustment) GetValue() float64 {
+	return float64(C.gtk_adjustment_get_value(v.Native()))
+}
+
 /*
  * GtkBin
  */
@@ -3257,6 +3274,11 @@ func wrapAboutDialog(obj *glib.Object) *AboutDialog {
 		glib.InitiallyUnowned{obj}}}}}}}
 }
 
+// SetLogo() is a wrapper around gtk_about_dialog_set_logo().
+func (v *AboutDialog) SetLogo(pixbuf *gdkpixbuf.Pixbuf) {
+	C.gtk_about_dialog_set_logo(v.Native(), pixbuf.Native())
+}
+
 /*
  * GtkFileChooser
  */
@@ -3972,6 +3994,42 @@ func (v *ScrolledWindow) SetPolicy(hScrollbarPolicy, vScrollbarPolicy PolicyType
 	C.gtk_scrolled_window_set_policy(v.Native(),
 		C.GtkPolicyType(hScrollbarPolicy),
 		C.GtkPolicyType(vScrollbarPolicy))
+}
+
+// SetHAdjustment is a wrapper around gtk_scrolled_window_set_hadjustment().
+func (v *ScrolledWindow) SetHAdjustment(adjustment *Adjustment) {
+	C.gtk_scrolled_window_set_hadjustment(v.Native(), adjustment.Native())
+}
+
+// GetHAdjustment is a wrapper around gtk_scrolled_window_get_hadjustment().
+func (v *ScrolledWindow) GetHAdjustment() (*Adjustment, error) {
+	c := C.gtk_scrolled_window_get_hadjustment(v.Native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	a := wrapAdjustment(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return a, nil
+}
+
+// SetVAdjustment is a wrapper around gtk_scrolled_window_set_vadjustment().
+func (v *ScrolledWindow) SetVAdjustment(adjustment *Adjustment) {
+	C.gtk_scrolled_window_set_vadjustment(v.Native(), adjustment.Native())
+}
+
+// GetVAdjustment is a wrapper around gtk_scrolled_window_get_vadjustment().
+func (v *ScrolledWindow) GetVAdjustment() (*Adjustment, error) {
+	c := C.gtk_scrolled_window_get_vadjustment(v.Native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	a := wrapAdjustment(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return a, nil
 }
 
 /*
@@ -5175,6 +5233,11 @@ func (v *Window) GetDeletable() bool {
 // SetDeletable is a wrapper around gtk_window_set_deletable().
 func (v *Window) SetDeletable(setting bool) {
 	C.gtk_window_set_deletable(v.Native(), gbool(setting))
+}
+
+// SetIcon() is a wrapper around gtk_about_dialog_set_logo().
+func (v *Window) SetIcon(pixbuf *gdkpixbuf.Pixbuf) {
+	C.gtk_window_set_icon(v.Native(), pixbuf.Native())
 }
 
 // TODO(jrick) GdkGeometry GdkWindowHints
