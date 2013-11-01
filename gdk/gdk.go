@@ -17,13 +17,14 @@
 // Go bindings for GDK 3.  Supports version 3.8 and later.
 package gdk
 
+// #cgo CFLAGS: -Wno-error=deprecated-declarations
 // #cgo pkg-config: gdk-3.0
 // #include <gdk/gdk.h>
 // #include "gdk.go.h"
 import "C"
 import (
 	"errors"
-	"github.com/conformal/gotk3/glib"
+	"github.com/xyproto/gotk3/glib"
 	"runtime"
 	"unsafe"
 )
