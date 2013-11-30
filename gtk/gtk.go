@@ -1049,6 +1049,38 @@ func (v *Clipboard) SetText(text string) {
 }
 
 /*
+ * GtkCssProvider
+ */
+
+type CssProvider struct {
+	GtkCssProvider C.GtkCssProvider
+}
+
+func (v *CssProvider) Native() *C.GtkCssProvider {
+	return &v.GtkCssProvider
+}
+
+func (v *CssProvider) LoadFromData(cssText string) {
+	cstr := C.CString(cssText)
+	C.gtk_css_provider_load_from_data(v.Native(), (*C.gchar)(cstr), -1, nil)
+}
+
+func NewCssProvider() (*CssProvider, error) {
+	c := C.gtk_css_provider_new()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	t := &CssProvider{*c}
+	return t, nil
+}
+
+// gtk_style_context_add_provider_for_screen()
+func (v *CssProvider) AddToScreen(screen *gdk.Screen) {
+	p := unsafe.Pointer(v)
+	C.gtk_style_context_add_provider_for_screen(screen.Native(), C.toGtkStyleProvider(p), 0)
+}
+
+/*
  * GtkComboBox
  */
 

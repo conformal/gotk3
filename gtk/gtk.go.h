@@ -224,6 +224,12 @@ toGtkClipboard(void *p)
 	return (GTK_CLIPBOARD(p));
 }
 
+static GtkStyleProvider *
+toGtkStyleProvider(void *p)
+{
+        return (GTK_STYLE_PROVIDER(p));
+}
+
 static GtkDialog *
 toGtkDialog(void *p)
 {
