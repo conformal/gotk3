@@ -73,10 +73,9 @@ func get_buffer_from_tview(tv *gtk.TextView) *gtk.TextBuffer {
 
 func get_text_from_tview(tv *gtk.TextView) string {
 	buffer := get_buffer_from_tview(tv)
-	var start, end gtk.TextIter
-	buffer.GetBounds(&start, &end)
+	start, end := buffer.GetBounds()
 
-	text, err := buffer.GetText(&start, &end, true)
+	text, err := buffer.GetText(start, end, true)
 	if err != nil {
 		log.Fatal("Unable to get text:", err)
 	}

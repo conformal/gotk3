@@ -3755,17 +3755,15 @@ func TextBufferNew(table *TextTagTable) (*TextBuffer, error) {
 	return e, nil
 }
 
-func (v *TextBuffer) GetBounds(start, end *TextIter) {
-	cstrt := *start.Native()
-	cend := *end.Native()
-	C.gtk_text_buffer_get_bounds(v.Native(), &cstrt, &cend)
-	start.GtkTextIter = cstrt
-	end.GtkTextIter = cend
+func (v *TextBuffer) GetBounds() (start, end *TextIter) {
+	start, end = new(TextIter), new(TextIter)
+	C.gtk_text_buffer_get_bounds(v.Native(), (*C.GtkTextIter)(start), (*C.GtkTextIter)(end))
+	return
 }
 
 func (v *TextBuffer) GetText(start, end *TextIter, includeHiddenChars bool) (string, error) {
 	c := C.gtk_text_buffer_get_text(
-		v.Native(), start.Native(), end.Native(), gbool(includeHiddenChars),
+		v.Native(), (*C.GtkTextIter)(start), (*C.GtkTextIter)(end), gbool(includeHiddenChars),
 	)
 	if c == nil {
 		return "", nilPtrErr
@@ -3785,17 +3783,7 @@ func (v *TextBuffer) SetText(text string) {
  */
 
 // TextIter is a representation of GTK's GtkTextIter
-type TextIter struct {
-	GtkTextIter C.GtkTextIter
-}
-
-func (v *TextIter) Native() *C.GtkTextIter {
-	return &v.GtkTextIter
-}
-
-func (v *TextIter) free() {
-	C.gtk_text_iter_free(v.Native())
-}
+type TextIter C.GtkTextIter
 
 /*
  * GtkToggleButton
