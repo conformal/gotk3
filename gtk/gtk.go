@@ -3478,6 +3478,16 @@ func TextViewNew() (*TextView, error) {
 	return t, nil
 }
 
+func TextViewNewWithBuffer(buf *TextBuffer) (*TextView, error) {
+	cbuf := buf.Native()
+	c := C.gtk_text_view_new_with_buffer(cbuf);
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	t := wrapTextView(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return t, nil
+}
+
 func (v *TextView) GetBuffer() (*TextBuffer, error) {
 	c := C.gtk_text_view_get_buffer(v.Native())
 	if c == nil {
