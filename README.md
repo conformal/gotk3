@@ -74,16 +74,33 @@ http://localhost:6060/pkg/github.com/conformal/gotk3
 
 ## Installation
 
-gotk3 currently requires GTK 3.8 and GLib 2.36 or later.  Older GTK
-and GLib versions may work due to missing bindings, but installing on
-these older versions is not supported.
+gotk3 currently requires GTK 3.6, 3.8, or 3.10 and GLib 2.36 or 2.38.
 
 The gtk package requires glib and gdk packages as dependencies, so
 only one `go get` is necessary for complete installation.
 
+The build process uses the tagging scheme gtk_MAJOR_MINOR to specify a
+build targeting any particular GTK version (for example, gtk_3_8).
+Building with no tags defaults to targeting the latest supported GTK
+release (3.10).
+
+To install gotk3 targeting the latest GTK version:
+
 ```bash
 $ go get github.com/conformal/gotk3/gtk
 ```
+
+On MacOS (using homebrew) you would likely specify PKG_CONFIG_PATH as such:
+```bash
+$ PKG_CONFIG_PATH=/opt/X11/lib/pkgconfig:`brew --prefix gtk+3`/lib/pkgconfig go get -u -v github.com/conformal/gotk3/gdk
+```
+
+To install gotk3 targeting the older GTK 3.8 release:
+
+```bash
+$ go get -tags gtk_3_8 github.com/conformal/gotk3/gtk
+```
+
 ## TODO
 - Add bindings for all of GTK+
 - Add tests for each implemented binding

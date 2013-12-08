@@ -1,51 +1,47 @@
-/*
- * Copyright (c) 2013 Conformal Systems <info@conformal.com>
- *
- * This file originated from: http://opensource.conformal.com/
- *
- * Permission to use, copy, modify, and distribute this software for any
- * purpose with or without fee is hereby granted, provided that the above
- * copyright notice and this permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
- * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
- * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
+// Copyright (c) 2013 Conformal Systems <info@conformal.com>
+//
+// This file originated from: http://opensource.conformal.com/
+//
+// Permission to use, copy, modify, and distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+//
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-/*
-Go bindings for GTK+ 3.  Supports version 3.8 and later.
-
-Functions use the same names as the native C function calls, but use
-CamelCase.  In cases where native GTK uses pointers to values to
-simulate multiple return values, Go's native multiple return values
-are used instead.  Whenever a native GTK call could return an
-unexpected NULL pointer, an additonal error is returned in the Go
-binding.
-
-GTK's C API documentation can be very useful for understanding how the
-functions in this package work and what each type is for.  This
-documentation can be found at https://developer.gnome.org/gtk3/.
-
-In addition to Go versions of the C GTK functions, every struct type
-includes a function called Native(), taking itself as a receiver,
-which returns the native C type or a pointer (in the case of
-GObjects).  The returned C types are scoped to this gtk package and
-must be converted to a local package before they can be used as
-arguments to native GTK calls using cgo.
-
-Memory management is handled in proper Go fashion, using runtime
-finalizers to properly free memory when it is no longer needed.  Each
-time a Go type is created with a pointer to a GObject, a reference is
-added for Go, sinking the floating reference when necessary.  After
-going out of scope and the next time Go's garbage collector is run, a
-finalizer is run to remove Go's reference to the GObject.  When this
-reference count hits zero (when neither Go nor GTK holds ownership)
-the object will be freed internally by GTK.
-*/
+// Go bindings for GTK+ 3.  Supports version 3.6 and later.
+//
+// Functions use the same names as the native C function calls, but use
+// CamelCase.  In cases where native GTK uses pointers to values to
+// simulate multiple return values, Go's native multiple return values
+// are used instead.  Whenever a native GTK call could return an
+// unexpected NULL pointer, an additonal error is returned in the Go
+// binding.
+//
+// GTK's C API documentation can be very useful for understanding how the
+// functions in this package work and what each type is for.  This
+// documentation can be found at https://developer.gnome.org/gtk3/.
+//
+// In addition to Go versions of the C GTK functions, every struct type
+// includes a function called Native(), taking itself as a receiver,
+// which returns the native C type or a pointer (in the case of
+// GObjects).  The returned C types are scoped to this gtk package and
+// must be converted to a local package before they can be used as
+// arguments to native GTK calls using cgo.
+//
+// Memory management is handled in proper Go fashion, using runtime
+// finalizers to properly free memory when it is no longer needed.  Each
+// time a Go type is created with a pointer to a GObject, a reference is
+// added for Go, sinking the floating reference when necessary.  After
+// going out of scope and the next time Go's garbage collector is run, a
+// finalizer is run to remove Go's reference to the GObject.  When this
+// reference count hits zero (when neither Go nor GTK holds ownership)
+// the object will be freed internally by GTK.
 package gtk
 
 // #cgo pkg-config: gtk+-3.0
@@ -199,6 +195,16 @@ const (
 	INPUT_PURPOSE_PIN                    = C.GTK_INPUT_PURPOSE_PIN
 )
 
+// Justify is a representation of GTK's GtkJustification.
+type Justification int
+
+const (
+	JUSTIFY_LEFT   Justification = C.GTK_JUSTIFY_LEFT
+	JUSTIFY_RIGHT  Justification = C.GTK_JUSTIFY_RIGHT
+	JUSTIFY_CENTER Justification = C.GTK_JUSTIFY_CENTER
+	JUSTIFY_FILL   Justification = C.GTK_JUSTIFY_FILL
+)
+
 // MessageType is a representation of GTK's GtkMessageType.
 type MessageType int
 
@@ -271,119 +277,15 @@ const (
 	RESPONSE_HELP                      = C.GTK_RESPONSE_HELP
 )
 
-// Stock is a special type that does not have an equivalent type in
-// GTK.  It is the type used as a parameter anytime an identifier for
-// stock icons are needed.  A Stock must be type converted to string when
-// function parameters may take a Stock, but when other string values are
-// valid as well.
-type Stock string
+// ShadowType is a representation of GTK's GtkShadowType.
+type ShadowType int
 
 const (
-	STOCK_ABOUT                         Stock = C.GTK_STOCK_ABOUT
-	STOCK_ADD                                 = C.GTK_STOCK_ADD
-	STOCK_APPLY                               = C.GTK_STOCK_APPLY
-	STOCK_BOLD                                = C.GTK_STOCK_BOLD
-	STOCK_CANCEL                              = C.GTK_STOCK_CANCEL
-	STOCK_CAPS_LOCK_WARNING                   = C.GTK_STOCK_CAPS_LOCK_WARNING
-	STOCK_CDROM                               = C.GTK_STOCK_CDROM
-	STOCK_CLEAR                               = C.GTK_STOCK_CLEAR
-	STOCK_CLOSE                               = C.GTK_STOCK_CLOSE
-	STOCK_COLOR_PICKER                        = C.GTK_STOCK_COLOR_PICKER
-	STOCK_CONNECT                             = C.GTK_STOCK_CONNECT
-	STOCK_CONVERT                             = C.GTK_STOCK_CONVERT
-	STOCK_COPY                                = C.GTK_STOCK_COPY
-	STOCK_CUT                                 = C.GTK_STOCK_CUT
-	STOCK_DELETE                              = C.GTK_STOCK_DELETE
-	STOCK_DIALOG_AUTHENTICATION               = C.GTK_STOCK_DIALOG_AUTHENTICATION
-	STOCK_DIALOG_INFO                         = C.GTK_STOCK_DIALOG_INFO
-	STOCK_DIALOG_WARNING                      = C.GTK_STOCK_DIALOG_WARNING
-	STOCK_DIALOG_ERROR                        = C.GTK_STOCK_DIALOG_ERROR
-	STOCK_DIALOG_QUESTION                     = C.GTK_STOCK_DIALOG_QUESTION
-	STOCK_DIRECTORY                           = C.GTK_STOCK_DIRECTORY
-	STOCK_DISCARD                             = C.GTK_STOCK_DISCARD
-	STOCK_DISCONNECT                          = C.GTK_STOCK_DISCONNECT
-	STOCK_DND                                 = C.GTK_STOCK_DND
-	STOCK_DND_MULTIPLE                        = C.GTK_STOCK_DND_MULTIPLE
-	STOCK_EDIT                                = C.GTK_STOCK_EDIT
-	STOCK_EXECUTE                             = C.GTK_STOCK_EXECUTE
-	STOCK_FILE                                = C.GTK_STOCK_FILE
-	STOCK_FIND                                = C.GTK_STOCK_FIND
-	STOCK_FIND_AND_REPLACE                    = C.GTK_STOCK_FIND_AND_REPLACE
-	STOCK_FLOPPY                              = C.GTK_STOCK_FLOPPY
-	STOCK_FULLSCREEN                          = C.GTK_STOCK_FULLSCREEN
-	STOCK_GOTO_BOTTOM                         = C.GTK_STOCK_GOTO_BOTTOM
-	STOCK_GOTO_FIRST                          = C.GTK_STOCK_GOTO_FIRST
-	STOCK_GOTO_LAST                           = C.GTK_STOCK_GOTO_LAST
-	STOCK_GOTO_TOP                            = C.GTK_STOCK_GOTO_TOP
-	STOCK_GO_BACK                             = C.GTK_STOCK_GO_BACK
-	STOCK_GO_DOWN                             = C.GTK_STOCK_GO_DOWN
-	STOCK_GO_FORWARD                          = C.GTK_STOCK_GO_FORWARD
-	STOCK_GO_UP                               = C.GTK_STOCK_GO_UP
-	STOCK_HARDDISK                            = C.GTK_STOCK_HARDDISK
-	STOCK_HELP                                = C.GTK_STOCK_HELP
-	STOCK_HOME                                = C.GTK_STOCK_HOME
-	STOCK_INDEX                               = C.GTK_STOCK_INDEX
-	STOCK_INDENT                              = C.GTK_STOCK_INDENT
-	STOCK_INFO                                = C.GTK_STOCK_INFO
-	STOCK_ITALIC                              = C.GTK_STOCK_ITALIC
-	STOCK_JUMP_TO                             = C.GTK_STOCK_JUMP_TO
-	STOCK_JUSTIFY_CENTER                      = C.GTK_STOCK_JUSTIFY_CENTER
-	STOCK_JUSTIFY_FILL                        = C.GTK_STOCK_JUSTIFY_FILL
-	STOCK_JUSTIFY_LEFT                        = C.GTK_STOCK_JUSTIFY_LEFT
-	STOCK_JUSTIFY_RIGHT                       = C.GTK_STOCK_JUSTIFY_RIGHT
-	STOCK_LEAVE_FULLSCREEN                    = C.GTK_STOCK_LEAVE_FULLSCREEN
-	STOCK_MISSING_IMAGE                       = C.GTK_STOCK_MISSING_IMAGE
-	STOCK_MEDIA_FORWARD                       = C.GTK_STOCK_MEDIA_FORWARD
-	STOCK_MEDIA_NEXT                          = C.GTK_STOCK_MEDIA_NEXT
-	STOCK_MEDIA_PAUSE                         = C.GTK_STOCK_MEDIA_PAUSE
-	STOCK_MEDIA_PLAY                          = C.GTK_STOCK_MEDIA_PLAY
-	STOCK_MEDIA_PREVIOUS                      = C.GTK_STOCK_MEDIA_PREVIOUS
-	STOCK_MEDIA_RECORD                        = C.GTK_STOCK_MEDIA_RECORD
-	STOCK_MEDIA_REWIND                        = C.GTK_STOCK_MEDIA_REWIND
-	STOCK_MEDIA_STOP                          = C.GTK_STOCK_MEDIA_STOP
-	STOCK_NETWORK                             = C.GTK_STOCK_NETWORK
-	STOCK_NEW                                 = C.GTK_STOCK_NEW
-	STOCK_NO                                  = C.GTK_STOCK_NO
-	STOCK_OK                                  = C.GTK_STOCK_OK
-	STOCK_OPEN                                = C.GTK_STOCK_OPEN
-	STOCK_ORIENTATION_PORTRAIT                = C.GTK_STOCK_ORIENTATION_PORTRAIT
-	STOCK_ORIENTATION_LANDSCAPE               = C.GTK_STOCK_ORIENTATION_LANDSCAPE
-	STOCK_ORIENTATION_REVERSE_LANDSCAPE       = C.GTK_STOCK_ORIENTATION_REVERSE_LANDSCAPE
-	STOCK_ORIENTATION_REVERSE_PORTRAIT        = C.GTK_STOCK_ORIENTATION_REVERSE_PORTRAIT
-	STOCK_PAGE_SETUP                          = C.GTK_STOCK_PAGE_SETUP
-	STOCK_PASTE                               = C.GTK_STOCK_PASTE
-	STOCK_PREFERENCES                         = C.GTK_STOCK_PREFERENCES
-	STOCK_PRINT                               = C.GTK_STOCK_PRINT
-	STOCK_PRINT_ERROR                         = C.GTK_STOCK_PRINT_ERROR
-	STOCK_PRINT_PAUSED                        = C.GTK_STOCK_PRINT_PAUSED
-	STOCK_PRINT_PREVIEW                       = C.GTK_STOCK_PRINT_PREVIEW
-	STOCK_PRINT_REPORT                        = C.GTK_STOCK_PRINT_REPORT
-	STOCK_PRINT_WARNING                       = C.GTK_STOCK_PRINT_WARNING
-	STOCK_PROPERTIES                          = C.GTK_STOCK_PROPERTIES
-	STOCK_QUIT                                = C.GTK_STOCK_QUIT
-	STOCK_REDO                                = C.GTK_STOCK_REDO
-	STOCK_REFRESH                             = C.GTK_STOCK_REFRESH
-	STOCK_REMOVE                              = C.GTK_STOCK_REMOVE
-	STOCK_REVERT_TO_SAVED                     = C.GTK_STOCK_REVERT_TO_SAVED
-	STOCK_SAVE                                = C.GTK_STOCK_SAVE
-	STOCK_SAVE_AS                             = C.GTK_STOCK_SAVE_AS
-	STOCK_SELECT_ALL                          = C.GTK_STOCK_SELECT_ALL
-	STOCK_SELECT_COLOR                        = C.GTK_STOCK_SELECT_COLOR
-	STOCK_SELECT_FONT                         = C.GTK_STOCK_SELECT_FONT
-	STOCK_SORT_ASCENDING                      = C.GTK_STOCK_SORT_ASCENDING
-	STOCK_SORT_DESCENDING                     = C.GTK_STOCK_SORT_DESCENDING
-	STOCK_SPELL_CHECK                         = C.GTK_STOCK_SPELL_CHECK
-	STOCK_STOP                                = C.GTK_STOCK_STOP
-	STOCK_STRIKETHROUGH                       = C.GTK_STOCK_STRIKETHROUGH
-	STOCK_UNDELETE                            = C.GTK_STOCK_UNDELETE
-	STOCK_UNDERLINE                           = C.GTK_STOCK_UNDERLINE
-	STOCK_UNDO                                = C.GTK_STOCK_UNDO
-	STOCK_UNINDENT                            = C.GTK_STOCK_UNINDENT
-	STOCK_YES                                 = C.GTK_STOCK_YES
-	STOCK_ZOOM_100                            = C.GTK_STOCK_ZOOM_100
-	STOCK_ZOOM_FIT                            = C.GTK_STOCK_ZOOM_FIT
-	STOCK_ZOOM_IN                             = C.GTK_STOCK_ZOOM_IN
-	STOCK_ZOOM_OUT                            = C.GTK_STOCK_ZOOM_OUT
+	SHADOW_NONE       ShadowType = C.GTK_SHADOW_NONE
+	SHADOW_IN         ShadowType = C.GTK_SHADOW_IN
+	SHADOW_OUT        ShadowType = C.GTK_SHADOW_OUT
+	SHADOW_ETCHED_IN  ShadowType = C.GTK_SHADOW_ETCHED_IN
+	SHADOW_ETCHED_OUT ShadowType = C.GTK_SHADOW_ETCHED_OUT
 )
 
 // TreeModelFlags is a representation of GTK's GtkTreeModelFlags.
@@ -666,21 +568,6 @@ func ButtonNewWithLabel(label string) (*Button, error) {
 	return b, nil
 }
 
-// ButtonNewFromStock() is a wrapper around gtk_button_new_from_stock().
-func ButtonNewFromStock(stock Stock) (*Button, error) {
-	cstr := C.CString(string(stock))
-	defer C.free(unsafe.Pointer(cstr))
-	c := C.gtk_button_new_from_stock((*C.gchar)(cstr))
-	if c == nil {
-		return nil, nilPtrErr
-	}
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	b := wrapButton(obj)
-	obj.RefSink()
-	runtime.SetFinalizer(obj, (*glib.Object).Unref)
-	return b, nil
-}
-
 // ButtonNewWithMnemonic() is a wrapper around gtk_button_new_with_mnemonic().
 func ButtonNewWithMnemonic(label string) (*Button, error) {
 	cstr := C.CString(label)
@@ -736,17 +623,6 @@ func (v *Button) SetUseUnderline(useUnderline bool) {
 // GetUseUnderline() is a wrapper around gtk_button_get_use_underline().
 func (v *Button) GetUseUnderline() bool {
 	c := C.gtk_button_get_use_underline(v.Native())
-	return gobool(c)
-}
-
-// SetUseStock() is a wrapper around gtk_button_set_use_stock().
-func (v *Button) SetUseStock(useStock bool) {
-	C.gtk_button_set_use_stock(v.Native(), gbool(useStock))
-}
-
-// GetUseStock() is a wrapper around gtk_button_get_use_stock().
-func (v *Button) GetUseStock() bool {
-	c := C.gtk_button_get_use_stock(v.Native())
 	return gobool(c)
 }
 
@@ -1049,6 +925,74 @@ func CellRendererTextNew() (*CellRendererText, error) {
 }
 
 /*
+ * GtkCheckButton
+ */
+
+// CheckButton is a wrapper around GTK's GtkCheckButton.
+type CheckButton struct {
+	ToggleButton
+}
+
+// Native returns a pointer to the underlying GtkCheckButton.
+func (v *CheckButton) Native() *C.GtkCheckButton {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkCheckButton(p)
+}
+
+func wrapCheckButton(obj *glib.Object) *CheckButton {
+	return &CheckButton{ToggleButton{Button{Bin{Container{Widget{
+		glib.InitiallyUnowned{obj}}}}}}}
+}
+
+// CheckButtonNew is a wrapper around gtk_check_button_new().
+func CheckButtonNew() (*CheckButton, error) {
+	c := C.gtk_check_button_new()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	cb := wrapCheckButton(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return cb, nil
+}
+
+// CheckButtonNewWithLabel is a wrapper around
+// gtk_check_button_new_with_label().
+func CheckButtonNewWithLabel(label string) (*CheckButton, error) {
+	cstr := C.CString(label)
+	defer C.free(unsafe.Pointer(cstr))
+	c := C.gtk_check_button_new_with_label((*C.gchar)(cstr))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	cb := wrapCheckButton(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return cb, nil
+}
+
+// CheckButtonNewWithMnemonic is a wrapper around
+// gtk_check_button_new_with_mnemonic().
+func CheckButtonNewWithMnemonic(label string) (*CheckButton, error) {
+	cstr := C.CString(label)
+	defer C.free(unsafe.Pointer(cstr))
+	c := C.gtk_check_button_new_with_mnemonic((*C.gchar)(cstr))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	cb := wrapCheckButton(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return cb, nil
+}
+
+/*
  * GtkClipboard
  */
 
@@ -1266,8 +1210,8 @@ func (v *Dialog) Response(response ResponseType) {
 }
 
 // AddButton() is a wrapper around gtk_dialog_add_button().  text may
-// be either the literal button text, or a Stock type converted to a
-// string.
+// be either the literal button text, or if using GTK 3.8 or earlier, a
+// Stock type converted to a string.
 func (v *Dialog) AddButton(text string, id ResponseType) (*Button, error) {
 	cstr := C.CString(text)
 	defer C.free(unsafe.Pointer(cstr))
@@ -1688,14 +1632,6 @@ func (v *Entry) SetIconFromPixbuf() {
 }
 */
 
-// SetIconFromStock() is a wrapper around gtk_entry_set_icon_from_stock().
-func (v *Entry) SetIconFromStock(iconPos EntryIconPosition, stockID string) {
-	cstr := C.CString(stockID)
-	defer C.free(unsafe.Pointer(cstr))
-	C.gtk_entry_set_icon_from_stock(v.Native(),
-		C.GtkEntryIconPosition(iconPos), (*C.gchar)(cstr))
-}
-
 // SetIconFromIconName() is a wrapper around
 // gtk_entry_set_icon_from_icon_name().
 func (v *Entry) SetIconFromIconName(iconPos EntryIconPosition, name string) {
@@ -1723,16 +1659,6 @@ func (v *Entry) GetIconStorageType(iconPos EntryIconPosition) ImageType {
 func (v *Entry) GetIconPixbuf() {
 }
 */
-
-// GetIconStock() is a wrapper around gtk_entry_get_icon_stock().
-func (v *Entry) GetIconStock(iconPos EntryIconPosition) (string, error) {
-	c := C.gtk_entry_get_icon_stock(v.Native(),
-		C.GtkEntryIconPosition(iconPos))
-	if c == nil {
-		return "", nilPtrErr
-	}
-	return C.GoString((*C.char)(c)), nil
-}
 
 // GetIconName() is a wrapper around gtk_entry_get_icon_name().
 func (v *Entry) GetIconName(iconPos EntryIconPosition) (string, error) {
@@ -1993,6 +1919,98 @@ func wrapEntryCompletion(obj *glib.Object) *EntryCompletion {
 }
 
 /*
+ * GtkFrame
+ */
+
+// Frame is a representation of GTK's GtkFrame.
+type Frame struct {
+	Bin
+}
+
+// Native returns a pointer to the underlying GtkFrame.
+func (v *Frame) Native() *C.GtkFrame {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkFrame(p)
+}
+
+func wrapFrame(obj *glib.Object) *Frame {
+	return &Frame{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}
+}
+
+// FrameNew is a wrapper around gtk_frame_new().
+func FrameNew(label string) (*Frame, error) {
+	cstr := C.CString(label)
+	defer C.free(unsafe.Pointer(cstr))
+	c := C.gtk_frame_new((*C.gchar)(cstr))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	f := wrapFrame(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return f, nil
+}
+
+// SetLabel is a wrapper around gtk_frame_set_label().
+func (v *Frame) SetLabel(label string) {
+	cstr := C.CString(label)
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_frame_set_label(v.Native(), (*C.gchar)(cstr))
+}
+
+// SetLabelWidget is a wrapper around gtk_frame_set_label_widget().
+func (v *Frame) SetLabelWidget(labelWidget IWidget) {
+	C.gtk_frame_set_label_widget(v.Native(), labelWidget.toWidget())
+}
+
+// SetLabelAlign is a wrapper around gtk_frame_set_label_align().
+func (v *Frame) SetLabelAlign(xAlign, yAlign float32) {
+	C.gtk_frame_set_label_align(v.Native(), C.gfloat(xAlign),
+		C.gfloat(yAlign))
+}
+
+// SetShadowType is a wrapper around gtk_frame_set_shadow_type().
+func (v *Frame) SetShadowType(t ShadowType) {
+	C.gtk_frame_set_shadow_type(v.Native(), C.GtkShadowType(t))
+}
+
+// GetLabel is a wrapper around gtk_frame_get_label().
+func (v *Frame) GetLabel() string {
+	c := C.gtk_frame_get_label(v.Native())
+	return C.GoString((*C.char)(c))
+}
+
+// GetLabelAlign is a wrapper around gtk_frame_get_label_align().
+func (v *Frame) GetLabelAlign() (xAlign, yAlign float32) {
+	var x, y C.gfloat
+	C.gtk_frame_get_label_align(v.Native(), &x, &y)
+	return float32(x), float32(y)
+}
+
+// GetLabelWidget is a wrapper around gtk_frame_get_label_widget().
+func (v *Frame) GetLabelWidget() (*Widget, error) {
+	c := C.gtk_frame_get_label_widget(v.Native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	w := wrapWidget(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return w, nil
+}
+
+// GetShadowType is a wrapper around gtk_frame_get_shadow_type().
+func (v *Frame) GetShadowType() ShadowType {
+	c := C.gtk_frame_get_shadow_type(v.Native())
+	return ShadowType(c)
+}
+
+/*
  * GtkGrid
  */
 
@@ -2195,21 +2213,6 @@ func ImageNewFromPixbuf() {
 }
 */
 
-// ImageNewFromStock() is a wrapper around gtk_image_new_from_stock().
-func ImageNewFromStock(stock Stock, size IconSize) (*Image, error) {
-	cstr := C.CString(string(stock))
-	defer C.free(unsafe.Pointer(cstr))
-	c := C.gtk_image_new_from_stock((*C.gchar)(cstr), C.GtkIconSize(size))
-	if c == nil {
-		return nil, nilPtrErr
-	}
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	i := wrapImage(obj)
-	obj.RefSink()
-	runtime.SetFinalizer(obj, (*glib.Object).Unref)
-	return i, nil
-}
-
 // TODO(jrick) GtkIconSet
 /*
 func ImageNewFromIconSet() {
@@ -2268,14 +2271,6 @@ func (v *Image) SetFromResource(resourcePath string) {
 func (v *Image) SetFromPixbuf() {
 }
 */
-
-// SetFromStock() is a wrapper around gtk_image_set_from_stock().
-func (v *Image) SetFromStock(stock Stock, size IconSize) {
-	cstr := C.CString(string(stock))
-	defer C.free(unsafe.Pointer(cstr))
-	C.gtk_image_set_from_stock(v.Native(), (*C.gchar)(cstr),
-		C.GtkIconSize(size))
-}
 
 // TODO(jrick) GtkIconSet
 /*
@@ -2418,6 +2413,11 @@ func (v *Label) SetPattern(patern string) {
 	C.gtk_label_set_pattern(v.Native(), (*C.gchar)(cstr))
 }
 
+// SetJustify is a wrapper around gtk_label_set_justify().
+func (v *Label) SetJustify(jtype Justification) {
+	C.gtk_label_set_justify(v.Native(), C.GtkJustification(jtype))
+}
+
 // SetWidthChars() is a wrapper around gtk_label_set_width_chars().
 func (v *Label) SetWidthChars(nChars int) {
 	C.gtk_label_set_width_chars(v.Native(), C.gint(nChars))
@@ -2446,6 +2446,12 @@ func (v *Label) GetText() (string, error) {
 		return "", nilPtrErr
 	}
 	return C.GoString((*C.char)(c)), nil
+}
+
+// GetJustify is a wrapper around gtk_label_get_justify().
+func (v *Label) GetJustify() Justification {
+	c := C.gtk_label_get_justify(v.Native())
+	return Justification(c)
 }
 
 // LabelNewWithMnemonic() is a wrapper around gtk_label_new_with_mnemonic().
@@ -2845,6 +2851,18 @@ func wrapMisc(obj *glib.Object) *Misc {
 	return &Misc{Widget{glib.InitiallyUnowned{obj}}}
 }
 
+// GetAlignment is a wrapper around gtk_misc_get_alignment().
+func (v *Misc) GetAlignment() (xAlign, yAlign float32) {
+	var x, y C.gfloat
+	C.gtk_misc_get_alignment(v.Native(), &x, &y)
+	return float32(x), float32(y)
+}
+
+// SetAlignment is a wrapper around gtk_misc_set_alignment().
+func (v *Misc) SetAlignment(xAlign, yAlign float32) {
+	C.gtk_misc_set_alignment(v.Native(), C.gfloat(xAlign), C.gfloat(yAlign))
+}
+
 /*
  * GtkNotebook
  */
@@ -2882,8 +2900,11 @@ func NotebookNew() (*Notebook, error) {
 
 // AppendPage() is a wrapper around gtk_notebook_append_page().
 func (v *Notebook) AppendPage(child IWidget, tabLabel IWidget) int {
-	c := C.gtk_notebook_append_page(v.Native(), child.toWidget(),
-		tabLabel.toWidget())
+	var cTabLabel *C.GtkWidget
+	if tabLabel != nil {
+		cTabLabel = tabLabel.toWidget()
+	}
+	c := C.gtk_notebook_append_page(v.Native(), child.toWidget(), cTabLabel)
 	return int(c)
 }
 
@@ -3261,6 +3282,63 @@ func (v *ProgressBar) SetText(text string) {
 }
 
 /*
+ * GtkRange
+ */
+
+// Range is a representation of GTK's GtkRange.
+type Range struct {
+	Widget
+}
+
+// Native returns a pointer to the underlying GtkRange.
+func (v *Range) Native() *C.GtkRange {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkRange(p)
+}
+
+func wrapRange(obj *glib.Object) *Range {
+	return &Range{Widget{glib.InitiallyUnowned{obj}}}
+}
+
+/*
+ * GtkScrollbar
+ */
+
+// Scrollbar is a representation of GTK's GtkScrollbar.
+type Scrollbar struct {
+	Range
+}
+
+// Native returns a pointer to the underlying GtkScrollbar.
+func (v *Scrollbar) Native() *C.GtkScrollbar {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkScrollbar(p)
+}
+
+func wrapScrollbar(obj *glib.Object) *Scrollbar {
+	return &Scrollbar{Range{Widget{glib.InitiallyUnowned{obj}}}}
+}
+
+// ScrollbarNew is a wrapper around gtk_scrollbar_new().
+func ScrollbarNew(orientation Orientation, adjustment *Adjustment) (*Scrollbar, error) {
+	c := C.gtk_scrollbar_new(C.GtkOrientation(orientation), adjustment.Native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	s := wrapScrollbar(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return s, nil
+}
+
+/*
  * GtkScrolledWindow
  */
 
@@ -3301,6 +3379,111 @@ func (v *ScrolledWindow) SetPolicy(hScrollbarPolicy, vScrollbarPolicy PolicyType
 	C.gtk_scrolled_window_set_policy(v.Native(),
 		C.GtkPolicyType(hScrollbarPolicy),
 		C.GtkPolicyType(vScrollbarPolicy))
+}
+
+/*
+ * GtkSearchEntry
+ */
+
+// SearchEntry is a reprensentation of GTK's GtkSearchEntry.
+type SearchEntry struct {
+	Entry
+}
+
+// Native returns a pointer to the underlying GtkSearchEntry.
+func (v *SearchEntry) Native() *C.GtkSearchEntry {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkSearchEntry(p)
+}
+
+func wrapSearchEntry(obj *glib.Object) *SearchEntry {
+	return &SearchEntry{Entry{Widget{glib.InitiallyUnowned{obj}}}}
+}
+
+// SearchEntryNew is a wrapper around gtk_search_entry_new().
+func SearchEntryNew() (*SearchEntry, error) {
+	c := C.gtk_search_entry_new()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	s := wrapSearchEntry(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return s, nil
+}
+
+/*
+ * GtkSeparator
+ */
+
+// Separator is a representation of GTK's GtkSeparator.
+type Separator struct {
+	Widget
+}
+
+// Native returns a pointer to the underlying GtkSeperator.
+func (v *Separator) Native() *C.GtkSeparator {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkSeparator(p)
+}
+
+func wrapSeparator(obj *glib.Object) *Separator {
+	return &Separator{Widget{glib.InitiallyUnowned{obj}}}
+}
+
+// SeparatorNew is a wrapper around gtk_separator_new().
+func SeparatorNew(orientation Orientation) (*Separator, error) {
+	c := C.gtk_separator_new(C.GtkOrientation(orientation))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	s := wrapSeparator(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return s, nil
+}
+
+/*
+ * GtkSeparatorMenuItem
+ */
+
+// SeparatorMenuItem is a representation of GTK's GtkSeparatorMenuItem.
+type SeparatorMenuItem struct {
+	MenuItem
+}
+
+// Native() returns a pointer to the underlying GtkSeparatorMenuItem.
+func (v *SeparatorMenuItem) Native() *C.GtkSeparatorMenuItem {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkSeparatorMenuItem(p)
+}
+
+func wrapSeparatorMenuItem(obj *glib.Object) *SeparatorMenuItem {
+	return &SeparatorMenuItem{MenuItem{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}}
+}
+
+// SeparatorMenuItemNew is a wrapper around gtk_separator_menu_item_new().
+func SeparatorMenuItemNew() (*SeparatorMenuItem, error) {
+	c := C.gtk_separator_menu_item_new()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	s := wrapSeparatorMenuItem(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return s, nil
 }
 
 /*
@@ -3612,6 +3795,85 @@ func (v *TextIter) Native() *C.GtkTextIter {
 
 func (v *TextIter) free() {
 	C.gtk_text_iter_free(v.Native())
+}
+
+/*
+ * GtkToggleButton
+ */
+
+// ToggleButton is a representation of GTK's GtkToggleButton.
+type ToggleButton struct {
+	Button
+}
+
+// Native returns a pointer to the underlying GtkToggleButton.
+func (v *ToggleButton) Native() *C.GtkToggleButton {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkToggleButton(p)
+}
+
+func wrapToggleButton(obj *glib.Object) *ToggleButton {
+	return &ToggleButton{Button{Bin{Container{Widget{
+		glib.InitiallyUnowned{obj}}}}}}
+}
+
+// ToggleButtonNew is a wrapper around gtk_toggle_button_new().
+func ToggleButtonNew() (*ToggleButton, error) {
+	c := C.gtk_toggle_button_new()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	tb := wrapToggleButton(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return tb, nil
+}
+
+// ToggleButtonNewWithLabel is a wrapper around
+// gtk_toggle_button_new_with_label().
+func ToggleButtonNewWithLabel(label string) (*ToggleButton, error) {
+	cstr := C.CString(label)
+	defer C.free(unsafe.Pointer(cstr))
+	c := C.gtk_toggle_button_new_with_label((*C.gchar)(cstr))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	tb := wrapToggleButton(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return tb, nil
+}
+
+// ToggleButtonNewWithMnemonic is a wrapper around
+// gtk_toggle_button_new_with_mnemonic().
+func ToggleButtonNewWithMnemonic(label string) (*ToggleButton, error) {
+	cstr := C.CString(label)
+	defer C.free(unsafe.Pointer(cstr))
+	c := C.gtk_toggle_button_new_with_mnemonic((*C.gchar)(cstr))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	tb := wrapToggleButton(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return tb, nil
+}
+
+// GetActive is a wrapper around gtk_toggle_button_get_active().
+func (v *ToggleButton) GetActive() bool {
+	c := C.gtk_toggle_button_get_active(v.Native())
+	return gobool(c)
+}
+
+// SetActive is a wrapper around gtk_toggle_button_set_active().
+func (v *ToggleButton) SetActive(isActive bool) {
+	C.gtk_toggle_button_set_active(v.Native(), gbool(isActive))
 }
 
 /*
@@ -4445,6 +4707,17 @@ func (v *Window) SetDefaultGeometry(width, height int) {
 		C.gint(height))
 }
 
+// GetDeletable is a wrapper around gtk_window_set_deletable().
+func (v *Window) GetDeletable() bool {
+	c := C.gtk_window_get_deletable(v.Native())
+	return gobool(c)
+}
+
+// SetDeletable is a wrapper around gtk_window_set_deletable().
+func (v *Window) SetDeletable(setting bool) {
+	C.gtk_window_set_deletable(v.Native(), gbool(setting))
+}
+
 // TODO(jrick) GdkGeometry GdkWindowHints
 /*
 func (v *Window) SetGeometryHints() {
@@ -4500,6 +4773,8 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapCellRenderer(obj)
 	case "GtkCellRendererText":
 		g = wrapCellRendererText(obj)
+	case "GtkCheckButton":
+		g = wrapCheckButton(obj)
 	case "GtkClipboard":
 		g = wrapClipboard(obj)
 	case "GtkComboBox":
@@ -4514,6 +4789,8 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapEntryBuffer(obj)
 	case "GtkEntryCompletion":
 		g = wrapEntryCompletion(obj)
+	case "GtkFrame":
+		g = wrapFrame(obj)
 	case "GtkGrid":
 		g = wrapGrid(obj)
 	case "GtkImage":
@@ -4540,12 +4817,24 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapOrientable(obj)
 	case "GtkProgressBar":
 		g = wrapProgressBar(obj)
+	case "GtkRange":
+		g = wrapRange(obj)
+	case "GtkScrollbar":
+		g = wrapScrollbar(obj)
 	case "GtkScrolledWindow":
 		g = wrapScrolledWindow(obj)
+	case "GtkSearchEntry":
+		g = wrapSearchEntry(obj)
+	case "GtkSeparator":
+		g = wrapSeparator(obj)
+	case "GtkSeparatorMenuItem":
+		g = wrapSeparatorMenuItem(obj)
 	case "GtkSpinButton":
 		g = wrapSpinButton(obj)
 	case "GtkStatusbar":
 		g = wrapStatusbar(obj)
+	case "GtkToggleButton":
+		g = wrapToggleButton(obj)
 	case "GtkTreeModel":
 		g = wrapTreeModel(obj)
 	case "GtkTreeSelection":
