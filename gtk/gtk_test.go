@@ -20,6 +20,7 @@ package gtk
 
 import (
 	"testing"
+	"fmt"
 )
 
 // TestBoolConvs tests the conversion between Go bools and gboolean
@@ -71,26 +72,50 @@ func TestBox(t *testing.T) {
 	vbox.PackStart(start, true, true, 3)
 	vbox.PackEnd(end, true, true, 3)
 }
-
-func TestTextView(t *testing.T) {
-	tv, err := TextViewNew()
-	if err != nil {
-		t.Error("Unable to create text view")
-	}
-	buffer, err := tv.GetBuffer()
+func TestTextBuffer_WhenSetText_ExpectGetTextReturnsSame(t *testing.T) {
+	buffer, err := TextBufferNew(nil)
 	if err != nil {
 		t.Error("Unable to create text buffer")
 	}
 	expected := "Hello, World!"
 	buffer.SetText(expected)
 
-	var start, end TextIter
-	actual, err := buffer.GetText(&start, &end, true)
+	start, end := buffer.GetBounds()
+
+	actual, err := buffer.GetText(start, end, true)
 	if err != nil {
 		t.Error("Unable to get text from buffer")
 	}
 
 	if actual != expected {
 		t.Errorf("Expected '%s'; Got '%s'", expected, actual)
+	}
+}
+
+func testTextViewEditable(set bool) error {
+	Init(nil)
+	tv, err := TextViewNew()
+	if err != nil {
+		return err
+	}
+
+	exp := set
+	tv.SetEditable(exp)
+	act := tv.GetEditable()
+	if exp != act {
+		return fmt.Errorf("Expected GetEditable(): %v; Got: %v", exp, act)
+	}
+	return nil
+}
+
+func TestTextBuffer_WhenSetEditableFalse_ExpectGetEditableReturnsFalse(t *testing.T) {
+	if err := testTextViewEditable(false); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestTextBuffer_WhenSetEditableTrue_ExpectGetEditableReturnsTrue(t *testing.T) {
+	if err := testTextViewEditable(true); err != nil {
+		t.Error(err)
 	}
 }

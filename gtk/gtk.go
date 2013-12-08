@@ -3687,6 +3687,14 @@ func (v *TextView) SetBuffer(buffer *TextBuffer) {
 	C.gtk_text_view_set_buffer(v.Native(), buffer.Native())
 }
 
+func (v *TextView) SetEditable(editable bool) {
+	C.gtk_text_view_set_editable(v.Native(), gbool(editable))
+}
+
+func (v *TextView) GetEditable() bool {
+	return gobool(C.gtk_text_view_get_editable(v.Native()))
+}
+
 /*
  * GtkTextTagTable
  */
