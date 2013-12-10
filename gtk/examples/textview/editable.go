@@ -1,7 +1,9 @@
 package main
+
 import (
-"github.com/weberc2/gotk3/gtk"
+	"github.com/weberc2/gotk3/gtk"
 )
+
 func main() {
 	gtk.Init(nil)
 

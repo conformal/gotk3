@@ -19,8 +19,8 @@
 package gtk
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 // TestBoolConvs tests the conversion between Go bools and gboolean

@@ -24,8 +24,8 @@ func setupTextView(box *gtk.Box) *gtk.TextView {
 
 type BoolProperty struct {
 	Name string
-	Get func() bool
-	Set func(bool)
+	Get  func() bool
+	Set  func(bool)
 }
 
 func setupPropertyCheckboxes(tv *gtk.TextView, outer *gtk.Box, props []*BoolProperty) {
@@ -52,7 +52,7 @@ func main() {
 
 	tv := setupTextView(box)
 
-	props := []*BoolProperty {
+	props := []*BoolProperty{
 		&BoolProperty{"cursor visible", (*tv).GetCursorVisible, (*tv).SetCursorVisible},
 		&BoolProperty{"editable", (*tv).GetEditable, (*tv).SetEditable},
 		&BoolProperty{"overwrite", (*tv).GetOverwrite, (*tv).SetOverwrite},
