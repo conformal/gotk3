@@ -4,6 +4,7 @@ import (
 	"github.com/weberc2/gotk3/gtk"
 )
 
+// setup the Window
 func setupWindow() *gtk.Window {
 	w, _ := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
 	w.Connect("destroy", gtk.MainQuit)
@@ -14,6 +15,7 @@ func setupWindow() *gtk.Window {
 	return w
 }
 
+// setup the TextView, put it in a ScrolledWindow, and add both to `box`
 func setupTextView(box *gtk.Box) *gtk.TextView {
 	sw, _ := gtk.ScrolledWindowNew(nil, nil)
 	tv, _ := gtk.TextViewNew()
