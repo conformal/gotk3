@@ -34,9 +34,9 @@ func setupPropertyCheckboxes(tv *gtk.TextView, outer *gtk.Box, props []*BoolProp
 		chk, _ := gtk.CheckButtonNewWithLabel(prop.Name)
 		// initialize the checkbox with the property's current value
 		chk.SetActive(prop.Get())
+		p := prop // w/o this all the checkboxes will toggle the last property in props
 		chk.Connect("toggled", func() {
-			// set the property's value to the checkbox's value
-			prop.Set(chk.GetActive())
+			p.Set(chk.GetActive())
 		})
 		box.PackStart(chk, true, true, 0)
 	}
