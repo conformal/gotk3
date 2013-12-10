@@ -3628,6 +3628,19 @@ func (v *Statusbar) GetMessageArea() (*Box, error) {
 }
 
 /*
+ * GtkWrapMode
+ */
+
+type WrapMode C.GtkWrapMode
+
+const (
+	WRAP_NONE      WrapMode = C.GTK_WRAP_NONE
+	WRAP_CHAR      WrapMode = C.GTK_WRAP_CHAR
+	WRAP_WORD      WrapMode = C.GTK_WRAP_WORD
+	WRAP_WORD_CHAR WrapMode = C.GTK_WRAP_WORD_CHAR
+)
+
+/*
  * GtkTextView
  */
 
@@ -3663,7 +3676,7 @@ func TextViewNew() (*TextView, error) {
 
 func TextViewNewWithBuffer(buf *TextBuffer) (*TextView, error) {
 	cbuf := buf.Native()
-	c := C.gtk_text_view_new_with_buffer(cbuf);
+	c := C.gtk_text_view_new_with_buffer(cbuf)
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	t := wrapTextView(obj)
 	obj.RefSink()
@@ -3693,6 +3706,86 @@ func (v *TextView) SetEditable(editable bool) {
 
 func (v *TextView) GetEditable() bool {
 	return gobool(C.gtk_text_view_get_editable(v.Native()))
+}
+
+func (v *TextView) SetWrapMode(wrapMode WrapMode) {
+	C.gtk_text_view_set_wrap_mode(v.Native(), C.GtkWrapMode(wrapMode))
+}
+
+func (v *TextView) GetWrapMode() WrapMode {
+	return WrapMode(C.gtk_text_view_get_wrap_mode(v.Native()))
+}
+
+func (v *TextView) SetCursorVisible(visible bool) {
+	C.gtk_text_view_set_cursor_visible(v.Native(), gbool(visible))
+}
+
+func (v *TextView) GetCursorVisible() bool {
+	return gobool(C.gtk_text_view_get_cursor_visible(v.Native()))
+}
+
+func (v *TextView) SetOverwrite(overwrite bool) {
+	C.gtk_text_view_set_overwrite(v.Native(), gbool(overwrite))
+}
+
+func (v *TextView) GetOverwrite() bool {
+	return gobool(C.gtk_text_view_get_overwrite(v.Native()))
+}
+
+func (v *TextView) SetJustification(justify Justification) {
+	C.gtk_text_view_set_justification(v.Native(), C.GtkJustification(justify))
+}
+
+func (v *TextView) GetJustification() Justification {
+	return Justification(C.gtk_text_view_get_justification(v.Native()))
+}
+
+func (v *TextView) SetAcceptsTab(acceptsTab bool) {
+	C.gtk_text_view_set_accepts_tab(v.Native(), gbool(acceptsTab))
+}
+
+func (v *TextView) GetAcceptsTab() bool {
+	return gobool(C.gtk_text_view_get_accepts_tab(v.Native()))
+}
+
+func (v *TextView) SetPixelsAboveLines(px int) {
+	C.gtk_text_view_set_pixels_above_lines(v.Native(), C.gint(px))
+}
+
+func (v *TextView) GetPixelsAboveLines() int {
+	return int(C.gtk_text_view_get_pixels_above_lines(v.Native()))
+}
+
+func (v *TextView) SetPixelsBelowLines(px int) {
+	C.gtk_text_view_set_pixels_below_lines(v.Native(), C.gint(px))
+}
+
+func (v *TextView) GetPixelsBelowLines() int {
+	return int(C.gtk_text_view_get_pixels_below_lines(v.Native()))
+}
+
+func (v *TextView) SetPixelsInsideWrap(px int) {
+	C.gtk_text_view_set_pixels_inside_wrap(v.Native(), C.gint(px))
+}
+
+func (v *TextView) GetPixelsInsideWrap() int {
+	return int(C.gtk_text_view_get_pixels_inside_wrap(v.Native()))
+}
+
+func (v *TextView) SetLeftMargin(margin int) {
+	C.gtk_text_view_set_left_margin(v.Native(), C.gint(margin))
+}
+
+func (v *TextView) GetLeftMargin() int {
+	return int(C.gtk_text_view_get_left_margin(v.Native()))
+}
+
+func (v *TextView) SetRightMargin(margin int) {
+	C.gtk_text_view_set_right_margin(v.Native(), C.gint(margin))
+}
+
+func (v *TextView) GetRightMargin() int {
+	return int(C.gtk_text_view_get_right_margin(v.Native()))
 }
 
 /*
