@@ -368,3 +368,74 @@ func TestTextView_WhenSetRightMargin11_ExpectGetRightMarginReturns11(t *testing.
 		t.Error(err)
 	}
 }
+
+func testTextViewIndent(indent int) error {
+	tv, err := TextViewNew()
+	if err != nil {
+		return err
+	}
+
+	return testIntProperty(indent, (*tv).SetIndent, (*tv).GetIndent)
+}
+
+func TestTextView_WhenSetIndent10_ExpectGetIndentReturns10(t *testing.T) {
+	if err := testTextViewIndent(10); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestTextView_WhenSetIndent11_ExpectGetIndentReturns11(t *testing.T) {
+	if err := testTextViewIndent(11); err != nil {
+		t.Error(err)
+	}
+}
+
+func testTextViewInputHints(hint InputHints) error {
+	tv, err := TextViewNew()
+	if err != nil {
+		return err
+	}
+
+	tv.SetInputHints(hint)
+	if exp, act := hint, tv.GetInputHints(); act != exp {
+		return fmt.Errorf("Expected %v; Got %v", exp, act)
+	}
+	return nil
+}
+
+func TestTextView_WhenSetInputHintsNone_ExpectGetInputHintsReturnsNone(t *testing.T) {
+	if err := testTextViewInputHints(INPUT_HINT_NONE); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestTextView_WhenSetInputHintsSpellCheck_ExpectGetInputHintsReturnsSpellCheck(t *testing.T) {
+	if err := testTextViewInputHints(INPUT_HINT_SPELLCHECK); err != nil {
+		t.Error(err)
+	}
+}
+
+func testTextViewInputPurpose(purpose InputPurpose) error {
+	tv, err := TextViewNew()
+	if err != nil {
+		return err
+	}
+
+	tv.SetInputPurpose(purpose)
+	if exp, act := purpose, tv.GetInputPurpose(); act != exp {
+		return fmt.Errorf("Expected %v; Got %v", exp, act)
+	}
+	return nil
+}
+
+func TestTextView_WhenSetInputPurposeURL_ExpectGetInputPurposeReturnsURL(t *testing.T) {
+	if err := testTextViewInputPurpose(INPUT_PURPOSE_URL); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestTextView_WhenSetInputPurposeALPHA_ExpectGetInputPurposeReturnsALPHA(t *testing.T) {
+	if err := testTextViewInputPurpose(INPUT_PURPOSE_ALPHA); err != nil {
+		t.Error(err)
+	}
+}

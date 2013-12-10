@@ -3788,6 +3788,30 @@ func (v *TextView) GetRightMargin() int {
 	return int(C.gtk_text_view_get_right_margin(v.Native()))
 }
 
+func (v *TextView) SetIndent(indent int) {
+	C.gtk_text_view_set_indent(v.Native(), C.gint(indent))
+}
+
+func (v *TextView) GetIndent() int {
+	return int(C.gtk_text_view_get_indent(v.Native()))
+}
+
+func (v *TextView) SetInputHints(hints InputHints) {
+	C.gtk_text_view_set_input_hints(v.Native(), C.GtkInputHints(hints))
+}
+
+func (v *TextView) GetInputHints() InputHints {
+	return InputHints(C.gtk_text_view_get_input_hints(v.Native()))
+}
+
+func (v *TextView) SetInputPurpose(purpose InputPurpose) {
+	C.gtk_text_view_set_input_purpose(v.Native(), C.GtkInputPurpose(purpose))
+}
+
+func (v *TextView) GetInputPurpose() InputPurpose {
+	return InputPurpose(C.gtk_text_view_get_input_purpose(v.Native()))
+}
+
 /*
  * GtkTextTagTable
  */
