@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	"github.com/weberc2/gotk3/gtk"
+	"github.com/conformal/gotk3/gtk"
 	"github.com/conformal/gotk3/glib"
 )
 
