@@ -935,6 +935,78 @@ func CellRendererTextNew() (*CellRendererText, error) {
 }
 
 /*
+ * GtkCellRendererToggle
+ */
+
+// CellRendererToggle is a representation of GTK's GtkCellRendererToggle.
+type CellRendererToggle struct {
+	CellRenderer
+}
+
+// Native() returns a pointer to the underlying GtkCellRendererToggle.
+func (v *CellRendererToggle) Native() *C.GtkCellRendererToggle {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkCellRendererToggle(p)
+}
+
+func (v *CellRendererToggle) toCellRenderer() *C.GtkCellRenderer {
+	if v == nil {
+		return nil
+	}
+	return v.CellRenderer.Native()
+}
+
+func wrapCellRendererToggle(obj *glib.Object) *CellRendererToggle {
+	return &CellRendererToggle{CellRenderer{glib.InitiallyUnowned{obj}}}
+}
+
+// SetRadio() is a wrapper around gtk_cell_renderer_toggle_set_radio().
+func (v *CellRendererToggle) SetRadio(set bool) {
+	C.gtk_cell_renderer_toggle_set_radio(v.Native(), gbool(set))
+}
+
+// GetRadio() is a wrapper around gtk_cell_renderer_toggle_get_radio().
+func (v *CellRendererToggle) GetRadio() bool {
+	return gobool(C.gtk_cell_renderer_toggle_get_radio(v.Native()))
+}
+
+// SetActive() is a wrapper arround gtk_cell_renderer_set_active().
+func (v *CellRendererToggle) SetActive(active bool) {
+	C.gtk_cell_renderer_toggle_set_active(v.Native(), gbool(active))
+}
+
+// GetActive() is a wrapper around gtk_cell_renderer_get_active().
+func (v *CellRendererToggle) GetActive() bool {
+	return gobool(C.gtk_cell_renderer_toggle_get_active(v.Native()))
+}
+
+// SetActivatable() is a wrapper around gtk_cell_renderer_set_activatable().
+func (v *CellRendererToggle) SetActivatable(activatable bool) {
+	C.gtk_cell_renderer_toggle_set_activatable(v.Native(), gbool(activatable))
+}
+
+// GetActivatable() is a wrapper around gtk_cell_renderer_get_activatable().
+func (v *CellRendererToggle) GetActivatable() bool {
+	return gobool(C.gtk_cell_renderer_toggle_get_activatable(v.Native()))
+}
+
+// CellRendererToggleNew() is a wrapper around gtk_cell_renderer_toggle_new().
+func CellRendererToggleNew() (*CellRendererToggle, error) {
+	c := C.gtk_cell_renderer_toggle_new()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	crt := wrapCellRendererToggle(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return crt, nil
+}
+
+/*
  * GtkCheckButton
  */
 
