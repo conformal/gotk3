@@ -4987,6 +4987,8 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapCellRenderer(obj)
 	case "GtkCellRendererText":
 		g = wrapCellRendererText(obj)
+	case "GtkCellRendererToggle":
+		g = wrapCellRendererToggle(obj)
 	case "GtkCheckButton":
 		g = wrapCheckButton(obj)
 	case "GtkClipboard":
@@ -5047,6 +5049,12 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapSpinButton(obj)
 	case "GtkStatusbar":
 		g = wrapStatusbar(obj)
+	case "GtkTextView":
+		g = wrapTextView(obj)
+	case "GtkTextBuffer":
+		g = wrapTextBuffer(obj)
+	case "GtkTextTagTable":
+		g = wrapTextTagTable(obj)
 	case "GtkToggleButton":
 		g = wrapToggleButton(obj)
 	case "GtkTreeModel":
