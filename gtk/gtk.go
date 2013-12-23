@@ -3780,137 +3780,151 @@ func (v *TextView) SetEditable(editable bool) {
 
 // GetEditable() is a wrapper around gtk_text_view_get_editable().
 func (v *TextView) GetEditable() bool {
-	return gobool(C.gtk_text_view_get_editable(v.Native()))
+	c := C.gtk_text_view_get_editable(v.Native())
+	return gobool(c)
 }
 
-// SetWrapMode() is a wrapper around gtk_text_view_set_wrap_mode()
+// SetWrapMode() is a wrapper around gtk_text_view_set_wrap_mode().
 func (v *TextView) SetWrapMode(wrapMode WrapMode) {
 	C.gtk_text_view_set_wrap_mode(v.Native(), C.GtkWrapMode(wrapMode))
 }
 
-// GetWrapMode() is a wrapper around gtk_text_view_get_wrap_mode()
+// GetWrapMode() is a wrapper around gtk_text_view_get_wrap_mode().
 func (v *TextView) GetWrapMode() WrapMode {
 	return WrapMode(C.gtk_text_view_get_wrap_mode(v.Native()))
 }
 
-// SetCursorVisible() is a wrapper around gtk_text_view_set_cursor_visible()
+// SetCursorVisible() is a wrapper around gtk_text_view_set_cursor_visible().
 func (v *TextView) SetCursorVisible(visible bool) {
 	C.gtk_text_view_set_cursor_visible(v.Native(), gbool(visible))
 }
 
-// GetCursorVisible() is a wrapper around gtk_text_view_get_cursor_visible()
+// GetCursorVisible() is a wrapper around gtk_text_view_get_cursor_visible().
 func (v *TextView) GetCursorVisible() bool {
-	return gobool(C.gtk_text_view_get_cursor_visible(v.Native()))
+	c := C.gtk_text_view_get_cursor_visible(v.Native())
+	return gobool(c)
 }
 
-// SetOverwrite() is a wrapper around gtk_text_view_set_overwrite()
+// SetOverwrite() is a wrapper around gtk_text_view_set_overwrite().
 func (v *TextView) SetOverwrite(overwrite bool) {
 	C.gtk_text_view_set_overwrite(v.Native(), gbool(overwrite))
 }
 
-// GetOverwrite() is a wrapper around gtk_text_view_get_overwrite()
+// GetOverwrite() is a wrapper around gtk_text_view_get_overwrite().
 func (v *TextView) GetOverwrite() bool {
-	return gobool(C.gtk_text_view_get_overwrite(v.Native()))
+	c := C.gtk_text_view_get_overwrite(v.Native())
+	return gobool(c)
 }
 
-// SetJustification() is a wrapper around gtk_text_view_set_justification()
+// SetJustification() is a wrapper around gtk_text_view_set_justification().
 func (v *TextView) SetJustification(justify Justification) {
 	C.gtk_text_view_set_justification(v.Native(), C.GtkJustification(justify))
 }
 
-// GetJustification() is a wrapper around gtk_text_view_get_justification()
+// GetJustification() is a wrapper around gtk_text_view_get_justification().
 func (v *TextView) GetJustification() Justification {
-	return Justification(C.gtk_text_view_get_justification(v.Native()))
+	c := C.gtk_text_view_get_justification(v.Native())
+	return Justification(c)
 }
 
-// SetAcceptsTab() is a wrapper around gtk_text_view_set_accepts_tab()
+// SetAcceptsTab() is a wrapper around gtk_text_view_set_accepts_tab().
 func (v *TextView) SetAcceptsTab(acceptsTab bool) {
 	C.gtk_text_view_set_accepts_tab(v.Native(), gbool(acceptsTab))
 }
 
-// GetAcceptsTab() is a wrapper around gtk_text_view_get_accepts_tab()
+// GetAcceptsTab() is a wrapper around gtk_text_view_get_accepts_tab().
 func (v *TextView) GetAcceptsTab() bool {
-	return gobool(C.gtk_text_view_get_accepts_tab(v.Native()))
+	c := C.gtk_text_view_get_accepts_tab(v.Native())
+	return gobool(c)
 }
 
-// SetPixelsAboveLines() is a wrapper around gtk_text_view_set_pixels_above_lines()
+// SetPixelsAboveLines() is a wrapper around gtk_text_view_set_pixels_above_lines().
 func (v *TextView) SetPixelsAboveLines(px int) {
 	C.gtk_text_view_set_pixels_above_lines(v.Native(), C.gint(px))
 }
 
-// GetPixelsAboveLines() is a wrapper around gtk_text_view_get_pixels_above_lines()
+// GetPixelsAboveLines() is a wrapper around gtk_text_view_get_pixels_above_lines().
 func (v *TextView) GetPixelsAboveLines() int {
-	return int(C.gtk_text_view_get_pixels_above_lines(v.Native()))
+	c := C.gtk_text_view_get_pixels_above_lines(v.Native())
+	return int(c)
 }
 
-// SetPixelsBelowLines() is a wrapper around gtk_text_view_set_pixels_below_lines()
+// SetPixelsBelowLines() is a wrapper around gtk_text_view_set_pixels_below_lines().
 func (v *TextView) SetPixelsBelowLines(px int) {
 	C.gtk_text_view_set_pixels_below_lines(v.Native(), C.gint(px))
 }
 
-// GetPixelsBelowLines() is a wrapper around gtk_text_view_get_pixels_below_lines()
+// GetPixelsBelowLines() is a wrapper around gtk_text_view_get_pixels_below_lines().
 func (v *TextView) GetPixelsBelowLines() int {
-	return int(C.gtk_text_view_get_pixels_below_lines(v.Native()))
+	c := C.gtk_text_view_get_pixels_below_lines(v.Native())
+	return int(c)
 }
 
-// SetPixelsInsideWrap() is a wrapper around gtk_text_view_set_pixels_inside_wrap()
+// SetPixelsInsideWrap() is a wrapper around gtk_text_view_set_pixels_inside_wrap().
 func (v *TextView) SetPixelsInsideWrap(px int) {
 	C.gtk_text_view_set_pixels_inside_wrap(v.Native(), C.gint(px))
 }
 
-// GetPixelsInsideWrap() is a wrapper around gtk_text_view_get_pixels_inside_wrap()
+// GetPixelsInsideWrap() is a wrapper around gtk_text_view_get_pixels_inside_wrap().
 func (v *TextView) GetPixelsInsideWrap() int {
-	return int(C.gtk_text_view_get_pixels_inside_wrap(v.Native()))
+	c := C.gtk_text_view_get_pixels_inside_wrap(v.Native())
+	return int(c)
 }
 
-// SetLeftMargin() is a wrapper around gtk_text_view_set_left_margin()
+// SetLeftMargin() is a wrapper around gtk_text_view_set_left_margin().
 func (v *TextView) SetLeftMargin(margin int) {
 	C.gtk_text_view_set_left_margin(v.Native(), C.gint(margin))
 }
 
-// GetLeftMargin() is a wrapper around gtk_text_view_get_left_margin()
+// GetLeftMargin() is a wrapper around gtk_text_view_get_left_margin().
 func (v *TextView) GetLeftMargin() int {
-	return int(C.gtk_text_view_get_left_margin(v.Native()))
+	c := C.gtk_text_view_get_left_margin(v.Native())
+	return int(c)
 }
 
-// SetRightMargin() is a wrapper around gtk_text_view_set_right_margin()
+// SetRightMargin() is a wrapper around gtk_text_view_set_right_margin().
 func (v *TextView) SetRightMargin(margin int) {
 	C.gtk_text_view_set_right_margin(v.Native(), C.gint(margin))
 }
 
-// GetRightMargin() is a wrapper around gtk_text_view_get_right_margin()
+// GetRightMargin() is a wrapper around gtk_text_view_get_right_margin().
 func (v *TextView) GetRightMargin() int {
-	return int(C.gtk_text_view_get_right_margin(v.Native()))
+	c := C.gtk_text_view_get_right_margin(v.Native())
+	return int(c)
 }
 
-// SetIndent() is a wrapper around gtk_text_view_set_indent()
+// SetIndent() is a wrapper around gtk_text_view_set_indent().
 func (v *TextView) SetIndent(indent int) {
 	C.gtk_text_view_set_indent(v.Native(), C.gint(indent))
 }
 
-// GetIndent() is a wrapper around gtk_text_view_get_indent()
+// GetIndent() is a wrapper around gtk_text_view_get_indent().
 func (v *TextView) GetIndent() int {
-	return int(C.gtk_text_view_get_indent(v.Native()))
+	c := C.gtk_text_view_get_indent(v.Native())
+	return int(c)
 }
 
-// SetInputHints() is a wrapper around gtk_text_view_set_input_hints()
+// SetInputHints() is a wrapper around gtk_text_view_set_input_hints().
 func (v *TextView) SetInputHints(hints InputHints) {
 	C.gtk_text_view_set_input_hints(v.Native(), C.GtkInputHints(hints))
 }
 
-// GetInputHints() is a wrapper around gtk_text_view_get_input_hints()
+// GetInputHints() is a wrapper around gtk_text_view_get_input_hints().
 func (v *TextView) GetInputHints() InputHints {
-	return InputHints(C.gtk_text_view_get_input_hints(v.Native()))
+	c := C.gtk_text_view_get_input_hints(v.Native())
+	return InputHints(c)
 }
 
-// SetInputPurpose() is a wrapper around gtk_text_view_set_input_purpose()
+// SetInputPurpose() is a wrapper around gtk_text_view_set_input_purpose().
 func (v *TextView) SetInputPurpose(purpose InputPurpose) {
-	C.gtk_text_view_set_input_purpose(v.Native(), C.GtkInputPurpose(purpose))
+	C.gtk_text_view_set_input_purpose(v.Native(),
+		C.GtkInputPurpose(purpose))
 }
 
-// GetInputPurpose() is a wrapper around gtk_text_view_get_input_purpose()
+// GetInputPurpose() is a wrapper around gtk_text_view_get_input_purpose().
 func (v *TextView) GetInputPurpose() InputPurpose {
-	return InputPurpose(C.gtk_text_view_get_input_purpose(v.Native()))
+	c := C.gtk_text_view_get_input_purpose(v.Native())
+	return InputPurpose(c)
 }
 
 /*
@@ -4910,6 +4924,38 @@ func (v *Window) SetTitle(title string) {
 	C.gtk_window_set_title(v.Native(), (*C.gchar)(cstr))
 }
 
+// TODO gtk_window_set_wmclass()
+
+// SetResizable is a wrapper around gtk_window_set_resizable().
+func (v *Window) SetResizable(resizable bool) {
+	C.gtk_window_set_resizable(v.Native(), gbool(resizable))
+}
+
+// GetResizable is a wrapper around gtk_window_get_resizable().
+func (v *Window) GetResizable() bool {
+	c := C.gtk_window_get_resizable(v.Native())
+	return gobool(c)
+}
+
+// TODO gtk_window_add_accel_group().
+
+// ActivateFocus is a wrapper around gtk_window_activate_focus().
+func (v *Window) ActivateFocus() bool {
+	c := C.gtk_window_activate_focus(v.Native())
+	return gobool(c)
+}
+
+// ActivateDefault is a wrapper around gtk_window_activate_default().
+func (v *Window) ActivateDefault() bool {
+	c := C.gtk_window_activate_default(v.Native())
+	return gobool(c)
+}
+
+// SetModal() is a wrapper around gtk_window_set_modal().
+func (v *Window) SetModal(modal bool) {
+	C.gtk_window_set_modal(v.Native(), gbool(modal))
+}
+
 // SetDefaultSize() is a wrapper around gtk_window_set_default_size().
 func (v *Window) SetDefaultSize(width, height int) {
 	C.gtk_window_set_default_size(v.Native(), C.gint(width), C.gint(height))
@@ -4921,36 +4967,25 @@ func (v *Window) SetDefaultGeometry(width, height int) {
 		C.gint(height))
 }
 
-// GetDeletable is a wrapper around gtk_window_set_deletable().
-func (v *Window) GetDeletable() bool {
-	c := C.gtk_window_get_deletable(v.Native())
-	return gobool(c)
-}
-
-// SetDeletable is a wrapper around gtk_window_set_deletable().
-func (v *Window) SetDeletable(setting bool) {
-	C.gtk_window_set_deletable(v.Native(), gbool(setting))
-}
-
-// TODO(jrick) GdkGeometry GdkWindowHints
+// TODO(jrick) GdkGeometry GdkWindowHints.
 /*
 func (v *Window) SetGeometryHints() {
 }
 */
 
-// TODO(jrick) GdkGravity
+// TODO(jrick) GdkGravity.
 /*
 func (v *Window) SetGravity() {
 }
 */
 
-// TODO(jrick) GdkGravity
+// TODO(jrick) GdkGravity.
 /*
 func (v *Window) GetGravity() {
 }
 */
 
-// SetPosition() is a wrapper around gtk_window_set_position()
+// SetPosition() is a wrapper around gtk_window_set_position().
 func (v *Window) SetPosition(position WindowPosition) {
 	C.gtk_window_set_position(v.Native(), C.GtkWindowPosition(position))
 }
@@ -4963,6 +4998,364 @@ func (v *Window) SetTransientFor(parent IWindow) {
 	}
 	C.gtk_window_set_transient_for(v.Native(), pw)
 }
+
+// TODO gtk_window_set_attached_to().
+
+// SetDestroyWithParent is a wrapper around
+// gtk_window_set_destroy_with_parent().
+func (v *Window) SetDestroyWithParent(setting bool) {
+	C.gtk_window_set_destroy_with_parent(v.Native(), gbool(setting))
+}
+
+// SetHideTitlebarWhenMaximized is a wrapper around
+// gtk_window_set_hide_titlebar_when_maximized().
+func (v *Window) SetHideTitlebarWhenMaximized(setting bool) {
+	C.gtk_window_set_hide_titlebar_when_maximized(v.Native(),
+		gbool(setting))
+}
+
+// TODO gtk_window_set_screen().
+
+// IsActive() is a wrapper around gtk_window_is_active().
+func (v *Window) IsActive() bool {
+	c := C.gtk_window_is_active(v.Native())
+	return gobool(c)
+}
+
+// HasToplevelFocus() is a wrapper around gtk_window_has_toplevel_focus().
+func (v *Window) HasToplevelFocus() bool {
+	c := C.gtk_window_has_toplevel_focus(v.Native())
+	return gobool(c)
+}
+
+// TODO gtk_window_list_toplevels().
+
+// TODO gtk_window_add_mnemonic().
+
+// TODO gtk_window_remove_mnemonic().
+
+// TODO gtk_window_mnemonic_activate().
+
+// TODO gtk_window_activate_key().
+
+// TODO gtk_window_propogate_key_event().
+
+// TODO gtk_window_get_focus().
+
+// TODO gtk_window_set_focus().
+
+// TODO gtk_window_get_default_widget().
+
+// TODO gtk_window_set_default().
+
+// Present is a wrapper around gtk_window_present().
+func (v *Window) Present() {
+	C.gtk_window_present(v.Native())
+}
+
+// TODO gtk_window_present_with_time().
+
+// Iconify is a wrapper around gtk_window_iconify().
+func (v *Window) Iconify() {
+	C.gtk_window_iconify(v.Native())
+}
+
+// Deiconify is a wrapper around gtk_window_deiconify().
+func (v *Window) Deiconify() {
+	C.gtk_window_deiconify(v.Native())
+}
+
+// Stick is a wrapper around gtk_window_stick().
+func (v *Window) Stick() {
+	C.gtk_window_stick(v.Native())
+}
+
+// Unstick is a wrapper around gtk_window_unstick().
+func (v *Window) Unstick() {
+	C.gtk_window_unstick(v.Native())
+}
+
+// Maximize is a wrapper around gtk_window_maximize().
+func (v *Window) Maximize() {
+	C.gtk_window_maximize(v.Native())
+}
+
+// Unmaximize is a wrapper around gtk_window_unmaximize().
+func (v *Window) Unmaximize() {
+	C.gtk_window_unmaximize(v.Native())
+}
+
+// Fullscreen is a wrapper around gtk_window_fullscreen().
+func (v *Window) Fullscreen() {
+	C.gtk_window_fullscreen(v.Native())
+}
+
+// Unfullscreen is a wrapper around gtk_window_unfullscreen().
+func (v *Window) Unfullscreen() {
+	C.gtk_window_unfullscreen(v.Native())
+}
+
+// SetKeepAbove is a wrapper around gtk_window_set_keep_above().
+func (v *Window) SetKeepAbove(setting bool) {
+	C.gtk_window_set_keep_above(v.Native(), gbool(setting))
+}
+
+// SetKeepBelow is a wrapper around gtk_window_set_keep_below().
+func (v *Window) SetKeepBelow(setting bool) {
+	C.gtk_window_set_keep_below(v.Native(), gbool(setting))
+}
+
+// TODO gtk_window_begin_resize_drag().
+
+// TODO gtk_window_begin_move_drag().
+
+// SetDecorated is a wrapper around gtk_window_set_decorated().
+func (v *Window) SetDecorated(setting bool) {
+	C.gtk_window_set_decorated(v.Native(), gbool(setting))
+}
+
+// SetDeletable is a wrapper around gtk_window_set_deletable().
+func (v *Window) SetDeletable(setting bool) {
+	C.gtk_window_set_deletable(v.Native(), gbool(setting))
+}
+
+// TODO gtk_window_set_mnemonic_modifier().
+
+// TODO gtk_window_set_type_hint().
+
+// SetSkipTaskbarHint is a wrapper around gtk_window_set_skip_taskbar_hint().
+func (v *Window) SetSkipTaskbarHint(setting bool) {
+	C.gtk_window_set_skip_taskbar_hint(v.Native(), gbool(setting))
+}
+
+// SetSkipPagerHint is a wrapper around gtk_window_set_skip_pager_hint().
+func (v *Window) SetSkipPagerHint(setting bool) {
+	C.gtk_window_set_skip_pager_hint(v.Native(), gbool(setting))
+}
+
+// SetUrgencyHint is a wrapper around gtk_window_set_urgency_hint().
+func (v *Window) SetUrgencyHint(setting bool) {
+	C.gtk_window_set_urgency_hint(v.Native(), gbool(setting))
+}
+
+// SetAcceptFocus is a wrapper around gtk_window_set_accept_focus().
+func (v *Window) SetAcceptFocus(setting bool) {
+	C.gtk_window_set_accept_focus(v.Native(), gbool(setting))
+}
+
+// SetFocusOnMap is a wrapper around gtk_window_set_focus_on_map().
+func (v *Window) SetFocusOnMap(setting bool) {
+	C.gtk_window_set_focus_on_map(v.Native(), gbool(setting))
+}
+
+// TODO gtk_window_set_startup_id().
+
+// TODO gtk_window_set_role().
+
+// GetDecorated is a wrapper around gtk_window_get_decorated().
+func (v *Window) GetDecorated() bool {
+	c := C.gtk_window_get_decorated(v.Native())
+	return gobool(c)
+}
+
+// GetDeletable is a wrapper around gtk_window_get_deletable().
+func (v *Window) GetDeletable() bool {
+	c := C.gtk_window_get_deletable(v.Native())
+	return gobool(c)
+}
+
+// TODO get_default_icon_list().
+
+// TODO get_default_icon_name().
+
+// GetDefaultSize is a wrapper around gtk_window_get_default_size().
+func (v *Window) GetDefaultSize() (width, height int) {
+	var w, h C.gint
+	C.gtk_window_get_default_size(v.Native(), &w, &h)
+	return int(w), int(h)
+}
+
+// GetDestroyWithParent is a wrapper around
+// gtk_window_get_destroy_with_parent().
+func (v *Window) GetDestroyWithParent() bool {
+	c := C.gtk_window_get_destroy_with_parent(v.Native())
+	return gobool(c)
+}
+
+// GetHideTitlebarWhenMaximized is a wrapper around
+// gtk_window_get_hide_titlebar_when_maximized().
+func (v *Window) GetHideTitlebarWhenMaximized() bool {
+	c := C.gtk_window_get_hide_titlebar_when_maximized(v.Native())
+	return gobool(c)
+}
+
+// TODO gtk_window_get_icon().
+
+// TODO gtk_window_get_icon_list().
+
+// TODO gtk_window_get_icon_name().
+
+// TODO gtk_window_get_mnemonic_modifier().
+
+// GetModal is a wrapper around gtk_window_get_modal().
+func (v *Window) GetModal() bool {
+	c := C.gtk_window_get_modal(v.Native())
+	return gobool(c)
+}
+
+// GetPosition is a wrapper around gtk_window_get_position().
+func (v *Window) GetPosition() (root_x, root_y int) {
+	var x, y C.gint
+	C.gtk_window_get_position(v.Native(), &x, &y)
+	return int(x), int(y)
+}
+
+// TODO gtk_window_get_role().
+
+// GetSize is a wrapper around gtk_window_get_size().
+func (v *Window) GetSize() (width, height int) {
+	var w, h C.gint
+	C.gtk_window_get_size(v.Native(), &w, &h)
+	return int(w), int(h)
+}
+
+// TODO gtk_window_get_title().
+
+// TODO gtk_window_get_transient_for().
+
+// TODO gtk_window_get_attached_to().
+
+// TODO gtk_window_get_type_hint().
+
+// GetSkipTaskbarHint is a wrapper around gtk_window_get_skip_taskbar_hint().
+func (v *Window) GetSkipTaskbarHint() bool {
+	c := C.gtk_window_get_skip_taskbar_hint(v.Native())
+	return gobool(c)
+}
+
+// GetSkipPagerHint is a wrapper around gtk_window_get_skip_pager_hint().
+func (v *Window) GetSkipPagerHint() bool {
+	c := C.gtk_window_get_skip_taskbar_hint(v.Native())
+	return gobool(c)
+}
+
+// GetUrgencyHint is a wrapper around gtk_window_get_urgency_hint().
+func (v *Window) GetUrgencyHint() bool {
+	c := C.gtk_window_get_urgency_hint(v.Native())
+	return gobool(c)
+}
+
+// GetAcceptFocus is a wrapper around gtk_window_get_accept_focus().
+func (v *Window) GetAcceptFocus() bool {
+	c := C.gtk_window_get_accept_focus(v.Native())
+	return gobool(c)
+}
+
+// GetFocusOnMap is a wrapper around gtk_window_get_focus_on_map().
+func (v *Window) GetFocusOnMap() bool {
+	c := C.gtk_window_get_focus_on_map(v.Native())
+	return gobool(c)
+}
+
+// TODO gtk_window_get_group().
+
+// HasGroup is a wrapper around gtk_window_has_group().
+func (v *Window) HasGroup() bool {
+	c := C.gtk_window_has_group(v.Native())
+	return gobool(c)
+}
+
+// TODO gtk_window_get_window_type().
+
+// Move is a wrapper around gtk_window_move().
+func (v *Window) Move(x, y int) {
+	C.gtk_window_move(v.Native(), C.gint(x), C.gint(y))
+}
+
+// TODO gtk_window_parse_geometry().
+
+// Resize is a wrapper around gtk_window_resize().
+func (v *Window) Resize(width, height int) {
+	C.gtk_window_resize(v.Native(), C.gint(width), C.gint(height))
+}
+
+// ResizeToGeometry is a wrapper around gtk_window_resize_to_geometry().
+func (v *Window) ResizeToGeometry(width, height int) {
+	C.gtk_window_resize_to_geometry(v.Native(), C.gint(width), C.gint(height))
+}
+
+// TODO gtk_window_set_default_icon_list().
+
+// TODO gtk_window_set_default_icon().
+
+// TODO gtk_window_set_default_icon_from_file().
+
+// TODO gtk_window_set_default_icon_name().
+
+// TODO gtk_window_set_icon().
+
+// TODO gtk_window_set_icon_list().
+
+// TODO gtk_window_set_icon_from_file().
+
+// TODO gtk_window_set_icon_name().
+
+// SetAutoStartupNotification is a wrapper around
+// gtk_window_set_auto_startup_notification().
+// This doesn't seem write.  Might need to rethink?
+/*
+func (v *Window) SetAutoStartupNotification(setting bool) {
+	C.gtk_window_set_auto_startup_notification(gbool(setting))
+}
+*/
+
+// GetMnemonicsVisible is a wrapper around
+// gtk_window_get_mnemonics_visible().
+func (v *Window) GetMnemonicsVisible() bool {
+	c := C.gtk_window_get_mnemonics_visible(v.Native())
+	return gobool(c)
+}
+
+// SetMnemonicsVisible is a wrapper around
+// gtk_window_get_mnemonics_visible().
+func (v *Window) SetMnemonicsVisible(setting bool) {
+	C.gtk_window_set_mnemonics_visible(v.Native(), gbool(setting))
+}
+
+// GetFocusVisible is a wrapper around gtk_window_get_focus_visible().
+func (v *Window) GetFocusVisible() bool {
+	c := C.gtk_window_get_focus_visible(v.Native())
+	return gobool(c)
+}
+
+// SetFocusVisible is a wrapper around gtk_window_set_focus_visible().
+func (v *Window) SetFocusVisible(setting bool) {
+	C.gtk_window_set_focus_visible(v.Native(), gbool(setting))
+}
+
+// SetHasResizeGrip is a wrapper around gtk_window_set_has_resize_grip().
+func (v *Window) SetHasResizeGrip(setting bool) {
+	C.gtk_window_set_has_resize_grip(v.Native(), gbool(setting))
+}
+
+// GetHasResizeGrip is a wrapper around gtk_window_get_has_resize_grip().
+func (v *Window) GetHasResizeGrip() bool {
+	c := C.gtk_window_get_has_resize_grip(v.Native())
+	return gobool(c)
+}
+
+// ResizeGripIsVisible is a wrapper around
+// gtk_window_resize_grip_is_visible().
+func (v *Window) ResizeGripIsVisible() bool {
+	c := C.gtk_window_resize_grip_is_visible(v.Native())
+	return gobool(c)
+}
+
+// TODO gtk_window_get_resize_grip_area().
+
+// TODO gtk_window_set_application().
+
+// TODO gtk_window_get_application().
 
 // cast() takes a native GObject and casts it to the appropriate Go struct.
 func cast(c *C.GObject) (glib.IObject, error) {

@@ -23,6 +23,10 @@ import (
 	"testing"
 )
 
+func init() {
+	Init(nil)
+}
+
 // TestBoolConvs tests the conversion between Go bools and gboolean
 // types.
 func TestBoolConvs(t *testing.T) {
@@ -93,7 +97,6 @@ func TestTextBuffer_WhenSetText_ExpectGetTextReturnsSame(t *testing.T) {
 }
 
 func testTextViewEditable(set bool) error {
-	Init(nil)
 	tv, err := TextViewNew()
 	if err != nil {
 		return err
@@ -121,7 +124,6 @@ func TestTextView_WhenSetEditableTrue_ExpectGetEditableReturnsTrue(t *testing.T)
 }
 
 func testTextViewWrapMode(set WrapMode) error {
-	Init(nil)
 	tv, err := TextViewNew()
 	if err != nil {
 		return err
@@ -149,7 +151,6 @@ func TestTextView_WhenSetWrapModeWord_ExpectGetWrapModeReturnsWord(t *testing.T)
 }
 
 func testTextViewCursorVisible(set bool) error {
-	Init(nil)
 	tv, err := TextViewNew()
 	if err != nil {
 		return err
@@ -177,7 +178,6 @@ func TestTextView_WhenSetCursorVisibleTrue_ExpectGetCursorVisibleReturnsTrue(t *
 }
 
 func testTextViewOverwrite(set bool) error {
-	Init(nil)
 	tv, err := TextViewNew()
 	if err != nil {
 		return err
@@ -205,7 +205,6 @@ func TestTextView_WhenSetOverwriteTrue_ExpectGetOverwriteReturnsTrue(t *testing.
 }
 
 func testTextViewJustification(justify Justification) error {
-	Init(nil)
 	tv, err := TextViewNew()
 	if err != nil {
 		return err
