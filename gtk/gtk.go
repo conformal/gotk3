@@ -4274,6 +4274,12 @@ func (v *TreePath) free() {
 	C.gtk_tree_path_free(v.Native())
 }
 
+// String() is a wrapper around gtk_tree_path_to_string().
+func (v *TreePath) String() string {
+	c := C.gtk_tree_path_to_string(v.Native())
+	return C.GoString((*C.char)(c))
+}
+
 /*
  * GtkTreeSelection
  */
