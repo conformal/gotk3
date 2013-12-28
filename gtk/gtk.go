@@ -2614,6 +2614,12 @@ func ListStoreNew(types ...glib.Type) (*ListStore, error) {
 	return ls, nil
 }
 
+// Remove() is a wrapper around gtk_list_store_remove().
+func (v *ListStore) Remove(iter *TreeIter) bool {
+	c := C.gtk_list_store_remove(v.Native(), iter.Native())
+	return gobool(c)
+}
+
 // TODO(jrick)
 /*
 func (v *ListStore) SetColumnTypes(types ...glib.Type) {

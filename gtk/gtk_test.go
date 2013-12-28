@@ -19,6 +19,7 @@
 package gtk
 
 import (
+	"github.com/conformal/gotk3/glib"
 	"fmt"
 	"testing"
 )
@@ -511,5 +512,25 @@ func TestCellRendererToggle_WhenSetActivatableFalse_ExpectGetActivatableReturnsF
 func TestCellRendererToggle_WhenSetActivatableTrue_ExpectGetActivatableReturnsTrue(t *testing.T) {
 	if err := testCellRendererToggleSetActivatable(true); err != nil {
 		t.Error(err)
+	}
+}
+
+// Given one item in ListStore
+// When item removed
+// Then expect Remove() returns false (iter invalid)
+func TestListStoreRemove_GivenOneItemInListStore_ExpectReturnTrue(t *testing.T) {
+	ls, err := ListStoreNew(glib.TYPE_BOOLEAN)
+	if err != nil {
+		t.Fatal("Unexpected err:", err)
+	}
+
+	var iter TreeIter
+	ls.Append(&iter)
+	if err := ls.Set(&iter, []int{0}, []interface{}{true}); err != nil {
+		t.Fatal("Unexpected err:", err)
+	}
+
+	if iterValid := ls.Remove(&iter); iterValid {
+		t.Fatal("Remove() returned true (iter valid); expected false (iter invalid)")
 	}
 }
