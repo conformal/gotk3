@@ -45,8 +45,12 @@
 package gtk
 
 // #cgo pkg-config: gtk+-3.0
+// #cgo pkg-config: cairo
 // #include <gtk/gtk.h>
 // #include "gtk.go.h"
+// #include <cairo/cairo-pdf.h>
+// #include <cairo/cairo-ps.h>
+// #include <cairo/cairo-svg.h>
 import "C"
 import (
 	"errors"
@@ -55,6 +59,8 @@ import (
 	"github.com/visionect/gotk3/glib"
 	"runtime"
 	"unsafe"
+
+    "github.com/ungerik/go-cairo"
 )
 
 /*
@@ -4511,8 +4517,13 @@ func OffscreenWindowNew() (*OffscreenWindow, error) {
 }
 
 // cairo_surface_t* gtk_offscreen_window_get_surface(GtkOffscreenWindow *offscreen);
-func (v *OffscreenWindow) GetSurface() unsafe.Pointer {
-    return unsafe.Pointer(C.gtk_offscreen_window_get_surface(v.toOffscreenWindow()))
+func (v *OffscreenWindow) GetSurface() *cairo.Surface {
+    var s *C.cairo_surface_t
+    var c *C.cairo_t
+
+    s = C.gtk_offscreen_window_get_surface(v.toOffscreenWindow())
+    c = C.cairo_create(s)
+    return cairo.NewSurfaceFromC(s, c)
 }
 
 //GetPixBuff() is a wrap around GdkPixbuf* gtk_offscreen_window_get_pixbuf (GtkOffscreenWindow *offscreen);
