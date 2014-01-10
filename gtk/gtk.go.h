@@ -58,7 +58,7 @@ toGtkWindow(void *p)
 
 static GtkOffscreenWindow *
 toGtkOffscreenWindow(void *p)
-
+{
 	return (GTK_OFFSCREEN_WINDOW(p));
 }
 
