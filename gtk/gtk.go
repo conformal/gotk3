@@ -4471,6 +4471,58 @@ func (v *Widget) SetVExpand(expand bool) {
 }
 
 /*
+* GtkOffscreenWindow
+*/
+type OffscreenWindow struct {
+    Window
+}
+
+// Native() returns a pointer to the underlying GtkWindow.
+func (v *OffscreenWindow) Native() *C.GtkOffscreenWindow {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkOffscreenWindow(p)
+}
+
+func (v *OffscreenWindow) toOffscreenWindow() *C.GtkOffscreenWindow {
+	if v == nil {
+		return nil
+	}
+	return v.Native()
+}
+
+func wrapOffscreenWindow(obj *glib.Object) *OffscreenWindow {
+	return &OffscreenWindow{Window{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}}
+}
+
+// OffscreenWindowNew() is a wrapper around gtk_offscreen_window_new().
+func OffscreenWindowNew() (*OffscreenWindow, error) {
+	c := C.gtk_offscreen_window_new()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	ow := wrapOffscreenWindow(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return ow, nil
+}
+
+// cairo_surface_t* gtk_offscreen_window_get_surface(GtkOffscreenWindow *offscreen);
+func (v *OffscreenWindow) GetSurface() unsafe.Pointer {
+    return unsafe.Pointer(C.gtk_offscreen_window_get_surface(v.toOffscreenWindow()))
+}
+
+//GetPixBuff() is a wrap around GdkPixbuf* gtk_offscreen_window_get_pixbuf (GtkOffscreenWindow *offscreen);
+
+/*TODO(miha) 
+func (v *OffscreenWindow) GetPixBuff() PixBuff {
+}
+*/
+
+/*
  * GtkWindow
  */
 
