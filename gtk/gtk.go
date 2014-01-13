@@ -4561,6 +4561,7 @@ func (cs *CairoSurface) Reference() {
 
 func (cs *CairoSurface) Destroy() {
     C.cairo_surface_destroy(cs.surface)
+    C.cairo_destroy(cs.context)
 }
 
 func (cs *CairoSurface) GetCSurface() *C.cairo_surface_t {
