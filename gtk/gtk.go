@@ -4514,21 +4514,6 @@ func OffscreenWindowNew() (*OffscreenWindow, error) {
 	return ow, nil
 }
 
-//GetSurface is a wrap for cairo_surface_t* gtk_offscreen_window_get_surface(GtkOffscreenWindow *offscreen);
-func (v *OffscreenWindow) GetSurface() (*CairoSurface, error) {
-    var s *C.cairo_surface_t
-    var c *C.cairo_t
-
-    s = C.gtk_offscreen_window_get_surface(v.toOffscreenWindow())
-	if s == nil {
-		return nil, errors.New("cgo C.gtk_offscreen_window_get_pixbuf() returned unexpected nil pointer")
-	}
-    c = C.cairo_create(s)
-	if c == nil {
-		return nil, errors.New("cgo C.cairo_create() returned unexpected nil pointer")
-	}
-    return &CairoSurface{surface : s, context : c}, nil
-}
 
 //GetPixbuf() is a wrap around GdkPixbuf* gtk_offscreen_window_get_pixbuf (GtkOffscreenWindow *offscreen);
 func (v *OffscreenWindow) GetPixbuf() (*gdk.Pixbuf, error) {
@@ -4545,9 +4530,33 @@ func (v *OffscreenWindow) GetPixbuf() (*gdk.Pixbuf, error) {
 
 }
 
+//GetSurface is a wrap for cairo_surface_t* gtk_offscreen_window_get_surface(GtkOffscreenWindow *offscreen);
+func (v *OffscreenWindow) GetSurface() (*CairoSurface, error) {
+    var s *C.cairo_surface_t
+    var c *C.cairo_t
+
+    s = C.gtk_offscreen_window_get_surface(v.toOffscreenWindow())
+	if s == nil {
+		return nil, errors.New("cgo C.gtk_offscreen_window_get_pixbuf() returned unexpected nil pointer")
+	}
+    s = C.cairo_surface_reference(s)
+    c = C.cairo_create(s)
+	if c == nil {
+        C.cairo_surface_destroy(s)
+		return nil, errors.New("cgo C.cairo_create() returned unexpected nil pointer")
+	}
+    cs := &CairoSurface{surface : s, context : c}
+	runtime.SetFinalizer(cs, (*CairoSurface).Destroy)
+    return cs, nil
+}
+
 type CairoSurface struct {
     surface *C.cairo_surface_t
     context *C.cairo_t
+}
+
+func (cs *CairoSurface) Destroy() {
+    C.cairo_surface_destroy(cs.surface)
 }
 
 func (cs *CairoSurface) GetCSurface() *C.cairo_surface_t {
