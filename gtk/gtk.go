@@ -59,8 +59,6 @@ import (
 	"github.com/visionect/gotk3/glib"
 	"runtime"
 	"unsafe"
-
-    "github.com/ungerik/go-cairo"
 )
 
 /*
@@ -4516,22 +4514,49 @@ func OffscreenWindowNew() (*OffscreenWindow, error) {
 	return ow, nil
 }
 
-// cairo_surface_t* gtk_offscreen_window_get_surface(GtkOffscreenWindow *offscreen);
-func (v *OffscreenWindow) GetSurface() *cairo.Surface {
+//GetSurface is a wrap for cairo_surface_t* gtk_offscreen_window_get_surface(GtkOffscreenWindow *offscreen);
+func (v *OffscreenWindow) GetSurface() (*CairoSurface, error) {
     var s *C.cairo_surface_t
     var c *C.cairo_t
 
     s = C.gtk_offscreen_window_get_surface(v.toOffscreenWindow())
+	if s == nil {
+		return nil, errors.New("cgo C.gtk_offscreen_window_get_pixbuf() returned unexpected nil pointer")
+	}
     c = C.cairo_create(s)
-    return cairo.NewSurfaceFromC(s, c)
+	if c == nil {
+		return nil, errors.New("cgo C.cairo_create() returned unexpected nil pointer")
+	}
+    return &CairoSurface{surface : s, context : c}, nil
 }
 
 //GetPixBuff() is a wrap around GdkPixbuf* gtk_offscreen_window_get_pixbuf (GtkOffscreenWindow *offscreen);
+func (v *OffscreenWindow) GetPixBuff() (*gdk.Pixbuf, error) {
+    var c *C.GdkPixbuf
+    c = C.gtk_offscreen_window_get_pixbuf(v.toOffscreenWindow())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	pb := &gdk.Pixbuf{obj}
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return pb, nil
 
-/*TODO(miha) 
-func (v *OffscreenWindow) GetPixBuff() PixBuff {
 }
-*/
+type CairoSurface struct {
+    surface *C.cairo_surface_t
+    context *C.cairo_t
+}
+
+func (cs *CairoSurface) GetCSurface() *C.cairo_surface_t {
+    return cs.surface
+}
+
+func (cs *CairoSurface) GetCContext() *C.cairo_t{
+    return cs.context
+}
+
 
 /*
  * GtkWindow
