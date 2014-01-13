@@ -4537,15 +4537,15 @@ func (v *OffscreenWindow) GetSurface() (*CairoSurface, error) {
 
     s = C.gtk_offscreen_window_get_surface(v.toOffscreenWindow())
 	if s == nil {
-		return nil, errors.New("cgo C.gtk_offscreen_window_get_pixbuf() returned unexpected nil pointer")
+		return nil, errors.New("cgo C.gtk_offscreen_window_get_surface() returned unexpected nil pointer")
 	}
-    s = C.cairo_surface_reference(s)
     c = C.cairo_create(s)
 	if c == nil {
         C.cairo_surface_destroy(s)
 		return nil, errors.New("cgo C.cairo_create() returned unexpected nil pointer")
 	}
     cs := &CairoSurface{surface : s, context : c}
+    cs.Reference()
 	runtime.SetFinalizer(cs, (*CairoSurface).Destroy)
     return cs, nil
 }
@@ -4553,6 +4553,10 @@ func (v *OffscreenWindow) GetSurface() (*CairoSurface, error) {
 type CairoSurface struct {
     surface *C.cairo_surface_t
     context *C.cairo_t
+}
+
+func (cs *CairoSurface) Reference() {
+    cs.surface = C.cairo_surface_reference(cs.surface)
 }
 
 func (cs *CairoSurface) Destroy() {
