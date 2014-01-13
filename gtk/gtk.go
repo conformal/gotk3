@@ -4190,8 +4190,14 @@ func (v *Widget) Unmap() {
 	C.gtk_widget_unmap(v.Native())
 }
 
-//void gtk_widget_realize(GtkWidget *widget);
-//void gtk_widget_unrealize(GtkWidget *widget);
+//Realize is wraper around void gtk_widget_realize(GtkWidget *widget);
+func (v *Widget) Realize() {
+    C.gtk_widget_realize(v.toWidget())
+}
+//Unrealize is a wraper around void gtk_widget_unrealize(GtkWidget *widget);
+func (v *Widget) Unrealize() {
+    C.gtk_widget_unrealize(v.toWidget())
+}
 //void gtk_widget_draw(GtkWidget *widget, cairo_t *cr);
 //void gtk_widget_queue_resize(GtkWidget *widget);
 //void gtk_widget_queue_resize_no_redraw(GtkWidget *widget);
@@ -4541,11 +4547,9 @@ func (v *OffscreenWindow) GetSurface() (*CairoSurface, error) {
 	}
     c = C.cairo_create(s)
 	if c == nil {
-        C.cairo_surface_destroy(s)
 		return nil, errors.New("cgo C.cairo_create() returned unexpected nil pointer")
 	}
     cs := &CairoSurface{surface : s, context : c}
-    cs.Reference()
 	runtime.SetFinalizer(cs, (*CairoSurface).Destroy)
     return cs, nil
 }
@@ -4556,12 +4560,21 @@ type CairoSurface struct {
 }
 
 func (cs *CairoSurface) Reference() {
-    cs.surface = C.cairo_surface_reference(cs.surface)
+    if cs.surface != nil {
+        cs.surface = C.cairo_surface_reference(cs.surface)
+    }
+    if cs.context != nil {
+        cs.context = C.cairo_reference(cs.context)
+    }
 }
 
 func (cs *CairoSurface) Destroy() {
-    C.cairo_surface_destroy(cs.surface)
-    C.cairo_destroy(cs.context)
+    if cs.surface != nil {
+        C.cairo_surface_destroy(cs.surface)
+     }
+    if cs.context != nil {
+        C.cairo_destroy(cs.context)
+    }
 }
 
 func (cs *CairoSurface) GetCSurface() *C.cairo_surface_t {
