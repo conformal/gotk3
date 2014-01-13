@@ -4530,8 +4530,8 @@ func (v *OffscreenWindow) GetSurface() (*CairoSurface, error) {
     return &CairoSurface{surface : s, context : c}, nil
 }
 
-//GetPixBuff() is a wrap around GdkPixbuf* gtk_offscreen_window_get_pixbuf (GtkOffscreenWindow *offscreen);
-func (v *OffscreenWindow) GetPixBuff() (*gdk.Pixbuf, error) {
+//GetPixbuf() is a wrap around GdkPixbuf* gtk_offscreen_window_get_pixbuf (GtkOffscreenWindow *offscreen);
+func (v *OffscreenWindow) GetPixbuf() (*gdk.Pixbuf, error) {
     var c *C.GdkPixbuf
     c = C.gtk_offscreen_window_get_pixbuf(v.toOffscreenWindow())
 	if c == nil {
@@ -4544,6 +4544,7 @@ func (v *OffscreenWindow) GetPixBuff() (*gdk.Pixbuf, error) {
 	return pb, nil
 
 }
+
 type CairoSurface struct {
     surface *C.cairo_surface_t
     context *C.cairo_t
