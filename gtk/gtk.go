@@ -4545,6 +4545,7 @@ func (v *OffscreenWindow) GetSurface() (*CairoSurface, error) {
 	if s == nil {
 		return nil, errors.New("cgo C.gtk_offscreen_window_get_surface() returned unexpected nil pointer")
 	}
+    s = C.cairo_surface_reference(s)
     c = C.cairo_create(s)
 	if c == nil {
 		return nil, errors.New("cgo C.cairo_create() returned unexpected nil pointer")
