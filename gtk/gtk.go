@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Conformal Systems <info@conformal.com>
+// Copyright (c) 2013-2014 Conformal Systems <info@conformal.com>
 //
 // This file originated from: http://opensource.conformal.com/
 //
@@ -105,9 +105,9 @@ type Align int
 
 const (
 	ALIGN_FILL   Align = C.GTK_ALIGN_FILL
-	ALIGN_START        = C.GTK_ALIGN_START
-	ALIGN_END          = C.GTK_ALIGN_END
-	ALIGN_CENTER       = C.GTK_ALIGN_CENTER
+	ALIGN_START  Align = C.GTK_ALIGN_START
+	ALIGN_END    Align = C.GTK_ALIGN_END
+	ALIGN_CENTER Align = C.GTK_ALIGN_CENTER
 )
 
 // ButtonsType is a representation of GTK's GtkButtonsType.
@@ -115,11 +115,11 @@ type ButtonsType int
 
 const (
 	BUTTONS_NONE      ButtonsType = C.GTK_BUTTONS_NONE
-	BUTTONS_OK                    = C.GTK_BUTTONS_OK
-	BUTTONS_CLOSE                 = C.GTK_BUTTONS_CLOSE
-	BUTTONS_CANCEL                = C.GTK_BUTTONS_CANCEL
-	BUTTONS_YES_NO                = C.GTK_BUTTONS_YES_NO
-	BUTTONS_OK_CANCEL             = C.GTK_BUTTONS_OK_CANCEL
+	BUTTONS_OK        ButtonsType = C.GTK_BUTTONS_OK
+	BUTTONS_CLOSE     ButtonsType = C.GTK_BUTTONS_CLOSE
+	BUTTONS_CANCEL    ButtonsType = C.GTK_BUTTONS_CANCEL
+	BUTTONS_YES_NO    ButtonsType = C.GTK_BUTTONS_YES_NO
+	BUTTONS_OK_CANCEL ButtonsType = C.GTK_BUTTONS_OK_CANCEL
 )
 
 // DialogFlags is a representation of GTK's GtkDialogFlags.
@@ -127,7 +127,7 @@ type DialogFlags int
 
 const (
 	DIALOG_MODAL               DialogFlags = C.GTK_DIALOG_MODAL
-	DIALOG_DESTROY_WITH_PARENT             = C.GTK_DIALOG_DESTROY_WITH_PARENT
+	DIALOG_DESTROY_WITH_PARENT DialogFlags = C.GTK_DIALOG_DESTROY_WITH_PARENT
 )
 
 // EntryIconPosition is a representation of GTK's GtkEntryIconPosition.
@@ -135,7 +135,7 @@ type EntryIconPosition int
 
 const (
 	ENTRY_ICON_PRIMARY   EntryIconPosition = C.GTK_ENTRY_ICON_PRIMARY
-	ENTRY_ICON_SECONDARY                   = C.GTK_ENTRY_ICON_SECONDARY
+	ENTRY_ICON_SECONDARY EntryIconPosition = C.GTK_ENTRY_ICON_SECONDARY
 )
 
 // IconSize is a representation of GTK's GtkIconSize.
@@ -143,12 +143,12 @@ type IconSize int
 
 const (
 	ICON_SIZE_INVALID       IconSize = C.GTK_ICON_SIZE_INVALID
-	ICON_SIZE_MENU                   = C.GTK_ICON_SIZE_MENU
-	ICON_SIZE_SMALL_TOOLBAR          = C.GTK_ICON_SIZE_SMALL_TOOLBAR
-	ICON_SIZE_LARGE_TOOLBAR          = C.GTK_ICON_SIZE_LARGE_TOOLBAR
-	ICON_SIZE_BUTTON                 = C.GTK_ICON_SIZE_BUTTON
-	ICON_SIZE_DND                    = C.GTK_ICON_SIZE_DND
-	ICON_SIZE_DIALOG                 = C.GTK_ICON_SIZE_DIALOG
+	ICON_SIZE_MENU          IconSize = C.GTK_ICON_SIZE_MENU
+	ICON_SIZE_SMALL_TOOLBAR IconSize = C.GTK_ICON_SIZE_SMALL_TOOLBAR
+	ICON_SIZE_LARGE_TOOLBAR IconSize = C.GTK_ICON_SIZE_LARGE_TOOLBAR
+	ICON_SIZE_BUTTON        IconSize = C.GTK_ICON_SIZE_BUTTON
+	ICON_SIZE_DND           IconSize = C.GTK_ICON_SIZE_DND
+	ICON_SIZE_DIALOG        IconSize = C.GTK_ICON_SIZE_DIALOG
 )
 
 // ImageType is a representation of GTK's GtkImageType.
@@ -156,12 +156,12 @@ type ImageType int
 
 const (
 	IMAGE_EMPTY     ImageType = C.GTK_IMAGE_EMPTY
-	IMAGE_PIXBUF              = C.GTK_IMAGE_PIXBUF
-	IMAGE_STOCK               = C.GTK_IMAGE_STOCK
-	IMAGE_ICON_SET            = C.GTK_IMAGE_ICON_SET
-	IMAGE_ANIMATION           = C.GTK_IMAGE_ANIMATION
-	IMAGE_ICON_NAME           = C.GTK_IMAGE_ICON_NAME
-	IMAGE_GICON               = C.GTK_IMAGE_GICON
+	IMAGE_PIXBUF    ImageType = C.GTK_IMAGE_PIXBUF
+	IMAGE_STOCK     ImageType = C.GTK_IMAGE_STOCK
+	IMAGE_ICON_SET  ImageType = C.GTK_IMAGE_ICON_SET
+	IMAGE_ANIMATION ImageType = C.GTK_IMAGE_ANIMATION
+	IMAGE_ICON_NAME ImageType = C.GTK_IMAGE_ICON_NAME
+	IMAGE_GICON     ImageType = C.GTK_IMAGE_GICON
 )
 
 // InputHints is a representation of GTK's GtkInputHints.
@@ -169,14 +169,14 @@ type InputHints int
 
 const (
 	INPUT_HINT_NONE                InputHints = C.GTK_INPUT_HINT_NONE
-	INPUT_HINT_SPELLCHECK                     = C.GTK_INPUT_HINT_SPELLCHECK
-	INPUT_HINT_NO_SPELLCHECK                  = C.GTK_INPUT_HINT_NO_SPELLCHECK
-	INPUT_HINT_WORD_COMPLETION                = C.GTK_INPUT_HINT_WORD_COMPLETION
-	INPUT_HINT_LOWERCASE                      = C.GTK_INPUT_HINT_LOWERCASE
-	INPUT_HINT_UPPERCASE_CHARS                = C.GTK_INPUT_HINT_UPPERCASE_CHARS
-	INPUT_HINT_UPPERCASE_WORDS                = C.GTK_INPUT_HINT_UPPERCASE_WORDS
-	INPUT_HINT_UPPERCASE_SENTENCES            = C.GTK_INPUT_HINT_UPPERCASE_SENTENCES
-	INPUT_HINT_INHIBIT_OSK                    = C.GTK_INPUT_HINT_INHIBIT_OSK
+	INPUT_HINT_SPELLCHECK          InputHints = C.GTK_INPUT_HINT_SPELLCHECK
+	INPUT_HINT_NO_SPELLCHECK       InputHints = C.GTK_INPUT_HINT_NO_SPELLCHECK
+	INPUT_HINT_WORD_COMPLETION     InputHints = C.GTK_INPUT_HINT_WORD_COMPLETION
+	INPUT_HINT_LOWERCASE           InputHints = C.GTK_INPUT_HINT_LOWERCASE
+	INPUT_HINT_UPPERCASE_CHARS     InputHints = C.GTK_INPUT_HINT_UPPERCASE_CHARS
+	INPUT_HINT_UPPERCASE_WORDS     InputHints = C.GTK_INPUT_HINT_UPPERCASE_WORDS
+	INPUT_HINT_UPPERCASE_SENTENCES InputHints = C.GTK_INPUT_HINT_UPPERCASE_SENTENCES
+	INPUT_HINT_INHIBIT_OSK         InputHints = C.GTK_INPUT_HINT_INHIBIT_OSK
 )
 
 // InputPurpose is a representation of GTK's GtkInputPurpose.
@@ -184,15 +184,15 @@ type InputPurpose int
 
 const (
 	INPUT_PURPOSE_FREE_FORM InputPurpose = C.GTK_INPUT_PURPOSE_FREE_FORM
-	INPUT_PURPOSE_ALPHA                  = C.GTK_INPUT_PURPOSE_ALPHA
-	INPUT_PURPOSE_DIGITS                 = C.GTK_INPUT_PURPOSE_DIGITS
-	INPUT_PURPOSE_NUMBER                 = C.GTK_INPUT_PURPOSE_NUMBER
-	INPUT_PURPOSE_PHONE                  = C.GTK_INPUT_PURPOSE_PHONE
-	INPUT_PURPOSE_URL                    = C.GTK_INPUT_PURPOSE_URL
-	INPUT_PURPOSE_EMAIL                  = C.GTK_INPUT_PURPOSE_EMAIL
-	INPUT_PURPOSE_NAME                   = C.GTK_INPUT_PURPOSE_NAME
-	INPUT_PURPOSE_PASSWORD               = C.GTK_INPUT_PURPOSE_PASSWORD
-	INPUT_PURPOSE_PIN                    = C.GTK_INPUT_PURPOSE_PIN
+	INPUT_PURPOSE_ALPHA     InputPurpose = C.GTK_INPUT_PURPOSE_ALPHA
+	INPUT_PURPOSE_DIGITS    InputPurpose = C.GTK_INPUT_PURPOSE_DIGITS
+	INPUT_PURPOSE_NUMBER    InputPurpose = C.GTK_INPUT_PURPOSE_NUMBER
+	INPUT_PURPOSE_PHONE     InputPurpose = C.GTK_INPUT_PURPOSE_PHONE
+	INPUT_PURPOSE_URL       InputPurpose = C.GTK_INPUT_PURPOSE_URL
+	INPUT_PURPOSE_EMAIL     InputPurpose = C.GTK_INPUT_PURPOSE_EMAIL
+	INPUT_PURPOSE_NAME      InputPurpose = C.GTK_INPUT_PURPOSE_NAME
+	INPUT_PURPOSE_PASSWORD  InputPurpose = C.GTK_INPUT_PURPOSE_PASSWORD
+	INPUT_PURPOSE_PIN       InputPurpose = C.GTK_INPUT_PURPOSE_PIN
 )
 
 // Justify is a representation of GTK's GtkJustification.
@@ -210,10 +210,10 @@ type MessageType int
 
 const (
 	MESSAGE_INFO     MessageType = C.GTK_MESSAGE_INFO
-	MESSAGE_WARNING              = C.GTK_MESSAGE_WARNING
-	MESSAGE_QUESTION             = C.GTK_MESSAGE_QUESTION
-	MESSAGE_ERROR                = C.GTK_MESSAGE_ERROR
-	MESSAGE_OTHER                = C.GTK_MESSAGE_OTHER
+	MESSAGE_WARNING  MessageType = C.GTK_MESSAGE_WARNING
+	MESSAGE_QUESTION MessageType = C.GTK_MESSAGE_QUESTION
+	MESSAGE_ERROR    MessageType = C.GTK_MESSAGE_ERROR
+	MESSAGE_OTHER    MessageType = C.GTK_MESSAGE_OTHER
 )
 
 // Orientation is a representation of GTK's GtkOrientation.
@@ -221,7 +221,7 @@ type Orientation int
 
 const (
 	ORIENTATION_HORIZONTAL Orientation = C.GTK_ORIENTATION_HORIZONTAL
-	ORIENTATION_VERTICAL               = C.GTK_ORIENTATION_VERTICAL
+	ORIENTATION_VERTICAL   Orientation = C.GTK_ORIENTATION_VERTICAL
 )
 
 // PackType is a representation of GTK's GtkPackType.
@@ -229,7 +229,7 @@ type PackType int
 
 const (
 	PACK_START PackType = C.GTK_PACK_START
-	PACK_END            = C.GTK_PACK_END
+	PACK_END   PackType = C.GTK_PACK_END
 )
 
 // PolicyType is a representation of GTK's GtkPolicyType.
@@ -237,8 +237,8 @@ type PolicyType int
 
 const (
 	POLICY_ALWAYS    PolicyType = C.GTK_POLICY_ALWAYS
-	POLICY_AUTOMATIC            = C.GTK_POLICY_AUTOMATIC
-	POLICY_NEVER                = C.GTK_POLICY_NEVER
+	POLICY_AUTOMATIC PolicyType = C.GTK_POLICY_AUTOMATIC
+	POLICY_NEVER     PolicyType = C.GTK_POLICY_NEVER
 )
 
 // PositionType is a representation of GTK's GtkPositionType.
@@ -246,9 +246,9 @@ type PositionType int
 
 const (
 	POS_LEFT   PositionType = C.GTK_POS_LEFT
-	POS_RIGHT               = C.GTK_POS_RIGHT
-	POS_TOP                 = C.GTK_POS_TOP
-	POS_BOTTOM              = C.GTK_POS_BOTTOM
+	POS_RIGHT  PositionType = C.GTK_POS_RIGHT
+	POS_TOP    PositionType = C.GTK_POS_TOP
+	POS_BOTTOM PositionType = C.GTK_POS_BOTTOM
 )
 
 // ReliefStyle is a representation of GTK's GtkReliefStyle.
@@ -256,8 +256,8 @@ type ReliefStyle int
 
 const (
 	RELIEF_NORMAL ReliefStyle = C.GTK_RELIEF_NORMAL
-	RELIEF_HALF               = C.GTK_RELIEF_HALF
-	RELIEF_NONE               = C.GTK_RELIEF_NONE
+	RELIEF_HALF   ReliefStyle = C.GTK_RELIEF_HALF
+	RELIEF_NONE   ReliefStyle = C.GTK_RELIEF_NONE
 )
 
 // ResponseType is a representation of GTK's GtkResponseType.
@@ -265,16 +265,16 @@ type ResponseType int
 
 const (
 	RESPONSE_NONE         ResponseType = C.GTK_RESPONSE_NONE
-	RESPONSE_REJECT                    = C.GTK_RESPONSE_REJECT
-	RESPONSE_ACCEPT                    = C.GTK_RESPONSE_ACCEPT
-	RESPONSE_DELETE_EVENT              = C.GTK_RESPONSE_DELETE_EVENT
-	RESPONSE_OK                        = C.GTK_RESPONSE_OK
-	RESPONSE_CANCEL                    = C.GTK_RESPONSE_CANCEL
-	RESPONSE_CLOSE                     = C.GTK_RESPONSE_CLOSE
-	RESPONSE_YES                       = C.GTK_RESPONSE_YES
-	RESPONSE_NO                        = C.GTK_RESPONSE_NO
-	RESPONSE_APPLY                     = C.GTK_RESPONSE_APPLY
-	RESPONSE_HELP                      = C.GTK_RESPONSE_HELP
+	RESPONSE_REJECT       ResponseType = C.GTK_RESPONSE_REJECT
+	RESPONSE_ACCEPT       ResponseType = C.GTK_RESPONSE_ACCEPT
+	RESPONSE_DELETE_EVENT ResponseType = C.GTK_RESPONSE_DELETE_EVENT
+	RESPONSE_OK           ResponseType = C.GTK_RESPONSE_OK
+	RESPONSE_CANCEL       ResponseType = C.GTK_RESPONSE_CANCEL
+	RESPONSE_CLOSE        ResponseType = C.GTK_RESPONSE_CLOSE
+	RESPONSE_YES          ResponseType = C.GTK_RESPONSE_YES
+	RESPONSE_NO           ResponseType = C.GTK_RESPONSE_NO
+	RESPONSE_APPLY        ResponseType = C.GTK_RESPONSE_APPLY
+	RESPONSE_HELP         ResponseType = C.GTK_RESPONSE_HELP
 )
 
 // ShadowType is a representation of GTK's GtkShadowType.
@@ -293,7 +293,7 @@ type TreeModelFlags int
 
 const (
 	TREE_MODEL_ITERS_PERSIST TreeModelFlags = C.GTK_TREE_MODEL_ITERS_PERSIST
-	TREE_MODEL_LIST_ONLY                    = C.GTK_TREE_MODEL_LIST_ONLY
+	TREE_MODEL_LIST_ONLY     TreeModelFlags = C.GTK_TREE_MODEL_LIST_ONLY
 )
 
 // WindowPosition is a representation of GTK's GtkWindowPosition.
@@ -301,10 +301,10 @@ type WindowPosition int
 
 const (
 	WIN_POS_NONE             WindowPosition = C.GTK_WIN_POS_NONE
-	WIN_POS_CENTER                          = C.GTK_WIN_POS_CENTER
-	WIN_POS_MOUSE                           = C.GTK_WIN_POS_MOUSE
-	WIN_POS_CENTER_ALWAYS                   = C.GTK_WIN_POS_CENTER_ALWAYS
-	WIN_POS_CENTER_ON_PARENT                = C.GTK_WIN_POS_CENTER_ON_PARENT
+	WIN_POS_CENTER           WindowPosition = C.GTK_WIN_POS_CENTER
+	WIN_POS_MOUSE            WindowPosition = C.GTK_WIN_POS_MOUSE
+	WIN_POS_CENTER_ALWAYS    WindowPosition = C.GTK_WIN_POS_CENTER_ALWAYS
+	WIN_POS_CENTER_ON_PARENT WindowPosition = C.GTK_WIN_POS_CENTER_ON_PARENT
 )
 
 // WindowType is a representation of GTK's GtkWindowType.
@@ -312,17 +312,17 @@ type WindowType int
 
 const (
 	WINDOW_TOPLEVEL WindowType = C.GTK_WINDOW_TOPLEVEL
-	WINDOW_POPUP               = C.GTK_WINDOW_POPUP
+	WINDOW_POPUP    WindowType = C.GTK_WINDOW_POPUP
 )
 
 // WrapMode is a representation of GTK's GtkWrapMode.
 type WrapMode int
 
 const (
-	WRAP_NONE      = C.GTK_WRAP_NONE
-	WRAP_CHAR      = C.GTK_WRAP_CHAR
-	WRAP_WORD      = C.GTK_WRAP_WORD
-	WRAP_WORD_CHAR = C.GTK_WRAP_WORD_CHAR
+	WRAP_NONE      WrapMode = C.GTK_WRAP_NONE
+	WRAP_CHAR      WrapMode = C.GTK_WRAP_CHAR
+	WRAP_WORD      WrapMode = C.GTK_WRAP_WORD
+	WRAP_WORD_CHAR WrapMode = C.GTK_WRAP_WORD_CHAR
 )
 
 /*
@@ -872,7 +872,7 @@ type ICellRenderer interface {
 	toCellRenderer() *C.GtkCellRenderer
 }
 
-// Native() returns a pointer to the underlying GtkCellRenderer.
+// Native returns a pointer to the underlying GtkCellRenderer.
 func (v *CellRenderer) Native() *C.GtkCellRenderer {
 	if v == nil || v.GObject == nil {
 		return nil
@@ -901,7 +901,7 @@ type CellRendererText struct {
 	CellRenderer
 }
 
-// Native() returns a pointer to the underlying GtkCellRendererText.
+// Native returns a pointer to the underlying GtkCellRendererText.
 func (v *CellRendererText) Native() *C.GtkCellRendererText {
 	if v == nil || v.GObject == nil {
 		return nil
@@ -910,18 +910,11 @@ func (v *CellRendererText) Native() *C.GtkCellRendererText {
 	return C.toGtkCellRendererText(p)
 }
 
-func (v *CellRendererText) toCellRenderer() *C.GtkCellRenderer {
-	if v == nil {
-		return nil
-	}
-	return v.CellRenderer.Native()
-}
-
 func wrapCellRendererText(obj *glib.Object) *CellRendererText {
 	return &CellRendererText{CellRenderer{glib.InitiallyUnowned{obj}}}
 }
 
-// CellRendererTextNew() is a wrapper around gtk_cell_renderer_text_new().
+// CellRendererTextNew is a wrapper around gtk_cell_renderer_text_new().
 func CellRendererTextNew() (*CellRendererText, error) {
 	c := C.gtk_cell_renderer_text_new()
 	if c == nil {
@@ -932,6 +925,82 @@ func CellRendererTextNew() (*CellRendererText, error) {
 	obj.RefSink()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return crt, nil
+}
+
+/*
+ * GtkCellRendererToggle
+ */
+
+// CellRendererToggle is a representation of GTK's GtkCellRendererToggle.
+type CellRendererToggle struct {
+	CellRenderer
+}
+
+// Native returns a pointer to the underlying GtkCellRendererToggle.
+func (v *CellRendererToggle) Native() *C.GtkCellRendererToggle {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkCellRendererToggle(p)
+}
+
+func (v *CellRendererToggle) toCellRenderer() *C.GtkCellRenderer {
+	if v == nil {
+		return nil
+	}
+	return v.CellRenderer.Native()
+}
+
+func wrapCellRendererToggle(obj *glib.Object) *CellRendererToggle {
+	return &CellRendererToggle{CellRenderer{glib.InitiallyUnowned{obj}}}
+}
+
+// CellRendererToggleNew is a wrapper around gtk_cell_renderer_toggle_new().
+func CellRendererToggleNew() (*CellRendererToggle, error) {
+	c := C.gtk_cell_renderer_toggle_new()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	crt := wrapCellRendererToggle(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return crt, nil
+}
+
+// SetRadio is a wrapper around gtk_cell_renderer_toggle_set_radio().
+func (v *CellRendererToggle) SetRadio(set bool) {
+	C.gtk_cell_renderer_toggle_set_radio(v.Native(), gbool(set))
+}
+
+// GetRadio is a wrapper around gtk_cell_renderer_toggle_get_radio().
+func (v *CellRendererToggle) GetRadio() bool {
+	c := C.gtk_cell_renderer_toggle_get_radio(v.Native())
+	return gobool(c)
+}
+
+// SetActive is a wrapper arround gtk_cell_renderer_set_active().
+func (v *CellRendererToggle) SetActive(active bool) {
+	C.gtk_cell_renderer_toggle_set_active(v.Native(), gbool(active))
+}
+
+// GetActive is a wrapper around gtk_cell_renderer_get_active().
+func (v *CellRendererToggle) GetActive() bool {
+	c := C.gtk_cell_renderer_toggle_get_active(v.Native())
+	return gobool(c)
+}
+
+// SetActivatable is a wrapper around gtk_cell_renderer_set_activatable().
+func (v *CellRendererToggle) SetActivatable(activatable bool) {
+	C.gtk_cell_renderer_toggle_set_activatable(v.Native(),
+		gbool(activatable))
+}
+
+// GetActivatable is a wrapper around gtk_cell_renderer_get_activatable().
+func (v *CellRendererToggle) GetActivatable() bool {
+	c := C.gtk_cell_renderer_toggle_get_activatable(v.Native())
+	return gobool(c)
 }
 
 /*
@@ -2503,7 +2572,7 @@ type ListStore struct {
 	TreeModel
 }
 
-// Native() returns a pointer to the underlying GtkListStore.
+// Native returns a pointer to the underlying GtkListStore.
 func (v *ListStore) Native() *C.GtkListStore {
 	if v == nil || v.GObject == nil {
 		return nil
@@ -2524,7 +2593,7 @@ func (v *ListStore) toTreeModel() *C.GtkTreeModel {
 	return C.toGtkTreeModel(unsafe.Pointer(v.GObject))
 }
 
-// ListStoreNew() is a wrapper around gtk_list_store_newv().
+// ListStoreNew is a wrapper around gtk_list_store_newv().
 func ListStoreNew(types ...glib.Type) (*ListStore, error) {
 	gtypes := C.alloc_types(C.int(len(types)))
 	for n, val := range types {
@@ -2540,6 +2609,12 @@ func ListStoreNew(types ...glib.Type) (*ListStore, error) {
 	obj.Ref()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return ls, nil
+}
+
+// Remove is a wrapper around gtk_list_store_remove().
+func (v *ListStore) Remove(iter *TreeIter) bool {
+	c := C.gtk_list_store_remove(v.Native(), iter.Native())
+	return gobool(c)
 }
 
 // TODO(jrick)
@@ -2838,6 +2913,74 @@ func MessageDialogNew(parent IWindow, flags DialogFlags, mType MessageType, butt
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return m
 }
+
+// MessageDialogNewWithMarkup is a wrapper around
+// gtk_message_dialog_new_with_markup().
+func MessageDialogNewWithMarkup(parent IWindow, flags DialogFlags, mType MessageType, buttons ButtonsType, format string, a ...interface{}) *MessageDialog {
+	s := fmt.Sprintf(format, a...)
+	cstr := C.CString(s)
+	defer C.free(unsafe.Pointer(cstr))
+	var w *C.GtkWindow = nil
+	if parent != nil {
+		w = parent.toWindow()
+	}
+	c := C._gtk_message_dialog_new_with_markup(w,
+		C.GtkDialogFlags(flags), C.GtkMessageType(mType),
+		C.GtkButtonsType(buttons), cstr)
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	m := wrapMessageDialog(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return m
+}
+
+// SetMarkup is a wrapper around gtk_message_dialog_set_markup().
+func (v *MessageDialog) SetMarkup(str string) {
+	cstr := C.CString(str)
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_message_dialog_set_markup(v.Native(), (*C.gchar)(cstr))
+}
+
+// SetImage is a wrapper around gtk_message_dialog_set_image().
+func (v *MessageDialog) SetImage(image IWidget) {
+	C.gtk_message_dialog_set_image(v.Native(), image.toWidget())
+}
+
+// GetImage is a wrapper around gtk_message_dialog_get_image().
+func (v *MessageDialog) GetImage() (*Widget, error) {
+	c := C.gtk_message_dialog_get_image(v.Native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	w := wrapWidget(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return w, nil
+}
+
+// FormatSecondaryText is a wrapper around
+// gtk_message_dialog_format_secondary_text().
+func (v *MessageDialog) FormatSecondaryText(format string, a ...interface{}) {
+	s := fmt.Sprintf(format, a...)
+	cstr := C.CString(s)
+	defer C.free(unsafe.Pointer(cstr))
+	C._gtk_message_dialog_format_secondary_text(v.Native(),
+		(*C.gchar)(cstr))
+}
+
+// FormatSecondaryMarkup is a wrapper around
+// gtk_message_dialog_format_secondary_text().
+func (v *MessageDialog) FormatSecondaryMarkup(format string, a ...interface{}) {
+	s := fmt.Sprintf(format, a...)
+	cstr := C.CString(s)
+	defer C.free(unsafe.Pointer(cstr))
+	C._gtk_message_dialog_format_secondary_markup(v.Native(),
+		(*C.gchar)(cstr))
+}
+
+// GetMessageArea is intentionally unimplemented.  It returns a GtkVBox, which
+// is deprecated since GTK 3.2 and for which gotk3 has no bindings.
 
 /*
  * GtkMisc
@@ -3674,7 +3817,8 @@ func TextViewNew() (*TextView, error) {
 
 // TextViewNewWithBuffer is a wrapper around gtk_text_view_new_with_buffer().
 func TextViewNewWithBuffer(buf *TextBuffer) (*TextView, error) {
-	c := C.gtk_text_view_new_with_buffer(buf.Native())
+	cbuf := buf.Native()
+	c := C.gtk_text_view_new_with_buffer(cbuf)
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	t := wrapTextView(obj)
 	obj.RefSink()
@@ -3765,40 +3909,34 @@ func (v *TextView) GetAcceptsTab() bool {
 	return gobool(c)
 }
 
-// SetPixelsAboveLines is a wrapper around
-// gtk_text_view_set_pixels_above_lines().
+// SetPixelsAboveLines is a wrapper around gtk_text_view_set_pixels_above_lines().
 func (v *TextView) SetPixelsAboveLines(px int) {
 	C.gtk_text_view_set_pixels_above_lines(v.Native(), C.gint(px))
 }
 
-// GetPixelsAboveLines is a wrapper around
-// gtk_text_view_get_pixels_above_lines().
+// GetPixelsAboveLines is a wrapper around gtk_text_view_get_pixels_above_lines().
 func (v *TextView) GetPixelsAboveLines() int {
 	c := C.gtk_text_view_get_pixels_above_lines(v.Native())
 	return int(c)
 }
 
-// SetPixelsBelowLines is a wrapper around
-// gtk_text_view_set_pixels_below_lines().
+// SetPixelsBelowLines is a wrapper around gtk_text_view_set_pixels_below_lines().
 func (v *TextView) SetPixelsBelowLines(px int) {
 	C.gtk_text_view_set_pixels_below_lines(v.Native(), C.gint(px))
 }
 
-// GetPixelsBelowLines is a wrapper around
-// gtk_text_view_get_pixels_below_lines().
+// GetPixelsBelowLines is a wrapper around gtk_text_view_get_pixels_below_lines().
 func (v *TextView) GetPixelsBelowLines() int {
 	c := C.gtk_text_view_get_pixels_below_lines(v.Native())
 	return int(c)
 }
 
-// SetPixelsInsideWrap is a wrapper around
-// gtk_text_view_set_pixels_inside_wrap().
+// SetPixelsInsideWrap is a wrapper around gtk_text_view_set_pixels_inside_wrap().
 func (v *TextView) SetPixelsInsideWrap(px int) {
 	C.gtk_text_view_set_pixels_inside_wrap(v.Native(), C.gint(px))
 }
 
-// GetPixelsInsideWrap is a wrapper around
-// gtk_text_view_get_pixels_inside_wrap().
+// GetPixelsInsideWrap is a wrapper around gtk_text_view_get_pixels_inside_wrap().
 func (v *TextView) GetPixelsInsideWrap() int {
 	c := C.gtk_text_view_get_pixels_inside_wrap(v.Native())
 	return int(c)
@@ -4201,7 +4339,7 @@ type TreePath struct {
 	GtkTreePath *C.GtkTreePath
 }
 
-// Native() returns a pointer to the underlying GtkTreePath.
+// Native returns a pointer to the underlying GtkTreePath.
 func (v *TreePath) Native() *C.GtkTreePath {
 	if v == nil {
 		return nil
@@ -4211,6 +4349,12 @@ func (v *TreePath) Native() *C.GtkTreePath {
 
 func (v *TreePath) free() {
 	C.gtk_tree_path_free(v.Native())
+}
+
+// String is a wrapper around gtk_tree_path_to_string().
+func (v *TreePath) String() string {
+	c := C.gtk_tree_path_to_string(v.Native())
+	return C.GoString((*C.char)(c))
 }
 
 /*
@@ -5235,7 +5379,18 @@ func (v *Window) ResizeToGeometry(width, height int) {
 
 // TODO gtk_window_set_icon_list().
 
-// TODO gtk_window_set_icon_from_file().
+// SetIconFromFile is a wrapper around gtk_window_set_icon_from_file().
+func (v *Window) SetIconFromFile(file string) error {
+	cstr := C.CString(file)
+	defer C.free(unsafe.Pointer(cstr))
+	var err *C.GError = nil
+	res := C.gtk_window_set_icon_from_file(v.Native(), (*C.gchar)(cstr), &err)
+	if res == 0 {
+		defer C.g_error_free(err)
+		return errors.New(C.GoString((*C.char)(C.error_get_message(err))))
+	}
+	return nil
+}
 
 // TODO gtk_window_set_icon_name().
 
@@ -5319,6 +5474,8 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapCellRenderer(obj)
 	case "GtkCellRendererText":
 		g = wrapCellRendererText(obj)
+	case "GtkCellRendererToggle":
+		g = wrapCellRendererToggle(obj)
 	case "GtkCheckButton":
 		g = wrapCheckButton(obj)
 	case "GtkClipboard":
@@ -5379,6 +5536,12 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapSpinButton(obj)
 	case "GtkStatusbar":
 		g = wrapStatusbar(obj)
+	case "GtkTextView":
+		g = wrapTextView(obj)
+	case "GtkTextBuffer":
+		g = wrapTextBuffer(obj)
+	case "GtkTextTagTable":
+		g = wrapTextTagTable(obj)
 	case "GtkToggleButton":
 		g = wrapToggleButton(obj)
 	case "GtkTreeModel":

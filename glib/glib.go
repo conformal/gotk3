@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Conformal Systems <info@conformal.com>
+// Copyright (c) 2013-2014 Conformal Systems <info@conformal.com>
 //
 // This file originated from: http://opensource.conformal.com/
 //
@@ -53,14 +53,22 @@ func gobool(b C.gboolean) bool {
  * Unexported vars
  */
 
+type closureContext struct {
+	rf reflect.Value
+
+	// Never used but must be kept in go scope while the closure is valid
+	// or the finalizer will run.
+	userData *Value
+}
+
 var (
 	nilPtrErr = errors.New("cgo returned unexpected nil pointer")
 
 	closures = struct {
 		sync.RWMutex
-		m map[*C.GClosure]reflect.Value
+		m map[*C.GClosure]closureContext
 	}{
-		m: make(map[*C.GClosure]reflect.Value),
+		m: make(map[*C.GClosure]closureContext),
 	}
 
 	signals = make(map[SignalHandle]*C.GClosure)
@@ -75,27 +83,27 @@ type Type uint
 
 const (
 	TYPE_INVALID   Type = C.G_TYPE_INVALID
-	TYPE_NONE           = C.G_TYPE_NONE
-	TYPE_INTERFACE      = C.G_TYPE_INTERFACE
-	TYPE_CHAR           = C.G_TYPE_CHAR
-	TYPE_UCHAR          = C.G_TYPE_UCHAR
-	TYPE_BOOLEAN        = C.G_TYPE_BOOLEAN
-	TYPE_INT            = C.G_TYPE_INT
-	TYPE_UINT           = C.G_TYPE_UINT
-	TYPE_LONG           = C.G_TYPE_LONG
-	TYPE_ULONG          = C.G_TYPE_ULONG
-	TYPE_INT64          = C.G_TYPE_INT64
-	TYPE_UINT64         = C.G_TYPE_UINT64
-	TYPE_ENUM           = C.G_TYPE_ENUM
-	TYPE_FLAGS          = C.G_TYPE_FLAGS
-	TYPE_FLOAT          = C.G_TYPE_FLOAT
-	TYPE_DOUBLE         = C.G_TYPE_DOUBLE
-	TYPE_STRING         = C.G_TYPE_STRING
-	TYPE_POINTER        = C.G_TYPE_POINTER
-	TYPE_BOXED          = C.G_TYPE_BOXED
-	TYPE_PARAM          = C.G_TYPE_PARAM
-	TYPE_OBJECT         = C.G_TYPE_OBJECT
-	TYPE_VARIANT        = C.G_TYPE_VARIANT
+	TYPE_NONE      Type = C.G_TYPE_NONE
+	TYPE_INTERFACE Type = C.G_TYPE_INTERFACE
+	TYPE_CHAR      Type = C.G_TYPE_CHAR
+	TYPE_UCHAR     Type = C.G_TYPE_UCHAR
+	TYPE_BOOLEAN   Type = C.G_TYPE_BOOLEAN
+	TYPE_INT       Type = C.G_TYPE_INT
+	TYPE_UINT      Type = C.G_TYPE_UINT
+	TYPE_LONG      Type = C.G_TYPE_LONG
+	TYPE_ULONG     Type = C.G_TYPE_ULONG
+	TYPE_INT64     Type = C.G_TYPE_INT64
+	TYPE_UINT64    Type = C.G_TYPE_UINT64
+	TYPE_ENUM      Type = C.G_TYPE_ENUM
+	TYPE_FLAGS     Type = C.G_TYPE_FLAGS
+	TYPE_FLOAT     Type = C.G_TYPE_FLOAT
+	TYPE_DOUBLE    Type = C.G_TYPE_DOUBLE
+	TYPE_STRING    Type = C.G_TYPE_STRING
+	TYPE_POINTER   Type = C.G_TYPE_POINTER
+	TYPE_BOXED     Type = C.G_TYPE_BOXED
+	TYPE_PARAM     Type = C.G_TYPE_PARAM
+	TYPE_OBJECT    Type = C.G_TYPE_OBJECT
+	TYPE_VARIANT   Type = C.G_TYPE_VARIANT
 )
 
 // Name is a wrapper around g_type_name().
@@ -118,13 +126,13 @@ type UserDirectory int
 
 const (
 	USER_DIRECTORY_DESKTOP      UserDirectory = C.G_USER_DIRECTORY_DESKTOP
-	USER_DIRECTORY_DOCUMENTS                  = C.G_USER_DIRECTORY_DOCUMENTS
-	USER_DIRECTORY_DOWNLOAD                   = C.G_USER_DIRECTORY_DOWNLOAD
-	USER_DIRECTORY_MUSIC                      = C.G_USER_DIRECTORY_MUSIC
-	USER_DIRECTORY_PICTURES                   = C.G_USER_DIRECTORY_PICTURES
-	USER_DIRECTORY_PUBLIC_SHARE               = C.G_USER_DIRECTORY_PUBLIC_SHARE
-	USER_DIRECTORY_TEMPLATES                  = C.G_USER_DIRECTORY_TEMPLATES
-	USER_DIRECTORY_VIDEOS                     = C.G_USER_DIRECTORY_VIDEOS
+	USER_DIRECTORY_DOCUMENTS    UserDirectory = C.G_USER_DIRECTORY_DOCUMENTS
+	USER_DIRECTORY_DOWNLOAD     UserDirectory = C.G_USER_DIRECTORY_DOWNLOAD
+	USER_DIRECTORY_MUSIC        UserDirectory = C.G_USER_DIRECTORY_MUSIC
+	USER_DIRECTORY_PICTURES     UserDirectory = C.G_USER_DIRECTORY_PICTURES
+	USER_DIRECTORY_PUBLIC_SHARE UserDirectory = C.G_USER_DIRECTORY_PUBLIC_SHARE
+	USER_DIRECTORY_TEMPLATES    UserDirectory = C.G_USER_DIRECTORY_TEMPLATES
+	USER_DIRECTORY_VIDEOS       UserDirectory = C.G_USER_DIRECTORY_VIDEOS
 )
 
 const USER_N_DIRECTORIES int = C.G_USER_N_DIRECTORIES
@@ -148,9 +156,7 @@ type SignalHandle uint
 // that Go can type convert userData[0] as.  Non-GObject types may
 // always be used as their Go equivalent types (for example, *C.gchar
 // as a Go string).
-func (v *Object) Connect(detailedSignal string, f interface{},
-	userData ...interface{}) (SignalHandle, error) {
-
+func (v *Object) Connect(detailedSignal string, f interface{}, userData ...interface{}) (SignalHandle, error) {
 	if len(userData) > 1 {
 		return 0, errors.New("userData len must be 0 or 1")
 	}
@@ -163,11 +169,13 @@ func (v *Object) Connect(detailedSignal string, f interface{},
 		return 0, err
 	}
 
+	C._g_closure_add_finalize_notifier(closure)
+
 	c := C.g_signal_connect_closure(C.gpointer(v.Native()),
 		(*C.gchar)(cstr), closure, gbool(false))
 	handle := SignalHandle(c)
 
-	// Add closure to internally-maintained signals map.
+	// Map the signal handle to the closure.
 	signals[handle] = closure
 
 	return handle, nil
@@ -180,6 +188,9 @@ func ClosureNew(f interface{}, marshalData ...interface{}) (*C.GClosure, error) 
 	// Create a reflect.Value from f.  This is called when the
 	// returned GClosure runs.
 	rf := reflect.ValueOf(f)
+
+	// Create closure context which points to the reflected func.
+	cc := closureContext{rf: rf}
 
 	// Closures can only be created from funcs.
 	if rf.Type().Kind() != reflect.Func {
@@ -194,17 +205,29 @@ func ClosureNew(f interface{}, marshalData ...interface{}) (*C.GClosure, error) 
 		if err != nil {
 			return nil, err
 		}
-		// TODO: data needs to stay in scope until the source func is gone.
+		cc.userData = p
 		c = C._g_closure_new_with_data((C.gpointer)(p))
 	}
 
 	// Associate the GClosure with rf.  rf will be looked up in this
 	// map by the closure when the closure runs.
 	closures.Lock()
-	closures.m[c] = rf
+	closures.m[c] = cc
 	closures.Unlock()
 
 	return c, nil
+}
+
+// removeClosure removes a closure from the internal closures map.  This is
+// needed to prevent a leak where Go code can access the closure context
+// (along with rf and userdata) even after an object has been destroyed and
+// the GClosure is invalidated and will never run.
+//
+//export removeClosure
+func removeClosure(_ C.gpointer, closure *C.GClosure) {
+	closures.Lock()
+	delete(closures.m, closure)
+	closures.Unlock()
 }
 
 // goMarshal is called by the GLib runtime when a closure needs to be invoked.
@@ -226,15 +249,15 @@ func goMarshal(closure *C.GClosure, retValue *C.GValue,
 		nTotalParams++
 	}
 
-	// Get the function associated with this callback closure.
+	// Get the context associated with this callback closure.
 	closures.RLock()
-	rf := closures.m[closure]
+	cc := closures.m[closure]
 	closures.RUnlock()
 
 	// Get number of parameters from the callback closure.  If this exceeds
 	// the total number of marshaled parameters, a warning will be printed
 	// to stderr, and the callback will not be run.
-	nCbParams := rf.Type().NumIn()
+	nCbParams := cc.rf.Type().NumIn()
 	if nCbParams > nTotalParams {
 		fmt.Fprintf(os.Stderr,
 			"too many closure args: have %d, max allowed %d\n",
@@ -257,7 +280,7 @@ func goMarshal(closure *C.GClosure, retValue *C.GValue,
 			return
 		}
 		rv := reflect.ValueOf(val)
-		args = append(args, rv.Convert(rf.Type().In(i)))
+		args = append(args, rv.Convert(cc.rf.Type().In(i)))
 	}
 
 	// If non-nil marshaled user data was passed in and not all
@@ -266,12 +289,12 @@ func goMarshal(closure *C.GClosure, retValue *C.GValue,
 	if marshalData != nil && len(args) < cap(args) {
 		v := &Value{*marshalData}
 		rv := *v.reflectGoValue()
-		args = append(args, rv.Convert(rf.Type().In(nCbParams-1)))
+		args = append(args, rv.Convert(cc.rf.Type().In(nCbParams-1)))
 	}
 
 	// Call closure with args. If the callback returns one or more
 	// values, save the GValue equivalent of the first.
-	rv := rf.Call(args)
+	rv := cc.rf.Call(args)
 	if retValue != nil && len(rv) > 0 {
 		if g, err := GValue(rv[0].Interface()); err != nil {
 			fmt.Fprintf(os.Stderr,
@@ -353,6 +376,9 @@ func IdleAdd(f interface{}, args ...interface{}) (SourceHandle, error) {
 		C.g_source_destroy(idleSrc)
 	})
 
+	// Remove closure context when closure is finalized.
+	C._g_closure_add_finalize_notifier(closure)
+
 	// Set closure to run as a callback when the idle source runs.
 	C.g_source_set_closure(idleSrc, closure)
 
@@ -395,7 +421,7 @@ type Object struct {
 
 // ObjectNew creates a new Object from a Pointer.
 func ObjectNew(p unsafe.Pointer) *Object {
-	return &Object{(*C.GObject)(p)}
+	return &Object{GObject: (*C.GObject)(p)}
 }
 
 // Native() returns a pointer to the underlying GObject.

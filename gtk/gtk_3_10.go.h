@@ -16,41 +16,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdlib.h>
-
-// Type Casting
-static GdkAtom
-toGdkAtom(void *p)
+static GtkHeaderBar *
+toGtkHeaderBar(void *p)
 {
-	return ((GdkAtom)p);
-}
-
-static GdkDevice *
-toGdkDevice(void *p)
-{
-	return (GDK_DEVICE(p));
-}
-
-static GdkDeviceManager *
-toGdkDeviceManager(void *p)
-{
-	return (GDK_DEVICE_MANAGER(p));
-}
-
-static GdkDisplay *
-toGdkDisplay(void *p)
-{
-	return (GDK_DISPLAY(p));
-}
-
-static GdkScreen *
-toGdkScreen(void *p)
-{
-	return (GDK_SCREEN(p));
-}
-
-static GdkWindow *
-toGdkWindow(void *p)
-{
-	return (GDK_WINDOW(p));
+	return (GTK_HEADER_BAR(p));
 }
