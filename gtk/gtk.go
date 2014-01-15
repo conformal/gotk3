@@ -4186,6 +4186,12 @@ func (v *TreeModel) GetValue(iter *TreeIter, column int) (*glib.Value, error) {
 	return val, nil
 }
 
+// IterNext() is a wrapper around gtk_tree_model_iter_next().
+func (v *TreeModel) IterNext(iter *TreeIter) bool {
+	c := C.gtk_tree_model_iter_next(v.Native(), iter.Native())
+	return gobool(c)
+}
+
 /*
  * GtkTreePath
  */
