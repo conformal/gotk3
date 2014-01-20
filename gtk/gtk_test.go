@@ -19,8 +19,8 @@
 package gtk
 
 import (
-	"fmt"
 	"github.com/conformal/gotk3/glib"
+	"fmt"
 	"testing"
 )
 

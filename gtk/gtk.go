@@ -911,6 +911,13 @@ func (v *CellRendererText) Native() *C.GtkCellRendererText {
 	return C.toGtkCellRendererText(p)
 }
 
+func (v *CellRendererText) toCellRenderer() *C.GtkCellRenderer {
+	if v == nil {
+		return nil
+	}
+	return v.CellRenderer.Native()
+}
+
 func wrapCellRendererText(obj *glib.Object) *CellRendererText {
 	return &CellRendererText{CellRenderer{glib.InitiallyUnowned{obj}}}
 }
