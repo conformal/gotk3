@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Conformal Systems <info@conformal.com>
+// Copyright (c) 2013-2014 Conformal Systems <info@conformal.com>
 //
 // This file originated from: http://opensource.conformal.com/
 //
@@ -55,24 +55,39 @@ var nilPtrErr = errors.New("cgo returned unexpected nil pointer")
  * Constants
  */
 
+// Colorspace is a representation of GDK's GdkPixbufAlphaMode.
+type Colorspace int
+
+const (
+	COLORSPACE_RGB Colorspace = C.GDK_COLORSPACE_RGB
+)
+
+// PixbufAlphaMode is a representation of GDK's GdkPixbufAlphaMode.
+type PixbufAlphaMode int
+
+const (
+	GDK_PIXBUF_ALPHA_BILEVEL PixbufAlphaMode = C.GDK_PIXBUF_ALPHA_BILEVEL
+	GDK_PIXBUF_ALPHA_FULL    PixbufAlphaMode = C.GDK_PIXBUF_ALPHA_FULL
+)
+
 // Selections
 const (
 	SELECTION_PRIMARY       Atom = 1
-	SELECTION_SECONDARY          = 2
-	SELECTION_CLIPBOARD          = 69
-	TARGET_BITMAP                = 5
-	TARGET_COLORMAP              = 7
-	TARGET_DRAWABLE              = 17
-	TARGET_PIXMAP                = 20
-	TARGET_STRING                = 31
-	SELECTION_TYPE_ATOM          = 4
-	SELECTION_TYPE_BITMAP        = 5
-	SELECTION_TYPE_COLORMAP      = 7
-	SELECTION_TYPE_DRAWABLE      = 17
-	SELECTION_TYPE_INTEGER       = 19
-	SELECTION_TYPE_PIXMAP        = 20
-	SELECTION_TYPE_WINDOW        = 33
-	SELECTION_TYPE_STRING        = 31
+	SELECTION_SECONDARY     Atom = 2
+	SELECTION_CLIPBOARD     Atom = 69
+	TARGET_BITMAP           Atom = 5
+	TARGET_COLORMAP         Atom = 7
+	TARGET_DRAWABLE         Atom = 17
+	TARGET_PIXMAP           Atom = 20
+	TARGET_STRING           Atom = 31
+	SELECTION_TYPE_ATOM     Atom = 4
+	SELECTION_TYPE_BITMAP   Atom = 5
+	SELECTION_TYPE_COLORMAP Atom = 7
+	SELECTION_TYPE_DRAWABLE Atom = 17
+	SELECTION_TYPE_INTEGER  Atom = 19
+	SELECTION_TYPE_PIXMAP   Atom = 20
+	SELECTION_TYPE_WINDOW   Atom = 33
+	SELECTION_TYPE_STRING   Atom = 31
 )
 
 /*
@@ -404,6 +419,93 @@ func (v *Event) Native() *C.GdkEvent {
 
 func (v *Event) free() {
 	C.gdk_event_free(v.Native())
+}
+
+/*
+ * GdkPixbuf
+ */
+
+// Pixbuf is a representation of GDK's GdkPixbuf.
+type Pixbuf struct {
+	*glib.Object
+}
+
+// Native returns a pointer to the underlying GdkPixbuf.
+func (v *Pixbuf) Native() *C.GdkPixbuf {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGdkPixbuf(p)
+}
+
+// GetColorspace is a wrapper around gdk_pixbuf_get_colorspace().
+func (v *Pixbuf) GetColorspace() Colorspace {
+	c := C.gdk_pixbuf_get_colorspace(v.Native())
+	return Colorspace(c)
+}
+
+// GetNChannels is a wrapper around gdk_pixbuf_get_n_channels().
+func (v *Pixbuf) GetNChannels() int {
+	c := C.gdk_pixbuf_get_n_channels(v.Native())
+	return int(c)
+}
+
+// GetHasAlpha is a wrapper around gdk_pixbuf_get_has_alpha().
+func (v *Pixbuf) GetHasAlpha() bool {
+	c := C.gdk_pixbuf_get_has_alpha(v.Native())
+	return gobool(c)
+}
+
+// GetBitsPerSample is a wrapper around gdk_pixbuf_get_bits_per_sample().
+func (v *Pixbuf) GetBitsPerSample() int {
+	c := C.gdk_pixbuf_get_bits_per_sample(v.Native())
+	return int(c)
+}
+
+// GetPixels is a wrapper around gdk_pixbuf_get_pixels_with_length().
+// A Go slice is used to represent the underlying Pixbuf data array, one
+// byte per channel.
+func (v *Pixbuf) GetPixels() []byte {
+	var length C.guint
+	c := C.gdk_pixbuf_get_pixels_with_length(v.Native(), &length)
+	return C.GoBytes(unsafe.Pointer(c), (C.int)(length))
+}
+
+// GetWidth is a wrapper around gdk_pixbuf_get_width().
+func (v *Pixbuf) GetWidth() int {
+	c := C.gdk_pixbuf_get_width(v.Native())
+	return int(c)
+}
+
+// GetHeight is a wrapper around gdk_pixbuf_get_height().
+func (v *Pixbuf) GetHeight() int {
+	c := C.gdk_pixbuf_get_height(v.Native())
+	return int(c)
+}
+
+// GetRowstride is a wrapper around gdk_pixbuf_get_rowstride().
+func (v *Pixbuf) GetRowstride() int {
+	c := C.gdk_pixbuf_get_rowstride(v.Native())
+	return int(c)
+}
+
+// GetByteLength is a wrapper around gdk_pixbuf_get_byte_length().
+func (v *Pixbuf) GetByteLength() int {
+	c := C.gdk_pixbuf_get_byte_length(v.Native())
+	return int(c)
+}
+
+// GetOption is a wrapper around gdk_pixbuf_get_option().  ok is true if
+// the key has an associated value.
+func (v *Pixbuf) GetOption(key string) (value string, ok bool) {
+	cstr := C.CString(key)
+	defer C.free(unsafe.Pointer(cstr))
+	c := C.gdk_pixbuf_get_option(v.Native(), (*C.gchar)(cstr))
+	if c == nil {
+		return "", false
+	}
+	return C.GoString((*C.char)(c)), true
 }
 
 /*

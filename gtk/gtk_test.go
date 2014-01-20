@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Conformal Systems <info@conformal.com>
+ * Copyright (c) 2013-2014 Conformal Systems <info@conformal.com>
  *
  * This file originated from: http://opensource.conformal.com/
  *
@@ -515,10 +515,9 @@ func TestCellRendererToggle_WhenSetActivatableTrue_ExpectGetActivatableReturnsTr
 	}
 }
 
-// Given one item in ListStore
-// When item removed
-// Then expect Remove() returns false (iter invalid)
-func TestListStoreRemove_GivenOneItemInListStore_ExpectReturnTrue(t *testing.T) {
+// TestListStoreRemoveLastInvalidIterator tests that when a ListStore stores
+// one item and it is removed, the iterator becomes invalid.
+func TestListStoreRemoveLastInvalidIterator(t *testing.T) {
 	ls, err := ListStoreNew(glib.TYPE_BOOLEAN)
 	if err != nil {
 		t.Fatal("Unexpected err:", err)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Conformal Systems <info@conformal.com>
+ * Copyright (c) 2013-2014 Conformal Systems <info@conformal.com>
  *
  * This file originated from: http://opensource.conformal.com/
  *
@@ -96,7 +96,7 @@ _g_value_fundamental(GType type)
  * Closure support
  */
 
-extern void	goMarshal(GClosure *, GValue *, guint, GValue *, gpointer, GValue *);//gpointer);
+extern void	goMarshal(GClosure *, GValue *, guint, GValue *, gpointer, GValue *);
 
 static GClosure *
 _g_closure_new()
@@ -105,7 +105,7 @@ _g_closure_new()
 
 	closure = g_closure_new_simple(sizeof(GClosure), NULL);
 	g_closure_set_marshal(closure, (GClosureMarshal)(goMarshal));
-	return closure;
+	return (closure);
 }
 
 static GClosure *
@@ -116,5 +116,13 @@ _g_closure_new_with_data(gpointer marshal_data)
 	closure = g_closure_new_simple(sizeof(GClosure), NULL);
 	g_closure_set_meta_marshal(closure, marshal_data,
 	    (GClosureMarshal)(goMarshal));
-	return closure;
+	return (closure);
+}
+
+extern void	removeClosure(gpointer, GClosure *);
+
+static void
+_g_closure_add_finalize_notifier(GClosure *closure)
+{
+	g_closure_add_finalize_notifier(closure, NULL, removeClosure);
 }

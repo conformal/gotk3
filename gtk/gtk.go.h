@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Conformal Systems <info@conformal.com>
+ * Copyright (c) 2013-2014 Conformal Systems <info@conformal.com>
  *
  * This file originated from: http://opensource.conformal.com/
  *
@@ -314,6 +314,12 @@ toGtkSearchEntry(void *p)
 	return (GTK_SEARCH_ENTRY(p));
 }
 
+static GtkOffscreenWindow *
+toGtkOffscreenWindow(void *p)
+{
+	return (GTK_OFFSCREEN_WINDOW(p));
+}
+
 static GType * 
 alloc_types(int n) {
 	return ((GType *)g_new0(GType, n));
@@ -344,6 +350,31 @@ _gtk_message_dialog_new(GtkWindow *parent, GtkDialogFlags flags,
 
 	w = gtk_message_dialog_new(parent, flags, type, buttons, "%s", msg);
 	return (w);
+}
+
+static GtkWidget *
+_gtk_message_dialog_new_with_markup(GtkWindow *parent, GtkDialogFlags flags,
+    GtkMessageType type, GtkButtonsType buttons, char *msg)
+{
+	GtkWidget		*w;
+
+	w = gtk_message_dialog_new_with_markup(parent, flags, type, buttons,
+	    "%s", msg);
+	return (w);
+}
+
+void
+_gtk_message_dialog_format_secondary_text(GtkMessageDialog *message_dialog,
+    const gchar *msg)
+{
+	gtk_message_dialog_format_secondary_text(message_dialog, "%s", msg);
+}
+
+void
+_gtk_message_dialog_format_secondary_markup(GtkMessageDialog *message_dialog,
+    const gchar *msg)
+{
+	gtk_message_dialog_format_secondary_markup(message_dialog, "%s", msg);
 }
 
 static gchar *
