@@ -115,7 +115,7 @@ const (
 	PROXIMITY_IN_MASK                = C.GDK_PROXIMITY_IN_MASK
 	PROXIMITY_OUT_MASK               = C.GDK_PROXIMITY_OUT_MASK
 	SUBSTRUCTURE_MASK                = C.GDK_SUBSTRUCTURE_MASK
-	SSCROLL_MASK                     = C.GDK_SCROLL_MASK
+	SCROLL_MASK                      = C.GDK_SCROLL_MASK
 	ALL_EVENTS_MASK                  = C.GDK_ALL_EVENTS_MASK
 )
 
