@@ -4351,7 +4351,7 @@ func (v *Widget) GetParentWindow() (*gdk.Window, error) {
 }
 
 // SetEvents() is a wrapper around gtk_widget_set_events().
-func (v *Widget) SetEvents(events int) {
+func (v *Widget) SetEvents(events gdk.EventMask) {
 	C.gtk_widget_set_events(v.Native(), C.gint(events))
 }
 
