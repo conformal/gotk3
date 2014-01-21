@@ -2667,6 +2667,16 @@ func (v *ListStore) InsertWithValues(iter *TreeIter, position int, columns []int
 }
 */
 
+// InsertBefore() is a wrapper around gtk_list_store_insert_before().
+func (v *ListStore) InsertBefore(iter *TreeIter, sibling *TreeIter) {
+	C.gtk_list_store_insert_before(v.Native(), iter.Native(), sibling.Native())
+}
+
+// InsertAfter() is a wrapper around gtk_list_store_insert_after().
+func (v *ListStore) InsertAfter(iter *TreeIter, sibling *TreeIter) {
+	C.gtk_list_store_insert_after(v.Native(), iter.Native(), sibling.Native())
+}
+
 // Prepend() is a wrapper around gtk_list_store_prepend().
 func (v *ListStore) Prepend(iter *TreeIter) {
 	C.gtk_list_store_prepend(v.Native(), iter.Native())
