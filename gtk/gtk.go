@@ -911,6 +911,13 @@ func (v *CellRendererText) Native() *C.GtkCellRendererText {
 	return C.toGtkCellRendererText(p)
 }
 
+func (v *CellRendererText) toCellRenderer() *C.GtkCellRenderer {
+	if v == nil {
+		return nil
+	}
+	return v.CellRenderer.Native()
+}
+
 func wrapCellRendererText(obj *glib.Object) *CellRendererText {
 	return &CellRendererText{CellRenderer{glib.InitiallyUnowned{obj}}}
 }
@@ -2660,14 +2667,36 @@ func (v *ListStore) InsertWithValues(iter *TreeIter, position int, columns []int
 }
 */
 
+// InsertBefore() is a wrapper around gtk_list_store_insert_before().
+func (v *ListStore) InsertBefore(sibling *TreeIter) *TreeIter {
+	iter := &TreeIter{C.GtkTreeIter{}}
+	runtime.SetFinalizer(iter, (*TreeIter).free)
+	C.gtk_list_store_insert_before(v.Native(), iter.Native(), sibling.Native())
+	return iter
+}
+
+// InsertAfter() is a wrapper around gtk_list_store_insert_after().
+func (v *ListStore) InsertAfter(sibling *TreeIter) *TreeIter {
+	iter := &TreeIter{C.GtkTreeIter{}}
+	runtime.SetFinalizer(iter, (*TreeIter).free)
+	C.gtk_list_store_insert_after(v.Native(), iter.Native(), sibling.Native())
+	return iter
+}
+
 // Prepend() is a wrapper around gtk_list_store_prepend().
-func (v *ListStore) Prepend(iter *TreeIter) {
+func (v *ListStore) Prepend() *TreeIter {
+	iter := &TreeIter{C.GtkTreeIter{}}
+	runtime.SetFinalizer(iter, (*TreeIter).free)
 	C.gtk_list_store_prepend(v.Native(), iter.Native())
+	return iter
 }
 
 // Append() is a wrapper around gtk_list_store_append().
-func (v *ListStore) Append(iter *TreeIter) {
+func (v *ListStore) Append() *TreeIter {
+	iter := &TreeIter{C.GtkTreeIter{}}
+	runtime.SetFinalizer(iter, (*TreeIter).free)
 	C.gtk_list_store_append(v.Native(), iter.Native())
+	return iter
 }
 
 // Clear() is a wrapper around gtk_list_store_clear().
