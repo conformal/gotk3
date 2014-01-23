@@ -388,6 +388,64 @@ func IdleAdd(f interface{}, args ...interface{}) (SourceHandle, error) {
 	return SourceHandle(cid), nil
 }
 
+/*At this moment VISIONECT specific.*/
+// TimeoutAdd adds an timeout source to the default main event loop
+// context.  After running once, the source func will be removed
+// from the main event loop, unless f returns a single bool true.
+//
+// This function will cause a panic when f eventually runs if the
+// types of args do not match those of f.
+// timeout is in milliseconds
+func TimeoutAdd(timeout uint,f interface{}, args ...interface{}) (SourceHandle, error) {
+	// f must be a func with no parameters.
+	rf := reflect.ValueOf(f)
+	if rf.Type().Kind() != reflect.Func {
+		return 0, errors.New("f is not a function")
+	}
+
+	// Create an idle source func for a main loop context.
+	idleSrc := C.g_timeout_source_new(C.guint(timeout))
+	if idleSrc == nil {
+		return 0, nilPtrErr
+	}
+
+	// Create a new GClosure from f that invalidates itself when
+	// f returns false.  The error is ignored here, as this will
+	// always be a function.
+	var closure *C.GClosure
+	closure, _ = ClosureNew(func() {
+		// Create a slice of reflect.Values arguments to call the func.
+		rargs := make([]reflect.Value, len(args))
+		for i := range args {
+			rargs[i] = reflect.ValueOf(args[i])
+		}
+
+		// Call func with args. The callback will be removed, unless
+		// it returns exactly one return value of true.
+		rv := rf.Call(rargs)
+		if len(rv) == 1 {
+			if rv[0].Kind() == reflect.Bool {
+				if rv[0].Bool() {
+					return
+				}
+			}
+		}
+		C.g_closure_invalidate(closure)
+		C.g_source_destroy(idleSrc)
+	})
+
+	// Remove closure context when closure is finalized.
+	C._g_closure_add_finalize_notifier(closure)
+
+	// Set closure to run as a callback when the idle source runs.
+	C.g_source_set_closure(idleSrc, closure)
+
+	// Attach the idle source func to the default main event loop
+	// context.
+	cid := C.g_source_attach(idleSrc, nil)
+	return SourceHandle(cid), nil
+}
+
 /*
  * Miscellaneous Utility Functions
  */
