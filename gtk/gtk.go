@@ -3380,7 +3380,7 @@ func OffscreenWindowNew() (*OffscreenWindow, error) {
 // The returned surface is safe to use over window resizes.
 func (v *OffscreenWindow) GetSurface() (*cairo.Surface, error) {
 	c := C.gtk_offscreen_window_get_surface(v.Native())
-    if c == nil {
+	if c == nil {
 		return nil, nilPtrErr
 	}
 	s := cairo.NewSurface(c, true)
@@ -5128,6 +5128,12 @@ func (v *Window) SetGeometryHints() {
 // TODO(jrick) GdkGravity.
 /*
 func (v *Window) SetGravity() {
+}
+*/
+
+// TODO(jrick) GdkGravity.
+/*
+func (v *Window) GetGravity() {
 }
 */
 
