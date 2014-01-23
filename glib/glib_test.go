@@ -41,3 +41,16 @@ func TestConnectNotifySignal(t *testing.T) {
 
 	gtk.Main()
 }
+
+/*At this moment Visionect specific*/
+func TestTimeoutAdd(t *testing.T) {
+	runtime.LockOSThread()
+
+	glib.TimeoutAdd(2500, func(s string) bool {
+        t.Log(s)
+		gtk.MainQuit()
+		return false
+    }, "timeout")
+
+	gtk.Main()
+}
