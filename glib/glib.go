@@ -941,6 +941,7 @@ func GValue(v interface{}) (gvalue *Value, err error) {
 	return nil, errors.New("Type not implemented")
 }
 
+//VISIONECT specific
 // GoValue() converts a Value to comparable Go type.  GoValue()
 // returns a non-nil error if the conversion was unsuccessful.  The
 // returned interface{} must be type asserted as the actual Go
@@ -953,6 +954,11 @@ func (v *Value) GoValue() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+    /*gcstr:=C.g_type_name (C.GType(fundamental))
+    //cstr:=C.G_VALUE_TYPE_NAME(fundamental)
+    str := C.GoString((*C.char)(gcstr))
+    fmt.Println("GoValue GType = ", str)
+    fmt.Println("----------------------")*/
 
 	// TODO: verify that all of these cases are indeed fundamental types
 	switch fundamental {
@@ -978,9 +984,14 @@ func (v *Value) GoValue() (interface{}, error) {
 		return gobool(c), nil
 
 	// TODO: TYPE_INT should probably be a Go int32.
-	case TYPE_INT, TYPE_LONG, TYPE_ENUM:
-		c := C.g_value_get_int(v.Native())
+	case TYPE_INT, TYPE_LONG:
+       	c := C.g_value_get_int(v.Native())
+       lue int", int(c), int32(c))
 		return int(c), nil
+
+    case TYPE_ENUM:
+        c := C.g_value_get_enum(v.Native())
+        return int(c), nil
 
 	case TYPE_INT64:
 		c := C.g_value_get_int64(v.Native())
