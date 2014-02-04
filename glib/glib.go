@@ -986,11 +986,10 @@ func (v *Value) GoValue() (interface{}, error) {
 	// TODO: TYPE_INT should probably be a Go int32.
 	case TYPE_INT, TYPE_LONG:
        	c := C.g_value_get_int(v.Native())
-       lue int", int(c), int32(c))
 		return int(c), nil
 
     case TYPE_ENUM:
-        c := C.g_value_get_enum(v.Native())
+      	c := C.g_value_get_enum(v.Native())
         return int(c), nil
 
 	case TYPE_INT64:
