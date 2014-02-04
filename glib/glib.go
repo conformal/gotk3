@@ -396,7 +396,7 @@ func IdleAdd(f interface{}, args ...interface{}) (SourceHandle, error) {
 // This function will cause a panic when f eventually runs if the
 // types of args do not match those of f.
 // timeout is in milliseconds
-func TimeoutAdd(timeout uint,f interface{}, args ...interface{}) (SourceHandle, error) {
+func TimeoutAdd(timeout uint, f interface{}, args ...interface{}) (SourceHandle, error) {
 	// f must be a func with no parameters.
 	rf := reflect.ValueOf(f)
 	if rf.Type().Kind() != reflect.Func {
@@ -954,11 +954,11 @@ func (v *Value) GoValue() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-    /*gcstr:=C.g_type_name (C.GType(fundamental))
-    //cstr:=C.G_VALUE_TYPE_NAME(fundamental)
-    str := C.GoString((*C.char)(gcstr))
-    fmt.Println("GoValue GType = ", str)
-    fmt.Println("----------------------")*/
+	/*gcstr:=C.g_type_name (C.GType(fundamental))
+	  //cstr:=C.G_VALUE_TYPE_NAME(fundamental)
+	  str := C.GoString((*C.char)(gcstr))
+	  fmt.Println("GoValue GType = ", str)
+	  fmt.Println("----------------------")*/
 
 	// TODO: verify that all of these cases are indeed fundamental types
 	switch fundamental {
@@ -985,12 +985,12 @@ func (v *Value) GoValue() (interface{}, error) {
 
 	// TODO: TYPE_INT should probably be a Go int32.
 	case TYPE_INT, TYPE_LONG:
-        c := C.g_value_get_int(v.Native())
+		c := C.g_value_get_int(v.Native())
 		return int(c), nil
 
-    case TYPE_ENUM:
-        c := C.g_value_get_enum(v.Native())
-        return int(c), nil
+	case TYPE_ENUM:
+		c := C.g_value_get_enum(v.Native())
+		return int(c), nil
 
 	case TYPE_INT64:
 		c := C.g_value_get_int64(v.Native())

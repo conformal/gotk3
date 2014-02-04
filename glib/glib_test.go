@@ -47,10 +47,10 @@ func TestTimeoutAdd(t *testing.T) {
 	runtime.LockOSThread()
 
 	glib.TimeoutAdd(2500, func(s string) bool {
-        t.Log(s)
+		t.Log(s)
 		gtk.MainQuit()
 		return false
-    }, "timeout")
+	}, "timeout")
 
 	gtk.Main()
 }
