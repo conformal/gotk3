@@ -20,8 +20,8 @@ package gtk
 
 import (
 	"fmt"
-	"github.com/conformal/gotk3/glib"
-	"log"
+	"github.com/visionect/gotk3/glib"
+    "log"
 	"testing"
 )
 

@@ -14,7 +14,7 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-// Go bindings for GDK 3.  Supports version 3.6 and later.
+// Go bindings for GDK 3.  Supports version 3.8 and later.
 package gdk
 
 // #cgo pkg-config: gdk-3.0
@@ -23,7 +23,7 @@ package gdk
 import "C"
 import (
 	"errors"
-	"github.com/conformal/gotk3/glib"
+	"github.com/visionect/gotk3/glib"
 	"runtime"
 	"unsafe"
 )
@@ -88,6 +88,35 @@ const (
 	SELECTION_TYPE_PIXMAP   Atom = 20
 	SELECTION_TYPE_WINDOW   Atom = 33
 	SELECTION_TYPE_STRING   Atom = 31
+)
+/*At this moment VISIONECT specific*/
+type EventMask uint
+
+/*At this moment VISIONECT specific*/
+// Event masks
+const (
+	EXPOSURE_MASK          EventMask = C.GDK_EXPOSURE_MASK
+	POINTER_MOTION_MASK              = C.GDK_POINTER_MOTION_MASK
+	POINTER_MOTION_HINT              = C.GDK_POINTER_MOTION_HINT_MASK
+	BUTTON_MOTION_MASK               = C.GDK_BUTTON_MOTION_MASK
+	BUTTON1_MOTION_MASK              = C.GDK_BUTTON1_MOTION_MASK
+	BUTTON2_MOTION_MASK              = C.GDK_BUTTON2_MOTION_MASK
+	BUTTON3_MOTION_MASK              = C.GDK_BUTTON3_MOTION_MASK
+	BUTTON_PRESS_MASK                = C.GDK_BUTTON_PRESS_MASK
+	BUTTON_RELEASE_MASK              = C.GDK_BUTTON_RELEASE_MASK
+	KEY_PRESS_MASK                   = C.GDK_KEY_PRESS_MASK
+	KEY_RELEASE_MASK                 = C.GDK_KEY_RELEASE_MASK
+	ENTER_NOTIFY_MASK                = C.GDK_ENTER_NOTIFY_MASK
+	LEAVE_NOTIFY_MASK                = C.GDK_LEAVE_NOTIFY_MASK
+	FOCUS_CHANGE_MASK                = C.GDK_FOCUS_CHANGE_MASK
+	STRUCTURE_MASK                   = C.GDK_STRUCTURE_MASK
+	PROPERTY_CHANGE_MASK             = C.GDK_PROPERTY_CHANGE_MASK
+	VISIBILITY_NOTIFY_MASK           = C.GDK_VISIBILITY_NOTIFY_MASK
+	PROXIMITY_IN_MASK                = C.GDK_PROXIMITY_IN_MASK
+	PROXIMITY_OUT_MASK               = C.GDK_PROXIMITY_OUT_MASK
+	SUBSTRUCTURE_MASK                = C.GDK_SUBSTRUCTURE_MASK
+	SCROLL_MASK                      = C.GDK_SCROLL_MASK
+	ALL_EVENTS_MASK                  = C.GDK_ALL_EVENTS_MASK
 )
 
 /*

@@ -14,7 +14,7 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-// Go bindings for GTK+ 3.  Supports version 3.6 and later.
+// Go bindings for GTK+ 3.  Supports version 3.8 and later.
 //
 // Functions use the same names as the native C function calls, but use
 // CamelCase.  In cases where native GTK uses pointers to values to
@@ -51,9 +51,9 @@ import "C"
 import (
 	"errors"
 	"fmt"
-	"github.com/conformal/gotk3/cairo"
-	"github.com/conformal/gotk3/gdk"
-	"github.com/conformal/gotk3/glib"
+	"github.com/visionect/gotk3/cairo"
+	"github.com/visionect/gotk3/gdk"
+	"github.com/visionect/gotk3/glib"
 	"runtime"
 	"unsafe"
 )
@@ -4750,8 +4750,15 @@ func (v *Widget) Unmap() {
 	C.gtk_widget_unmap(v.Native())
 }
 
-//void gtk_widget_realize(GtkWidget *widget);
-//void gtk_widget_unrealize(GtkWidget *widget);
+/*At this moment VISIONECT specific*/
+//Realize is wraper around void gtk_widget_realize(GtkWidget *widget);
+func (v *Widget) Realize() {
+    C.gtk_widget_realize(v.toWidget())
+}
+//Unrealize is a wraper around void gtk_widget_unrealize(GtkWidget *widget);
+func (v *Widget) Unrealize() {
+    C.gtk_widget_unrealize(v.toWidget())
+}
 //void gtk_widget_draw(GtkWidget *widget, cairo_t *cr);
 //void gtk_widget_queue_resize(GtkWidget *widget);
 //void gtk_widget_queue_resize_no_redraw(GtkWidget *widget);
@@ -4904,8 +4911,9 @@ func (v *Widget) GetParentWindow() (*gdk.Window, error) {
 	return w, nil
 }
 
+/*At this moment VISIONECT specific.*/
 // SetEvents() is a wrapper around gtk_widget_set_events().
-func (v *Widget) SetEvents(events int) {
+func (v *Widget) SetEvents(events gdk.EventMask) {
 	C.gtk_widget_set_events(v.Native(), C.gint(events))
 }
 

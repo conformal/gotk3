@@ -29,7 +29,7 @@ package gtk
 // #include "gtk_3_10.go.h"
 import "C"
 import (
-	"github.com/conformal/gotk3/glib"
+	"github.com/visionect/gotk3/glib"
 	"runtime"
 	"unsafe"
 )
