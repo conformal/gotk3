@@ -89,7 +89,7 @@ const (
 	SELECTION_TYPE_WINDOW   Atom = 33
 	SELECTION_TYPE_STRING   Atom = 31
 )
-//Miha: conformal doesn't has this. Is this needed
+/*At this moment VISIONECT specific*/
 type EventMask uint
 
 /*At this moment VISIONECT specific*/
