@@ -33,11 +33,12 @@ func TestConnectNotifySignal(t *testing.T) {
 		gtk.MainQuit()
 	})
 
-	glib.IdleAdd(func() bool {
+	glib.IdleAdd(func(s string) bool {
+		t.Log(s)
 		spacing++
 		box.SetSpacing(spacing)
 		return true
-	})
+	}, "IdleAdd executed")
 
 	gtk.Main()
 }
@@ -50,7 +51,7 @@ func TestTimeoutAdd(t *testing.T) {
 		t.Log(s)
 		gtk.MainQuit()
 		return false
-	}, "timeout")
+	}, "TimeoutAdd executed")
 
 	gtk.Main()
 }
