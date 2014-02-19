@@ -142,8 +142,28 @@ func (v *HeaderBar) GetShowCloseButton() bool {
 }
 
 /*
+ * GtkLabel
+ */
+
+// GetLines() is a wrapper around gtk_label_get_lines().
+func (v *Label) GetLines() int {
+	c := C.gtk_label_get_lines(v.Native())
+	return int(c)
+}
+
+// SetLines() is a wrapper around gtk_label_set_lines().
+func (v *Label) SetLines(lines int) {
+	C.gtk_label_set_lines(v.Native(), C.gint(lines))
+}
+
+/*
  * GtkWindow
  */
+
+// SetTitlebar is a wrapper around gtk_window_set_titlebar().
+func (v *Window) SetTitlebar(titlebar IWidget) {
+	C.gtk_window_set_titlebar(v.Native(), titlebar.toWidget())
+}
 
 // Close is a wrapper around gtk_window_close().
 func (v *Window) Close() {

@@ -318,19 +318,7 @@ func gValueSlice(values *C.GValue, nValues int) (slice []C.GValue) {
  * Main event loop
  */
 
-type Source struct {
-	ptr unsafe.Pointer
-}
-
 type SourceHandle uint
-
-// Native returns a pointer to the underlying GSource.
-func (v *Source) Native() *C.GSource {
-	if v == nil || v.ptr == nil {
-		return nil
-	}
-	return (*C.GSource)(v.ptr)
-}
 
 // IdleAdd adds an idle source to the default main event loop
 // context.  After running once, the source func will be removed
@@ -345,15 +333,14 @@ func IdleAdd(f interface{}, args ...interface{}) (SourceHandle, error) {
 		return 0, errors.New("f is not a function")
 	}
 
-	// Create an idle source func for a main loop context.
+	// Create an idle source func to be added to the main loop context.
 	idleSrc := C.g_idle_source_new()
 	if idleSrc == nil {
 		return 0, nilPtrErr
 	}
-	return commonAdd(idleSrc, rf, args...)
+	return sourceAttach(idleSrc, rf, args...)
 }
 
-/*At this moment VISIONECT specific.*/
 // TimeoutAdd adds an timeout source to the default main event loop
 // context.  After running once, the source func will be removed
 // from the main event loop, unless f returns a single bool true.
@@ -362,32 +349,30 @@ func IdleAdd(f interface{}, args ...interface{}) (SourceHandle, error) {
 // types of args do not match those of f.
 // timeout is in milliseconds
 func TimeoutAdd(timeout uint, f interface{}, args ...interface{}) (SourceHandle, error) {
-
 	// f must be a func with no parameters.
 	rf := reflect.ValueOf(f)
 	if rf.Type().Kind() != reflect.Func {
 		return 0, errors.New("f is not a function")
 	}
 
-	// Create an timeout source func for a main loop context.
-	idleSrc := C.g_timeout_source_new(C.guint(timeout))
-	if idleSrc == nil {
+	// Create a timeout source func to be added to the main loop context.
+	timeoutSrc := C.g_timeout_source_new(C.guint(timeout))
+	if timeoutSrc == nil {
 		return 0, nilPtrErr
 	}
 
-	return commonAdd(idleSrc, rf, args...)
+	return sourceAttach(timeoutSrc, rf, args...)
 }
 
-/*At this moment VISIONECT specific.*/
-func commonAdd(idleSrc *C.GSource, rf reflect.Value, args ...interface{}) (SourceHandle, error) {
-
-	if idleSrc == nil {
+// sourceAttach attaches a source to the default main loop context.
+func sourceAttach(src *C.GSource, rf reflect.Value, args ...interface{}) (SourceHandle, error) {
+	if src == nil {
 		return 0, nilPtrErr
 	}
 
 	// rf must be a func with no parameters.
 	if rf.Type().Kind() != reflect.Func {
-		C.g_source_destroy(idleSrc)
+		C.g_source_destroy(src)
 		return 0, errors.New("rf is not a function")
 	}
 
@@ -413,18 +398,18 @@ func commonAdd(idleSrc *C.GSource, rf reflect.Value, args ...interface{}) (Sourc
 			}
 		}
 		C.g_closure_invalidate(closure)
-		C.g_source_destroy(idleSrc)
+		C.g_source_destroy(src)
 	})
 
 	// Remove closure context when closure is finalized.
 	C._g_closure_add_finalize_notifier(closure)
 
 	// Set closure to run as a callback when the idle source runs.
-	C.g_source_set_closure(idleSrc, closure)
+	C.g_source_set_closure(src, closure)
 
 	// Attach the idle source func to the default main event loop
 	// context.
-	cid := C.g_source_attach(idleSrc, nil)
+	cid := C.g_source_attach(src, nil)
 	return SourceHandle(cid), nil
 }
 
@@ -923,7 +908,6 @@ func GValue(v interface{}) (gvalue *Value, err error) {
 	return nil, errors.New("Type not implemented")
 }
 
-//VISIONECT specific
 // GoValue() converts a Value to comparable Go type.  GoValue()
 // returns a non-nil error if the conversion was unsuccessful.  The
 // returned interface{} must be type asserted as the actual Go
@@ -936,11 +920,6 @@ func (v *Value) GoValue() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	/*gcstr:=C.g_type_name (C.GType(fundamental))
-	  //cstr:=C.G_VALUE_TYPE_NAME(fundamental)
-	  str := C.GoString((*C.char)(gcstr))
-	  fmt.Println("GoValue GType = ", str)
-	  fmt.Println("----------------------")*/
 
 	// TODO: verify that all of these cases are indeed fundamental types
 	switch fundamental {
