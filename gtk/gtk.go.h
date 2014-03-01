@@ -92,6 +92,12 @@ toGtkWindow(void *p)
 	return (GTK_WINDOW(p));
 }
 
+static GtkPaned *
+toGtkPaned(void *p)
+{
+	return (GTK_PANED(p));
+}
+
 static GtkBox *
 toGtkBox(void *p)
 {
