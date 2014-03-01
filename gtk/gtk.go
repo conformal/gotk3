@@ -51,9 +51,9 @@ import "C"
 import (
 	"errors"
 	"fmt"
-	"github.com/conformal/gotk3/cairo"
-	"github.com/conformal/gotk3/gdk"
-	"github.com/conformal/gotk3/glib"
+	"github.com/gmcbay/gotk3/cairo"
+	"github.com/gmcbay/gotk3/gdk"
+	"github.com/gmcbay/gotk3/glib"
 	"runtime"
 	"unsafe"
 )
@@ -1044,6 +1044,50 @@ func (v *Button) GetEventWindow() (*gdk.Window, error) {
 	w.Ref()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return w, nil
+}
+
+/*
+ * GtkPaned
+ */
+
+type Paned struct {
+	Container
+}
+
+// Native() returns a pointer to the underlying GtkPaned.
+func (v *Paned) Native() *C.GtkPaned {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkPaned(p)
+}
+
+func wrapPaned(obj *glib.Object) *Paned {
+	return &Paned{Container{Widget{glib.InitiallyUnowned{obj}}}}
+}
+
+// PanedNew() is a wrapper around gtk_box_new().
+func PanedNew(orientation Orientation) (*Paned, error) {
+	c := C.gtk_paned_new(C.GtkOrientation(orientation))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	b := wrapPaned(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return b, nil
+}
+
+// Add1() is a wrapper around gtk_paned_add1().
+func (v *Paned) Add1(child IWidget) {
+	C.gtk_paned_add1(v.Native(), child.toWidget())
+}
+
+// Add2() is a wrapper around gtk_paned_add2().
+func (v *Paned) Add2(child IWidget) {
+	C.gtk_paned_add2(v.Native(), child.toWidget())
 }
 
 /*
@@ -2552,11 +2596,8 @@ func wrapFrame(obj *glib.Object) *Frame {
 	return &Frame{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}
 }
 
-// FrameNew is a wrapper around gtk_frame_new().
-func FrameNew(label string) (*Frame, error) {
-	cstr := C.CString(label)
-	defer C.free(unsafe.Pointer(cstr))
-	c := C.gtk_frame_new((*C.gchar)(cstr))
+func frameNewShared(ch *C.gchar) (*Frame, error) {
+	c := C.gtk_frame_new(ch)
 	if c == nil {
 		return nil, nilPtrErr
 	}
@@ -2565,6 +2606,20 @@ func FrameNew(label string) (*Frame, error) {
 	obj.RefSink()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return f, nil
+}
+
+// FrameNew is a wrapper around gtk_frame_new().
+func FrameNew(label string) (*Frame, error) {
+	cstr := C.CString(label)
+	defer C.free(unsafe.Pointer(cstr))
+	return frameNewShared((*C.gchar)(cstr))	
+}
+
+// FrameNewNoLabel is a wrapper around gtk_frame_new() with a null label.
+// Added to deal with Go's string type being non-nullable; for clients 
+// that don't want a frame label of any kind (even an empty-string one).
+func FrameNewNoLabel() (*Frame, error) {
+	return frameNewShared(nil)
 }
 
 // SetLabel is a wrapper around gtk_frame_set_label().
@@ -4896,6 +4951,13 @@ func (v *TextBuffer) SetText(text string) {
 	cstr := C.CString(text)
 	defer C.free(unsafe.Pointer(cstr))
 	C.gtk_text_buffer_set_text(v.Native(), (*C.gchar)(cstr),
+		C.gint(len(text)))
+}
+
+func (v *TextBuffer) InsertAtCursor(text string) {
+	cstr := C.CString(text)
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_text_buffer_insert_at_cursor(v.Native(), (*C.gchar)(cstr),
 		C.gint(len(text)))
 }
 

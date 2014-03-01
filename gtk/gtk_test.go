@@ -20,7 +20,7 @@ package gtk
 
 import (
 	"fmt"
-	"github.com/conformal/gotk3/glib"
+	"github.com/gmcbay/gotk3/glib"
 	"log"
 	"testing"
 )
