@@ -51,9 +51,9 @@ import "C"
 import (
 	"errors"
 	"fmt"
-	"github.com/conformal/gotk3/cairo"
-	"github.com/conformal/gotk3/gdk"
-	"github.com/conformal/gotk3/glib"
+	"github.com/gmcbay/gotk3/cairo"
+	"github.com/gmcbay/gotk3/gdk"
+	"github.com/gmcbay/gotk3/glib"
 	"runtime"
 	"unsafe"
 )
