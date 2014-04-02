@@ -536,7 +536,7 @@ func (v *Pixbuf) GetPixels() (pixels []byte) {
 	// To make sure the slice doesn't outlive the Pixbuf, add a reference
 	obj := &glib.Object{v.GObject}
 	obj.Ref()
-	runtime.SetFinalizer(pixels, (*glib.Object).Unref)
+	runtime.SetFinalizer(&pixels, (*glib.Object).Unref)
 	return
 }
 
