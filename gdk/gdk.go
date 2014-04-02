@@ -534,9 +534,10 @@ func (v *Pixbuf) GetPixels() (pixels []byte) {
 	sliceHeader.Len = int(length)
 	sliceHeader.Cap = int(length)
 	// To make sure the slice doesn't outlive the Pixbuf, add a reference
-	obj := &glib.Object{v.GObject}
-	obj.Ref()
-	runtime.SetFinalizer(&pixels, (*glib.Object).Unref)
+	v.Ref()
+	runtime.SetFinalizer(&pixels, func(_ *[]byte) {
+		v.Unref()
+	})
 	return
 }
 
