@@ -542,6 +542,28 @@ func (v *Pixbuf) At(x, y int) color.Color {
 	return c
 }
 
+// Required to complete the draw.Image interface
+func (v *Pixbuf) Set(x, y int, c color.Color) {
+	alpha := v.GetHasAlpha()
+	stride := v.GetRowstride()
+	pixels := v.GetPixels()
+	offset := 3
+	if alpha {
+		offset = 4
+	}
+	p := y*stride + x*offset
+	if p < len(pixels) {
+		r, g, b, a := c.RGBA()
+		pixels[p] = byte(r / 256)
+		pixels[p+1] = byte(g / 256)
+		pixels[p+2] = byte(b / 256)
+		if alpha {
+			pixels[p+3] = byte(a / 256)
+		}
+	}
+	return
+}
+
 // native returns a pointer to the underlying GdkPixbuf.
 func (v *Pixbuf) native() *C.GdkPixbuf {
 	if v == nil || v.GObject == nil {
