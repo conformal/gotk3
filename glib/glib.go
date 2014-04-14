@@ -14,7 +14,8 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-// Go bindings for GLib 2.  Supports version 2.36 and later.
+// Package glib provides Go bindings for GLib 2.  Supports version 2.36
+// and later.
 package glib
 
 // #cgo pkg-config: glib-2.0 gobject-2.0
@@ -54,15 +55,12 @@ func gobool(b C.gboolean) bool {
  */
 
 type closureContext struct {
-	rf reflect.Value
-
-	// Never used but must be kept in go scope while the closure is valid
-	// or the finalizer will run.
-	userData *Value
+	rf       reflect.Value
+	userData *reflect.Value
 }
 
 var (
-	nilPtrErr = errors.New("cgo returned unexpected nil pointer")
+	errNilPtr = errors.New("cgo returned unexpected nil pointer")
 
 	closures = struct {
 		sync.RWMutex
@@ -149,13 +147,10 @@ type SignalHandle uint
 // be optionally passed to f.  If f takes less arguments than it is
 // passed from the GLib runtime, the extra arguments are ignored.
 //
-// Currently, the non userdata arguments to f must be a *Object if
-// the callback calls for any GObject.  Trying to use other GObject
-// types will cause a panic when the callback is run.  This is a bug.
-// The type of the optional user data argument in f may be any type
-// that Go can type convert userData[0] as.  Non-GObject types may
-// always be used as their Go equivalent types (for example, *C.gchar
-// as a Go string).
+// Arguments for f must be a matching Go equivalent type for the
+// C callback, or an interface type which the value may be packed in.
+// If the type is not suitable, a runtime panic will occur when the
+// signal is emitted.
 func (v *Object) Connect(detailedSignal string, f interface{}, userData ...interface{}) (SignalHandle, error) {
 	if len(userData) > 1 {
 		return 0, errors.New("userData len must be 0 or 1")
@@ -171,7 +166,7 @@ func (v *Object) Connect(detailedSignal string, f interface{}, userData ...inter
 
 	C._g_closure_add_finalize_notifier(closure)
 
-	c := C.g_signal_connect_closure(C.gpointer(v.Native()),
+	c := C.g_signal_connect_closure(C.gpointer(v.native()),
 		(*C.gchar)(cstr), closure, gbool(false))
 	handle := SignalHandle(c)
 
@@ -197,17 +192,12 @@ func ClosureNew(f interface{}, marshalData ...interface{}) (*C.GClosure, error) 
 		return nil, errors.New("value is not a func")
 	}
 
-	var c *C.GClosure
-	if len(marshalData) == 0 {
-		c = C._g_closure_new()
-	} else {
-		p, err := reflectGValue(marshalData[0])
-		if err != nil {
-			return nil, err
-		}
-		cc.userData = p
-		c = C._g_closure_new_with_data((C.gpointer)(p))
+	if len(marshalData) > 0 {
+		rv := reflect.ValueOf(marshalData[0])
+		cc.userData = &rv
 	}
+
+	c := C._g_closure_new()
 
 	// Associate the GClosure with rf.  rf will be looked up in this
 	// map by the closure when the closure runs.
@@ -241,18 +231,18 @@ func goMarshal(closure *C.GClosure, retValue *C.GValue,
 	nParams C.guint, params *C.GValue,
 	invocationHint C.gpointer, marshalData *C.GValue) {
 
-	// Get number of parameters passed in. If marshaled data was passed
-	// in, increment the total number of parameters.
-	nGLibParams := int(nParams)
-	nTotalParams := nGLibParams
-	if marshalData != nil {
-		nTotalParams++
-	}
-
 	// Get the context associated with this callback closure.
 	closures.RLock()
 	cc := closures.m[closure]
 	closures.RUnlock()
+
+	// Get number of parameters passed in.  If user data was saved with the
+	// closure context, increment the total number of parameters.
+	nGLibParams := int(nParams)
+	nTotalParams := nGLibParams
+	if cc.userData != nil {
+		nTotalParams++
+	}
 
 	// Get number of parameters from the callback closure.  If this exceeds
 	// the total number of marshaled parameters, a warning will be printed
@@ -283,13 +273,10 @@ func goMarshal(closure *C.GClosure, retValue *C.GValue,
 		args = append(args, rv.Convert(cc.rf.Type().In(i)))
 	}
 
-	// If non-nil marshaled user data was passed in and not all
-	// args have been set, get and set the reflect.Value directly
-	// from the GValue.
-	if marshalData != nil && len(args) < cap(args) {
-		v := &Value{*marshalData}
-		rv := *v.reflectGoValue()
-		args = append(args, rv.Convert(cc.rf.Type().In(nCbParams-1)))
+	// If non-nil user data was passed in and not all args have been set,
+	// get and set the reflect.Value directly from the GValue.
+	if cc.userData != nil && len(args) < cap(args) {
+		args = append(args, cc.userData.Convert(cc.rf.Type().In(nCbParams-1)))
 	}
 
 	// Call closure with args. If the callback returns one or more
@@ -300,7 +287,7 @@ func goMarshal(closure *C.GClosure, retValue *C.GValue,
 			fmt.Fprintf(os.Stderr,
 				"cannot save callback return value: %v", err)
 		} else {
-			*retValue = *g.Native()
+			*retValue = *g.native()
 		}
 	}
 }
@@ -336,7 +323,7 @@ func IdleAdd(f interface{}, args ...interface{}) (SourceHandle, error) {
 	// Create an idle source func to be added to the main loop context.
 	idleSrc := C.g_idle_source_new()
 	if idleSrc == nil {
-		return 0, nilPtrErr
+		return 0, errNilPtr
 	}
 	return sourceAttach(idleSrc, rf, args...)
 }
@@ -358,7 +345,7 @@ func TimeoutAdd(timeout uint, f interface{}, args ...interface{}) (SourceHandle,
 	// Create a timeout source func to be added to the main loop context.
 	timeoutSrc := C.g_timeout_source_new(C.guint(timeout))
 	if timeoutSrc == nil {
-		return 0, nilPtrErr
+		return 0, errNilPtr
 	}
 
 	return sourceAttach(timeoutSrc, rf, args...)
@@ -367,7 +354,7 @@ func TimeoutAdd(timeout uint, f interface{}, args ...interface{}) (SourceHandle,
 // sourceAttach attaches a source to the default main loop context.
 func sourceAttach(src *C.GSource, rf reflect.Value, args ...interface{}) (SourceHandle, error) {
 	if src == nil {
-		return 0, nilPtrErr
+		return 0, errNilPtr
 	}
 
 	// rf must be a func with no parameters.
@@ -417,13 +404,13 @@ func sourceAttach(src *C.GSource, rf reflect.Value, args ...interface{}) (Source
  * Miscellaneous Utility Functions
  */
 
-// GetUserSpecialDir() is a wrapper around g_get_user_special_dir().  A
+// GetUserSpecialDir is a wrapper around g_get_user_special_dir().  A
 // non-nil error is returned in the case that g_get_user_special_dir()
 // returns NULL to differentiate between NULL and an empty string.
 func GetUserSpecialDir(directory UserDirectory) (string, error) {
 	c := C.g_get_user_special_dir(C.GUserDirectory(directory))
 	if c == nil {
-		return "", nilPtrErr
+		return "", errNilPtr
 	}
 	return C.GoString((*C.char)(c)), nil
 }
@@ -437,6 +424,7 @@ func GetUserSpecialDir(directory UserDirectory) (string, error) {
 // require GObjects or any subclasses thereof.
 type IObject interface {
 	toGObject() *C.GObject
+	toObject() *Object
 }
 
 // Object is a representation of GLib's GObject.
@@ -444,13 +432,24 @@ type Object struct {
 	GObject *C.GObject
 }
 
-// ObjectNew creates a new Object from a Pointer.
-func ObjectNew(p unsafe.Pointer) *Object {
-	return &Object{GObject: (*C.GObject)(p)}
+func (v *Object) toGObject() *C.GObject {
+	if v == nil {
+		return nil
+	}
+	return v.native()
 }
 
-// Native() returns a pointer to the underlying GObject.
-func (v *Object) Native() *C.GObject {
+func (v *Object) toObject() *Object {
+	return v
+}
+
+// newObject creates a new Object from a GObject pointer.
+func newObject(p *C.GObject) *Object {
+	return &Object{GObject: p}
+}
+
+// native returns a pointer to the underlying GObject.
+func (v *Object) native() *C.GObject {
 	if v == nil || v.GObject == nil {
 		return nil
 	}
@@ -458,58 +457,56 @@ func (v *Object) Native() *C.GObject {
 	return C.toGObject(p)
 }
 
+// Native returns a pointer to the underlying GObject.
+func (v *Object) Native() uintptr {
+	return uintptr(unsafe.Pointer(v.native()))
+}
+
 // IsA is a wrapper around g_type_is_a().
 func (v *Object) IsA(typ Type) bool {
 	return gobool(C.g_type_is_a(C.GType(v.TypeFromInstance()), C.GType(typ)))
 }
 
-func (v *Object) toGObject() *C.GObject {
-	if v == nil {
-		return nil
-	}
-	return v.Native()
-}
-
 // TypeFromInstance is a wrapper around g_type_from_instance().
 func (v *Object) TypeFromInstance() Type {
-	c := C._g_type_from_instance(C.gpointer(unsafe.Pointer(v.Native())))
+	c := C._g_type_from_instance(C.gpointer(unsafe.Pointer(v.native())))
 	return Type(c)
 }
 
-// ToGObject() type converts an unsafe.Pointer as a native C GObject.
+// ToGObject type converts an unsafe.Pointer as a native C GObject.
 // This function is exported for visibility in other gotk3 packages and
 // is not meant to be used by applications.
 func ToGObject(p unsafe.Pointer) *C.GObject {
 	return C.toGObject(p)
 }
 
-// Ref() is a wrapper around g_object_ref().
+// Ref is a wrapper around g_object_ref().
 func (v *Object) Ref() {
 	C.g_object_ref(C.gpointer(v.GObject))
 }
 
-// Unref() is a wrapper around g_object_unref().
+// Unref is a wrapper around g_object_unref().
 func (v *Object) Unref() {
 	C.g_object_unref(C.gpointer(v.GObject))
 }
 
-// RefSink() is a wrapper around g_object_ref_sink().
+// RefSink is a wrapper around g_object_ref_sink().
 func (v *Object) RefSink() {
 	C.g_object_ref_sink(C.gpointer(v.GObject))
 }
 
-// IsFloating() is a wrapper around g_object_is_floating().
+// IsFloating is a wrapper around g_object_is_floating().
 func (v *Object) IsFloating() bool {
 	c := C.g_object_is_floating(C.gpointer(v.GObject))
 	return gobool(c)
 }
 
-// ForceFloating() is a wrapper around g_object_force_floating().
+// ForceFloating is a wrapper around g_object_force_floating().
 func (v *Object) ForceFloating() {
 	C.g_object_force_floating(v.GObject)
 }
 
-// StopEmission() is a wrapper around g_signal_stop_emission_by_name().
+// StopEmission is a wrapper around g_signal_stop_emission_by_name().
 func (v *Object) StopEmission(s string) {
 	cstr := C.CString(s)
 	defer C.free(unsafe.Pointer(cstr))
@@ -517,7 +514,7 @@ func (v *Object) StopEmission(s string) {
 		(*C.gchar)(cstr))
 }
 
-// Set() is a wrapper around g_object_set().  However, unlike
+// Set is a wrapper around g_object_set().  However, unlike
 // g_object_set(), this function only sets one name value pair.  Make
 // multiple calls to this function to set multiple properties.
 func (v *Object) Set(name string, value interface{}) error {
@@ -530,19 +527,19 @@ func (v *Object) Set(name string, value interface{}) error {
 
 	// Can't call g_object_set() as it uses a variable arg list, use a
 	// wrapper instead
-	if p := pointerVal(value); p != nil {
-		C._g_object_set_one(C.gpointer(v.GObject), (*C.gchar)(cstr), p)
-		return nil
-	} else {
+	p := pointerVal(value)
+	if p == nil {
 		return errors.New("Unable to perform type conversion")
 	}
+	C._g_object_set_one(C.gpointer(v.GObject), (*C.gchar)(cstr), p)
+	return nil
 }
 
 // pointerVal attempts to return an unsafe.Pointer for value.
 // Not all types are understood, in which case a nil Pointer
 // is returned.
 func pointerVal(value interface{}) unsafe.Pointer {
-	var p unsafe.Pointer = nil
+	var p unsafe.Pointer
 	switch v := value.(type) {
 	case bool:
 		c := gbool(v)
@@ -628,7 +625,7 @@ func pointerVal(value interface{}) unsafe.Pointer {
  * GObject Signals
  */
 
-// Emit() is a wrapper around g_signal_emitv() and emits the signal
+// Emit is a wrapper around g_signal_emitv() and emits the signal
 // specified by the string s to an Object.  Arguments to callback
 // functions connected to this signal must be specified in args.  Emit()
 // returns an interface{} which must be type asserted as the Go
@@ -649,13 +646,13 @@ func (v *Object) Emit(s string, args ...interface{}) (interface{}, error) {
 	if err != nil {
 		return nil, errors.New("Error converting Object to GValue: " + err.Error())
 	}
-	C.val_list_insert(valv, C.int(0), val.Native())
+	C.val_list_insert(valv, C.int(0), val.native())
 	for i := range args {
 		val, err := GValue(args[i])
 		if err != nil {
 			return nil, fmt.Errorf("Error converting arg %d to GValue: %s", i, err.Error())
 		}
-		C.val_list_insert(valv, C.int(i+1), val.Native())
+		C.val_list_insert(valv, C.int(i+1), val.native())
 	}
 
 	t := v.TypeFromInstance()
@@ -666,22 +663,22 @@ func (v *Object) Emit(s string, args ...interface{}) (interface{}, error) {
 	if err != nil {
 		return nil, errors.New("Error creating Value for return value")
 	}
-	C.g_signal_emitv(valv, id, C.GQuark(0), ret.Native())
+	C.g_signal_emitv(valv, id, C.GQuark(0), ret.native())
 
 	return ret.GoValue()
 }
 
-// HandlerBlock() is a wrapper around g_signal_handler_block().
+// HandlerBlock is a wrapper around g_signal_handler_block().
 func (v *Object) HandlerBlock(handle SignalHandle) {
 	C.g_signal_handler_block(C.gpointer(v.GObject), C.gulong(handle))
 }
 
-// HandlerUnblock() is a wrapper around g_signal_handler_unblock().
+// HandlerUnblock is a wrapper around g_signal_handler_unblock().
 func (v *Object) HandlerUnblock(handle SignalHandle) {
 	C.g_signal_handler_unblock(C.gpointer(v.GObject), C.gulong(handle))
 }
 
-// HandlerDisconnect() is a wrapper around g_signal_handler_disconnect().
+// HandlerDisconnect is a wrapper around g_signal_handler_disconnect().
 func (v *Object) HandlerDisconnect(handle SignalHandle) {
 	C.g_signal_handler_disconnect(C.gpointer(v.GObject), C.gulong(handle))
 	C.g_closure_invalidate(signals[handle])
@@ -695,7 +692,58 @@ func (v *Object) HandlerDisconnect(handle SignalHandle) {
 
 // InitiallyUnowned is a representation of GLib's GInitiallyUnowned.
 type InitiallyUnowned struct {
+	// This must be a pointer so copies of the ref-sinked object
+	// do not outlive the original object, causing an unref
+	// finalizer to prematurely run.
 	*Object
+}
+
+// Native returns a pointer to the underlying GObject.  This is implemented
+// here rather than calling Native on the embedded Object to prevent a nil
+// pointer dereference.
+func (v *InitiallyUnowned) Native() uintptr {
+	if v == nil || v.Object == nil {
+		return uintptr(unsafe.Pointer(nil))
+	}
+	return v.Object.Native()
+}
+
+/*
+ * Linked Lists
+ */
+
+// List is a representation of Glib's GList.
+type List struct {
+	Data uintptr
+	Next *List
+	Prev *List
+}
+
+// Append is a wrapper around g_list_append.
+func (v *List) Append(data uintptr) *List {
+	glist := (*C.GList)(unsafe.Pointer(v))
+	glist = C.g_list_append(glist, C.gpointer(data))
+	return (*List)(unsafe.Pointer(glist))
+}
+
+// Prepend is a wrapper around g_list_prepend.
+func (v *List) Prepend(data uintptr) *List {
+	glist := (*C.GList)(unsafe.Pointer(v))
+	glist = C.g_list_prepend(glist, C.gpointer(data))
+	return (*List)(unsafe.Pointer(glist))
+}
+
+// Insert is a wrapper around g_list_insert().
+func (v *List) Insert(data uintptr, position int) *List {
+	glist := (*C.GList)(unsafe.Pointer(v))
+	glist = C.g_list_insert(glist, C.gpointer(data), C.gint(position))
+	return (*List)(unsafe.Pointer(glist))
+}
+
+// SList is a representation of Glib's GSList.
+type SList struct {
+	Data uintptr
+	Next *SList
 }
 
 /*
@@ -712,32 +760,37 @@ type Value struct {
 	GValue C.GValue
 }
 
-// Native() returns a pointer to the underlying GValue.
-func (v *Value) Native() *C.GValue {
+// native returns a pointer to the underlying GValue.
+func (v *Value) native() *C.GValue {
 	return &v.GValue
 }
 
-// ValueAlloc() allocates a Value and sets a runtime finalizer to call
+// Native returns a pointer to the underlying GValue.
+func (v *Value) Native() uintptr {
+	return uintptr(unsafe.Pointer(v.native()))
+}
+
+// ValueAlloc allocates a Value and sets a runtime finalizer to call
 // g_value_unset() on the underlying GValue after leaving scope.
 // ValueAlloc() returns a non-nil error if the allocation failed.
 func ValueAlloc() (*Value, error) {
 	c := C._g_value_alloc()
 	if c == nil {
-		return nil, nilPtrErr
+		return nil, errNilPtr
 	}
 	v := &Value{*c}
 	runtime.SetFinalizer(v, (*Value).unset)
 	return v, nil
 }
 
-// ValueInit() is a wrapper around g_value_init() and allocates and
+// ValueInit is a wrapper around g_value_init() and allocates and
 // initializes a new Value with the Type t.  A runtime finalizer is set
 // to call g_value_unset() on the underlying GValue after leaving scope.
 // ValueInit() returns a non-nil error if the allocation failed.
 func ValueInit(t Type) (*Value, error) {
 	c := C._g_value_init(C.GType(t))
 	if c == nil {
-		return nil, nilPtrErr
+		return nil, errNilPtr
 	}
 	v := &Value{*c}
 	runtime.SetFinalizer(v, (*Value).unset)
@@ -745,22 +798,22 @@ func ValueInit(t Type) (*Value, error) {
 }
 
 func (v *Value) unset() {
-	C.g_value_unset(v.Native())
+	C.g_value_unset(v.native())
 }
 
-// Type() is a wrapper around the G_VALUE_HOLDS_GTYPE() macro and
+// Type is a wrapper around the G_VALUE_HOLDS_GTYPE() macro and
 // the g_value_get_gtype() function.  GetType() returns TYPE_INVALID if v
 // does not hold a Type, or otherwise returns the Type of v.
 func (v *Value) Type() (actual Type, fundamental Type, err error) {
-	if !gobool(C._g_is_value(v.Native())) {
+	if !gobool(C._g_is_value(v.native())) {
 		return actual, fundamental, errors.New("invalid GValue")
 	}
-	c_actual := C._g_value_type(v.Native())
-	c_fundamental := C._g_value_fundamental(c_actual)
-	return Type(c_actual), Type(c_fundamental), nil
+	cActual := C._g_value_type(v.native())
+	cFundamental := C._g_value_fundamental(cActual)
+	return Type(cActual), Type(cFundamental), nil
 }
 
-// GValue() converts a Go type to a comparable GValue.  GValue()
+// GValue converts a Go type to a comparable GValue.  GValue()
 // returns a non-nil error if the conversion was unsuccessful.
 func GValue(v interface{}) (gvalue *Value, err error) {
 	if v == nil {
@@ -768,7 +821,7 @@ func GValue(v interface{}) (gvalue *Value, err error) {
 		if err != nil {
 			return nil, err
 		}
-		val.SetPointer(uintptr(0)) // technically not portable
+		val.SetPointer(uintptr(unsafe.Pointer(nil)))
 		return val, nil
 	}
 
@@ -908,7 +961,175 @@ func GValue(v interface{}) (gvalue *Value, err error) {
 	return nil, errors.New("Type not implemented")
 }
 
-// GoValue() converts a Value to comparable Go type.  GoValue()
+// GValueMarshaler is a marshal function to convert a GValue into an
+// appropiate Go type.  The uintptr parameter is a *C.GValue.
+type GValueMarshaler func(uintptr) (interface{}, error)
+
+// TypeMarshaler represents an actual type and it's associated marshaler.
+type TypeMarshaler struct {
+	T Type
+	F GValueMarshaler
+}
+
+// RegisterGValueMarshalers adds marshalers for several types to the
+// internal marshalers map.  Once registered, calling GoValue on any
+// Value witha registered type will return the data returned by the
+// marshaler.
+func RegisterGValueMarshalers(tm []TypeMarshaler) {
+	gValueMarshalers.register(tm)
+}
+
+type marshalMap map[Type]GValueMarshaler
+
+// gValueMarshalers is a map of Glib types to functions to marshal a
+// GValue to a native Go type.
+var gValueMarshalers = marshalMap{
+	TYPE_INVALID:   marshalInvalid,
+	TYPE_NONE:      marshalNone,
+	TYPE_INTERFACE: marshalInterface,
+	TYPE_CHAR:      marshalChar,
+	TYPE_UCHAR:     marshalUchar,
+	TYPE_BOOLEAN:   marshalBoolean,
+	TYPE_INT:       marshalInt,
+	TYPE_LONG:      marshalLong,
+	TYPE_ENUM:      marshalEnum,
+	TYPE_INT64:     marshalInt64,
+	TYPE_UINT:      marshalUint,
+	TYPE_ULONG:     marshalUlong,
+	TYPE_FLAGS:     marshalFlags,
+	TYPE_UINT64:    marshalUint64,
+	TYPE_FLOAT:     marshalFloat,
+	TYPE_DOUBLE:    marshalDouble,
+	TYPE_STRING:    marshalString,
+	TYPE_POINTER:   marshalPointer,
+	TYPE_BOXED:     marshalBoxed,
+	TYPE_OBJECT:    marshalObject,
+	TYPE_VARIANT:   marshalVariant,
+}
+
+func (m marshalMap) register(tm []TypeMarshaler) {
+	for i := range tm {
+		m[tm[i].T] = tm[i].F
+	}
+}
+
+func (m marshalMap) lookup(v *Value) (GValueMarshaler, error) {
+	actual, fundamental, err := v.Type()
+	if err != nil {
+		return nil, err
+	}
+
+	if f, ok := m[actual]; ok {
+		return f, nil
+	}
+	if f, ok := m[fundamental]; ok {
+		return f, nil
+	}
+	return nil, errors.New("missing marshaler for type")
+}
+
+func marshalInvalid(uintptr) (interface{}, error) {
+	return nil, errors.New("invalid type")
+}
+
+func marshalNone(uintptr) (interface{}, error) {
+	return nil, nil
+}
+
+func marshalInterface(uintptr) (interface{}, error) {
+	return nil, errors.New("interface conversion not yet implemented")
+}
+
+func marshalChar(p uintptr) (interface{}, error) {
+	c := C.g_value_get_schar((*C.GValue)(unsafe.Pointer(p)))
+	return int8(c), nil
+}
+
+func marshalUchar(p uintptr) (interface{}, error) {
+	c := C.g_value_get_uchar((*C.GValue)(unsafe.Pointer(p)))
+	return uint8(c), nil
+}
+
+func marshalBoolean(p uintptr) (interface{}, error) {
+	c := C.g_value_get_boolean((*C.GValue)(unsafe.Pointer(p)))
+	return gobool(c), nil
+}
+
+func marshalInt(p uintptr) (interface{}, error) {
+	c := C.g_value_get_int((*C.GValue)(unsafe.Pointer(p)))
+	return int(c), nil
+}
+
+func marshalLong(p uintptr) (interface{}, error) {
+	c := C.g_value_get_long((*C.GValue)(unsafe.Pointer(p)))
+	return int(c), nil
+}
+
+func marshalEnum(p uintptr) (interface{}, error) {
+	c := C.g_value_get_enum((*C.GValue)(unsafe.Pointer(p)))
+	return int(c), nil
+}
+
+func marshalInt64(p uintptr) (interface{}, error) {
+	c := C.g_value_get_int64((*C.GValue)(unsafe.Pointer(p)))
+	return int64(c), nil
+}
+
+func marshalUint(p uintptr) (interface{}, error) {
+	c := C.g_value_get_uint((*C.GValue)(unsafe.Pointer(p)))
+	return uint(c), nil
+}
+
+func marshalUlong(p uintptr) (interface{}, error) {
+	c := C.g_value_get_ulong((*C.GValue)(unsafe.Pointer(p)))
+	return uint(c), nil
+}
+
+func marshalFlags(p uintptr) (interface{}, error) {
+	c := C.g_value_get_flags((*C.GValue)(unsafe.Pointer(p)))
+	return uint(c), nil
+}
+
+func marshalUint64(p uintptr) (interface{}, error) {
+	c := C.g_value_get_uint64((*C.GValue)(unsafe.Pointer(p)))
+	return uint64(c), nil
+}
+
+func marshalFloat(p uintptr) (interface{}, error) {
+	c := C.g_value_get_float((*C.GValue)(unsafe.Pointer(p)))
+	return float32(c), nil
+}
+
+func marshalDouble(p uintptr) (interface{}, error) {
+	c := C.g_value_get_double((*C.GValue)(unsafe.Pointer(p)))
+	return float64(c), nil
+}
+
+func marshalString(p uintptr) (interface{}, error) {
+	c := C.g_value_get_string((*C.GValue)(unsafe.Pointer(p)))
+	return C.GoString((*C.char)(c)), nil
+}
+
+func marshalBoxed(p uintptr) (interface{}, error) {
+	c := C.g_value_get_boxed((*C.GValue)(unsafe.Pointer(p)))
+	return uintptr(unsafe.Pointer(c)), nil
+}
+
+func marshalPointer(p uintptr) (interface{}, error) {
+	c := C.g_value_get_pointer((*C.GValue)(unsafe.Pointer(p)))
+	return unsafe.Pointer(c), nil
+}
+
+func marshalObject(p uintptr) (interface{}, error) {
+	c := C.g_value_get_object((*C.GValue)(unsafe.Pointer(p)))
+	return newObject((*C.GObject)(c)), nil
+}
+
+func marshalVariant(p uintptr) (interface{}, error) {
+	return nil, errors.New("variant conversion not yet implemented")
+}
+
+// GoValue converts a Value to comparable Go type.  GoValue()
 // returns a non-nil error if the conversion was unsuccessful.  The
 // returned interface{} must be type asserted as the actual Go
 // representation of the Value.
@@ -916,193 +1137,90 @@ func GValue(v interface{}) (gvalue *Value, err error) {
 // This function is a wrapper around the many g_value_get_*()
 // functions, depending on the type of the Value.
 func (v *Value) GoValue() (interface{}, error) {
-	_, fundamental, err := v.Type()
+	f, err := gValueMarshalers.lookup(v)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: verify that all of these cases are indeed fundamental types
-	switch fundamental {
-	case TYPE_INVALID:
-		return nil, errors.New("invalid type")
-
-	case TYPE_NONE:
-		return nil, nil
-
-	case TYPE_INTERFACE:
-		return nil, errors.New("interface conversion not yet implemented")
-
-	case TYPE_CHAR:
-		c := C.g_value_get_schar(v.Native())
-		return int8(c), nil
-
-	case TYPE_UCHAR:
-		c := C.g_value_get_uchar(v.Native())
-		return uint8(c), nil
-
-	case TYPE_BOOLEAN:
-		c := C.g_value_get_boolean(v.Native())
-		return gobool(c), nil
-
-	// todo: TYPE_INT should probably be a go int32.
-	case TYPE_INT:
-		c := C.g_value_get_int(v.Native())
-		return int(c), nil
-
-	// todo: TYPE_LONG should probably be a go int32.
-	case TYPE_LONG:
-		c := C.g_value_get_long(v.Native())
-		return int(c), nil
-
-	// todo: TYPE_ENUM should probably be a go int32.
-	case TYPE_ENUM:
-		c := C.g_value_get_enum(v.Native())
-		return int(c), nil
-
-	case TYPE_INT64:
-		c := C.g_value_get_int64(v.Native())
-		return int64(c), nil
-
-	// TODO: TYPE_UINT should probably be a Go uint32.
-	case TYPE_UINT:
-		c := C.g_value_get_uint(v.Native())
-		return uint(c), nil
-
-	// TODO: TYPE_ULONG should probably be a Go uint32.
-	case TYPE_ULONG:
-		c := C.g_value_get_ulong(v.Native())
-		return uint(c), nil
-
-	// TODO: TYPE_FLAGS should probably be a Go uint32.
-	case TYPE_FLAGS:
-		c := C.g_value_get_flags(v.Native())
-		return uint(c), nil
-
-	case TYPE_UINT64:
-		c := C.g_value_get_uint64(v.Native())
-		return uint64(c), nil
-
-	case TYPE_FLOAT:
-		c := C.g_value_get_float(v.Native())
-		return float32(c), nil
-
-	case TYPE_DOUBLE:
-		c := C.g_value_get_double(v.Native())
-		return float64(c), nil
-
-	case TYPE_STRING:
-		c := C.g_value_get_string(v.Native())
-		return C.GoString((*C.char)(c)), nil
-
-	case TYPE_POINTER:
-		c := C.g_value_get_pointer(v.Native())
-		return unsafe.Pointer(c), nil
-
-	case TYPE_OBJECT:
-		c := C.g_value_get_object(v.Native())
-		// TODO: need to try and return an actual pointer to the correct object type
-		// this may require an additional cast()-like method for each module
-		return ObjectNew(unsafe.Pointer(c)), nil
-
-	case TYPE_VARIANT:
-		return nil, errors.New("variant conversion not yet implemented")
-
-	default:
-		return nil, errors.New("type conversion not supported")
+	rv, err := f(uintptr(unsafe.Pointer(v.native())))
+	if obj, ok := rv.(IObject); ok {
+		o := obj.toObject()
+		o.RefSink()
+		runtime.SetFinalizer(o, (*Object).Unref)
 	}
+	return rv, err
 }
 
-// reflectGValue returns a Value but attempts to create one with a
-// Pointer GType that points to a reflect.Value created from v,
-// instead of checking the type of v for a pointer and setting the
-// GValue with that.
-func reflectGValue(v interface{}) (gvalue *Value, err error) {
-	rv := reflect.ValueOf(v)
-	val, err := ValueInit(TYPE_POINTER)
-	if err != nil {
-		return nil, err
-	}
-	val.SetPointer(uintptr(unsafe.Pointer(&rv)))
-	return val, nil
-}
-
-// reflectGoValue returns a pointer to a reflect.Value created as
-// a Pointer GValue with reflectGValue.
-func (v *Value) reflectGoValue() *reflect.Value {
-	rp := unsafe.Pointer(C.g_value_get_pointer(v.Native()))
-	return (*reflect.Value)(rp)
-}
-
-// SetBool() is a wrapper around g_value_set_boolean().
+// SetBool is a wrapper around g_value_set_boolean().
 func (v *Value) SetBool(val bool) {
-	C.g_value_set_boolean(v.Native(), gbool(val))
+	C.g_value_set_boolean(v.native(), gbool(val))
 }
 
-// SetSChar() is a wrapper around g_value_set_schar().
+// SetSChar is a wrapper around g_value_set_schar().
 func (v *Value) SetSChar(val int8) {
-	C.g_value_set_schar(v.Native(), C.gint8(val))
+	C.g_value_set_schar(v.native(), C.gint8(val))
 }
 
-// SetInt64() is a wrapper around g_value_set_int64().
+// SetInt64 is a wrapper around g_value_set_int64().
 func (v *Value) SetInt64(val int64) {
-	C.g_value_set_int64(v.Native(), C.gint64(val))
+	C.g_value_set_int64(v.native(), C.gint64(val))
 }
 
-// SetInt() is a wrapper around g_value_set_int().
+// SetInt is a wrapper around g_value_set_int().
 func (v *Value) SetInt(val int) {
-	C.g_value_set_int(v.Native(), C.gint(val))
+	C.g_value_set_int(v.native(), C.gint(val))
 }
 
-// SetUChar() is a wrapper around g_value_set_uchar().
+// SetUChar is a wrapper around g_value_set_uchar().
 func (v *Value) SetUChar(val uint8) {
-	C.g_value_set_uchar(v.Native(), C.guchar(val))
+	C.g_value_set_uchar(v.native(), C.guchar(val))
 }
 
-// SetUInt64() is a wrapper around g_value_set_uint64().
+// SetUInt64 is a wrapper around g_value_set_uint64().
 func (v *Value) SetUInt64(val uint64) {
-	C.g_value_set_uint64(v.Native(), C.guint64(val))
+	C.g_value_set_uint64(v.native(), C.guint64(val))
 }
 
-// SetUInt() is a wrapper around g_value_set_uint().
+// SetUInt is a wrapper around g_value_set_uint().
 func (v *Value) SetUInt(val uint) {
-	C.g_value_set_uint(v.Native(), C.guint(val))
+	C.g_value_set_uint(v.native(), C.guint(val))
 }
 
-// SetFloat() is a wrapper around g_value_set_float().
+// SetFloat is a wrapper around g_value_set_float().
 func (v *Value) SetFloat(val float32) {
-	C.g_value_set_float(v.Native(), C.gfloat(val))
+	C.g_value_set_float(v.native(), C.gfloat(val))
 }
 
-// SetDouble() is a wrapper around g_value_set_double().
+// SetDouble is a wrapper around g_value_set_double().
 func (v *Value) SetDouble(val float64) {
-	C.g_value_set_double(v.Native(), C.gdouble(val))
+	C.g_value_set_double(v.native(), C.gdouble(val))
 }
 
-// SetString() is a wrapper around g_value_set_string().
+// SetString is a wrapper around g_value_set_string().
 func (v *Value) SetString(val string) {
 	cstr := C.CString(val)
 	defer C.free(unsafe.Pointer(cstr))
-	C.g_value_set_string(v.Native(), (*C.gchar)(cstr))
+	C.g_value_set_string(v.native(), (*C.gchar)(cstr))
 }
 
-// SetInstance() is a wrapper around g_value_set_instance().
+// SetInstance is a wrapper around g_value_set_instance().
 func (v *Value) SetInstance(instance uintptr) {
-	C.g_value_set_instance(v.Native(), C.gpointer(instance))
+	C.g_value_set_instance(v.native(), C.gpointer(instance))
 }
 
-// SetPointer() is a wrapper around g_value_set_pointer().
+// SetPointer is a wrapper around g_value_set_pointer().
 func (v *Value) SetPointer(p uintptr) {
-	C.g_value_set_pointer(v.Native(), C.gpointer(p))
+	C.g_value_set_pointer(v.native(), C.gpointer(p))
 }
 
-// GetString() is a wrapper around g_value_get_string().  GetString()
+// GetString is a wrapper around g_value_get_string().  GetString()
 // returns a non-nil error if g_value_get_string() returned a NULL
 // pointer to distinguish between returning a NULL pointer and returning
 // an empty string.
 func (v *Value) GetString() (string, error) {
-	c := C.g_value_get_string(v.Native())
+	c := C.g_value_get_string(v.native())
 	if c == nil {
-		return "", nilPtrErr
+		return "", errNilPtr
 	}
 	return C.GoString((*C.char)(c)), nil
 }

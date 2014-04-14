@@ -38,6 +38,12 @@ toGtkArrow(void *p)
 	return (GTK_ARROW(p));
 }
 
+static GtkAssistant *
+toGtkAssistant(void *p)
+{
+	return (GTK_ASSISTANT(p));
+}
+
 static GtkCalendar *
 toGtkCalendar(void *p)
 {
@@ -366,6 +372,72 @@ static GtkOffscreenWindow *
 toGtkOffscreenWindow(void *p)
 {
 	return (GTK_OFFSCREEN_WINDOW(p));
+}
+
+static GtkFileChooser *
+toGtkFileChooser(void *p)
+{
+	return (GTK_FILE_CHOOSER(p));
+}
+
+static GtkFileChooserWidget *
+toGtkFileChooserWidget(void *p)
+{
+	return (GTK_FILE_CHOOSER_WIDGET(p));
+}
+
+static GtkMenuButton *
+toGtkMenuButton(void *p)
+{
+	return (GTK_MENU_BUTTON(p));
+}
+
+static GtkRadioButton *
+toGtkRadioButton(void *p)
+{
+	return (GTK_RADIO_BUTTON(p));
+}
+
+static GtkCheckMenuItem *
+toGtkCheckMenuItem(void *p)
+{
+	return (GTK_CHECK_MENU_ITEM(p));
+}
+
+static GtkRadioMenuItem *
+toGtkRadioMenuItem(void *p)
+{
+	return (GTK_RADIO_MENU_ITEM(p));
+}
+
+static GtkToolItem *
+toGtkToolItem(void *p)
+{
+	return (GTK_TOOL_ITEM(p));
+}
+
+static GtkToolbar *
+toGtkToolbar(void *p)
+{
+	return (GTK_TOOLBAR(p));
+}
+
+static GtkEditable *
+toGtkEditable(void *p)
+{
+	return (GTK_EDITABLE(p));
+}
+
+static GtkToolButton *
+toGtkToolButton(void *p)
+{
+	return (GTK_TOOL_BUTTON(p));
+}
+
+static GtkSeparatorToolItem *
+toGtkSeparatorToolItem(void *p)
+{
+	return (GTK_SEPARATOR_TOOL_ITEM(p));
 }
 
 static GType * 
