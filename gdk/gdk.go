@@ -23,6 +23,7 @@ package gdk
 import "C"
 import (
 	"errors"
+	"github.com/visionect/gotk3/cairo"
 	"github.com/visionect/gotk3/glib"
 	"reflect"
 	"runtime"
@@ -120,6 +121,7 @@ const (
 	SELECTION_TYPE_WINDOW   Atom = 33
 	SELECTION_TYPE_STRING   Atom = 31
 )
+
 /*At this moment VISIONECT specific*/
 type EventMask uint
 
@@ -275,6 +277,14 @@ func DisplayGetDefault() (*Display, error) {
 	obj.Ref()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return d, nil
+}
+
+func CairoCreate(window *Window) *cairo.Surface {
+	s := C.gdk_cairo_create(window.native())
+	if s == nil {
+		return nil
+	}
+	return cairo.NewSurface(uintptr(unsafe.Pointer(s)), false)
 }
 
 // GetName() is a wrapper around gdk_display_get_name().

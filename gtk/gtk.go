@@ -7789,13 +7789,13 @@ func (v *Widget) Unmap() {
 /*At this moment VISIONECT specific*/
 //Realize is wraper around void gtk_widget_realize(GtkWidget *widget);
 func (v *Widget) Realize() {
-    C.gtk_widget_realize(v.toWidget())
+	C.gtk_widget_realize(v.toWidget())
 }
 
 /*At this moment VISIONECT specific*/
 //Unrealize is a wraper around void gtk_widget_unrealize(GtkWidget *widget);
 func (v *Widget) Unrealize() {
-    C.gtk_widget_unrealize(v.toWidget())
+	C.gtk_widget_unrealize(v.toWidget())
 }
 
 //void gtk_widget_draw(GtkWidget *widget, cairo_t *cr);
@@ -7963,6 +7963,19 @@ func (v *Widget) SetParentWindow(parentWindow *gdk.Window) {
 // GetParentWindow is a wrapper around gtk_widget_get_parent_window().
 func (v *Widget) GetParentWindow() (*gdk.Window, error) {
 	c := C.gtk_widget_get_parent_window(v.native())
+	if v == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	w := &gdk.Window{obj}
+	w.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return w, nil
+}
+
+// GetWindow is a wrapper around gtk_widget_get_window().
+func (v *Widget) GetWindow() (*gdk.Window, error) {
+	c := C.gtk_widget_get_window(v.native())
 	if v == nil {
 		return nil, nilPtrErr
 	}
