@@ -6654,6 +6654,11 @@ func (v *TextBuffer) SetText(text string) {
 	C.gtk_text_buffer_set_text(v.native(), (*C.gchar)(cstr),
 		C.gint(len(text)))
 }
+func (v *TextBuffer) Insert(iter TextIter, text string) {
+	cstr := C.CString(text)
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_text_buffer_insert(v.native(), (*C.GtkTextIter)(&iter), (*C.gchar)(cstr), C.gint(len(text)))
+}
 
 /*
  * GtkTextIter
