@@ -507,9 +507,49 @@ func (v *Display) NotifyStartupComplete(startupID string) {
  * GdkEvent
  */
 
+type EventType int
+
+const (
+	ButtonPress EventType = C.GDK_BUTTON_PRESS
+)
+
+type EventAny struct {
+	Type      EventType
+	Window    *Window
+	SendEvent int8
+}
+
+type EventButton struct {
+	EventAny
+	Time         uint32
+	X            float64
+	Y            float64
+	Axes         *float64
+	State        uint32
+	Button       uint32
+	Device       *Device
+	XRoot, YRoot float64
+}
+
 // Event is a representation of GDK's GdkEvent.
 type Event struct {
 	GdkEvent *C.GdkEvent
+}
+
+// Marshall returns a native go structor for event v.
+func (v *Event) Marshall() interface{} {
+	evType := C.gdk_event_get_event_type(v.GdkEvent)
+	switch evType {
+	case C.GDK_BUTTON_PRESS:
+		evButton := &EventButton{}
+		evButton.Type = ButtonPress
+		evButton.Time = uint32(C.gdk_event_get_time(v.GdkEvent))
+		xPtr := (*C.gdouble)(unsafe.Pointer(&evButton.X))
+		yPtr := (*C.gdouble)(unsafe.Pointer(&evButton.Y))
+		C.gdk_event_get_coords(v.GdkEvent, xPtr, yPtr)
+		return evButton
+	}
+	return nil
 }
 
 // native returns a pointer to the underlying GdkEvent.
