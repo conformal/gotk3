@@ -24,6 +24,7 @@ package cairo
 // #include <cairo-gobject.h>
 import "C"
 import (
+	"errors"
 	"reflect"
 	"runtime"
 	"unsafe"
@@ -310,6 +311,12 @@ func wrapContext(context *C.cairo_t) *Context {
 	return &Context{context}
 }
 
+func WrapContext(context *C.cairo_t) *Context {
+	ctx := &Context{context}
+	ctx.reference()
+	return ctx
+}
+
 // Create is a wrapper around cairo_create().
 func Create(target *Surface) *Context {
 	c := C.cairo_create(target.native())
@@ -400,6 +407,14 @@ func (v *Context) SetSourceSurface(surface *Surface, x, y float64) {
 }
 
 // TODO(jrick) GetSource (depends on Pattern)
+
+func (v *Surface) WriteToPng(filename string) error {
+	status := C.cairo_surface_write_to_png(v.native(), C.CString(filename))
+	if status != C.CAIRO_STATUS_SUCCESS {
+		return errors.New("error writing to PNG file")
+	}
+	return nil
+}
 
 // SetAntialias is a wrapper around cairo_set_antialias().
 func (v *Context) SetAntialias(antialias Antialias) {
@@ -684,11 +699,33 @@ func NewSurface(s uintptr, needsRef bool) *Surface {
 	runtime.SetFinalizer(surface, (*Surface).destroy)
 	return surface
 }
+
+func NewImageSurface(format Format, width int, height int) *Surface {
+	c := C.cairo_image_surface_create(C.cairo_format_t(format), C.int(width), C.int(height))
+	s := wrapSurface(c)
+	runtime.SetFinalizer(s, (*Surface).destroy)
+	return s
+}
+
+func (v *Surface) GetData() []byte {
+	c_data := C.cairo_image_surface_get_data(v.native())
+	c_data_len := C.cairo_image_surface_get_stride(v.native()) *
+		C.cairo_image_surface_get_height(v.native())
+	data := C.GoBytes(unsafe.Pointer(c_data), C.int(c_data_len))
+	return data
+}
 func NewImageSurfaceForData(data []byte, format Format, width, height, stride int) *Surface {
 	cData := (*C.uchar)(unsafe.Pointer(&data[0]))
 	cFormat := (C.cairo_format_t)(format)
 	c := C.cairo_image_surface_create_for_data(cData, cFormat, C.int(width), C.int(height), C.int(stride))
+	if c == nil {
+		return nil
+	}
 	s := wrapSurface(c)
+	if s == nil {
+		return nil
+	}
+	s.reference()
 	runtime.SetFinalizer(s, (*Surface).destroy)
 	return s
 }

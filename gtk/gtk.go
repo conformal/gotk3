@@ -7749,6 +7749,11 @@ func (v *Widget) GetDoubleBuffered() bool {
 	return gobool(c)
 }
 
+// GetDoubleBuffered is a wrapper around gtk_widget_get_double_buffered().
+func (v *Widget) SetDoubleBuffered(doubleBuffered bool) {
+	C.gtk_widget_set_double_buffered(v.native(), gbool(doubleBuffered))
+}
+
 // GetHasWindow is a wrapper around gtk_widget_get_has_window().
 func (v *Widget) GetHasWindow() bool {
 	c := C.gtk_widget_get_has_window(v.native())

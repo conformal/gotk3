@@ -279,12 +279,12 @@ func DisplayGetDefault() (*Display, error) {
 	return d, nil
 }
 
-func CairoCreate(window *Window) *cairo.Surface {
-	s := C.gdk_cairo_create(window.native())
-	if s == nil {
+func CairoCreate(window *Window) *cairo.Context {
+	ctx := C.gdk_cairo_create(window.native())
+	if ctx == nil {
 		return nil
 	}
-	return cairo.NewSurface(uintptr(unsafe.Pointer(s)), false)
+	return cairo.WrapContext(ctx)
 }
 
 // GetName() is a wrapper around gdk_display_get_name().
