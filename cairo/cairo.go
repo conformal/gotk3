@@ -631,7 +631,7 @@ func (v *Context) ShowPage() {
 type Format int
 
 const (
-	FormatInvalid = iota - 1
+	FormatInvalid Format = iota - 1
 	FormatARGB32
 	FormatRGB24
 	FormatA8
@@ -639,6 +639,10 @@ const (
 	FormatRGB16_565
 	FormatRGB30
 )
+
+func (format Format) StrideForWidth(width int) int {
+	return int(C.cairo_format_stride_for_width(C.cairo_format_t(format), C.int(width)))
+}
 
 // Surface is a representation of Cairo's cairo_surface_t.
 type Surface struct {

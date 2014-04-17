@@ -8201,6 +8201,10 @@ func (v *Widget) SetVExpand(expand bool) {
 	C.gtk_widget_set_vexpand(v.native(), gbool(expand))
 }
 
+func (v *Widget) QueueDraw() {
+	C.gtk_widget_queue_draw(v.native())
+}
+
 /*
  * GtkWindow
  */
