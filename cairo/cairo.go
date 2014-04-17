@@ -628,6 +628,18 @@ func (v *Context) ShowPage() {
  * cairo_surface_t
  */
 
+type Format int
+
+const (
+	FormatInvalid = iota - 1
+	FormatARGB32
+	FormatRGB24
+	FormatA8
+	FormatA1
+	FormatRGB16_565
+	FormatRGB30
+)
+
 // Surface is a representation of Cairo's cairo_surface_t.
 type Surface struct {
 	surface *C.cairo_surface_t
@@ -667,6 +679,14 @@ func NewSurface(s uintptr, needsRef bool) *Surface {
 	}
 	runtime.SetFinalizer(surface, (*Surface).destroy)
 	return surface
+}
+func NewImageSurfaceForData(data []byte, format Format, width, height, stride int) *Surface {
+	cData := (*C.uchar)(unsafe.Pointer(&data[0]))
+	cFormat := (C.cairo_format_t)(format)
+	c := C.cairo_image_surface_create_for_data(cData, cFormat, C.int(width), C.int(height), C.int(stride))
+	s := wrapSurface(c)
+	runtime.SetFinalizer(s, (*Surface).destroy)
+	return s
 }
 
 // CreateSimilar is a wrapper around cairo_surface_create_similar().
