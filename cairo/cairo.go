@@ -709,10 +709,15 @@ func NewImageSurface(format Format, width int, height int) *Surface {
 
 func (v *Surface) GetData() []byte {
 	c_data := C.cairo_image_surface_get_data(v.native())
-	c_data_len := C.cairo_image_surface_get_stride(v.native()) *
-		C.cairo_image_surface_get_height(v.native())
-	data := C.GoBytes(unsafe.Pointer(c_data), C.int(c_data_len))
-	return data
+	c_data_len := int(C.cairo_image_surface_get_stride(v.native()) *
+		C.cairo_image_surface_get_height(v.native()))
+	hdr := reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(c_data)),
+		Len:  c_data_len,
+		Cap:  c_data_len,
+	}
+	goSlice := *(*[]byte)(unsafe.Pointer(&hdr))
+	return goSlice
 }
 func NewImageSurfaceForData(data []byte, format Format, width, height, stride int) *Surface {
 	cData := (*C.uchar)(unsafe.Pointer(&data[0]))
