@@ -6405,6 +6405,9 @@ func (v *TextView) ScrollToIter(iter *TextIter, withinMargin float64, useAlign b
 func (v *TextView) ScrollToEnd() {
 	buffer := C.gtk_text_view_get_buffer(v.native())
 	mk := C.gtk_text_buffer_get_mark(buffer, (*C.gchar)(C.CString("insert")))
+	if mk == (*C.GtkTextMark)(unsafe.Pointer(uintptr(0))) {
+		return
+	}
 	C.gtk_text_view_scroll_to_mark(v.native(), mk, 0.0, gbool(false), 0.0, 0.0)
 }
 
