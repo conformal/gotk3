@@ -6393,6 +6393,21 @@ func (v *TextView) GetBuffer() (*TextBuffer, error) {
 	return t, nil
 }
 
+// ScrollToIter is a wrapper around gtk_text_view_scroll_to_iter()
+func (v *TextView) ScrollToIter(iter *TextIter, withinMargin float64, useAlign bool, xAlign, yAlign float64) bool {
+	if iter == nil {
+		return false
+	}
+	occured := C.gtk_text_view_scroll_to_iter(v.native(), (*C.GtkTextIter)(iter), C.gdouble(withinMargin), gbool(useAlign), C.gdouble(xAlign), C.gdouble(yAlign))
+	return gobool(occured)
+}
+
+func (v *TextView) ScrollToEnd() {
+	buffer := C.gtk_text_view_get_buffer(v.native())
+	mk := C.gtk_text_buffer_get_mark(buffer, (*C.gchar)(C.CString("insert")))
+	C.gtk_text_view_scroll_to_mark(v.native(), mk, 0.0, gbool(false), 0.0, 0.0)
+}
+
 // SetBuffer is a wrapper around gtk_text_view_set_buffer().
 func (v *TextView) SetBuffer(buffer *TextBuffer) {
 	C.gtk_text_view_set_buffer(v.native(), buffer.native())
@@ -6401,6 +6416,13 @@ func (v *TextView) SetBuffer(buffer *TextBuffer) {
 // SetEditable is a wrapper around gtk_text_view_set_editable().
 func (v *TextView) SetEditable(editable bool) {
 	C.gtk_text_view_set_editable(v.native(), gbool(editable))
+}
+
+// SetEditable is a wrapper around gtk_text_view_set_editable().
+func (v *TextBuffer) GetEndIter() *TextIter {
+	iter := TextIter{}
+	C.gtk_text_buffer_get_end_iter(v.native(), (*C.GtkTextIter)(&iter))
+	return &iter
 }
 
 // GetEditable is a wrapper around gtk_text_view_get_editable().
