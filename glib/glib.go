@@ -539,7 +539,6 @@ func (v *Object) GetPropertyType(name string) (Type, error) {
 	defer C.free(unsafe.Pointer(cstr))
 
 	paramSpec := C.g_object_class_find_property(C._g_object_get_class(v.native()), (*C.gchar)(cstr))
-	fmt.Printf("%+v\n", paramSpec)
 	if paramSpec == nil {
 		return TYPE_INVALID, errors.New("couldn't find Property")
 
@@ -564,7 +563,6 @@ func (v *Object) GetProperty(name string) (interface{}, error) {
 		return nil, errors.New("Unable to allocate value")
 	}
 	C.g_object_get_property(v.GObject, (*C.gchar)(cstr), p.native())
-	fmt.Printf("property: %s, value :%+v\n", name, p)
 	return p.GoValue()
 }
 
