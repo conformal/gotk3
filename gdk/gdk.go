@@ -284,7 +284,7 @@ func CairoCreate(window *Window) *cairo.Context {
 	if ctx == nil {
 		return nil
 	}
-	return cairo.WrapContext(ctx)
+	return cairo.WrapContext(/*ctx*/nil)
 }
 
 // GetName() is a wrapper around gdk_display_get_name().
