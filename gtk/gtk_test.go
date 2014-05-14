@@ -21,7 +21,7 @@ package gtk
 import (
 	"fmt"
 	"github.com/visionect/gotk3/glib"
-    "log"
+	"log"
 	"testing"
 )
 

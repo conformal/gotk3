@@ -311,7 +311,6 @@ func wrapContext(context *C.cairo_t) *Context {
 	return &Context{context}
 }
 
-
 // WrapContext creates a gotk3 cairo Context from a pointer to a
 // C cairo_t.  This is primarily designed for use with other
 // gotk3 packages and should be avoided by applications.
