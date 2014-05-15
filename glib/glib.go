@@ -534,6 +534,8 @@ func (v *Object) Set(name string, value interface{}) error {
 	return nil
 }
 
+// GetPropertyType returns the Type of a property of the underlying GObject.
+// If the property is missing it will return TYPE_INVALID and an error.
 func (v *Object) GetPropertyType(name string) (Type, error) {
 	cstr := C.CString(name)
 	defer C.free(unsafe.Pointer(cstr))
@@ -541,13 +543,11 @@ func (v *Object) GetPropertyType(name string) (Type, error) {
 	paramSpec := C.g_object_class_find_property(C._g_object_get_class(v.native()), (*C.gchar)(cstr))
 	if paramSpec == nil {
 		return TYPE_INVALID, errors.New("couldn't find Property")
-
 	}
 	return Type(paramSpec.value_type), nil
-
 }
 
-// Wrapper around g_object_get_property
+// GetProperty is a wrapper around g_object_get_property().
 func (v *Object) GetProperty(name string) (interface{}, error) {
 	cstr := C.CString(name)
 	defer C.free(unsafe.Pointer(cstr))
@@ -558,15 +558,14 @@ func (v *Object) GetProperty(name string) (interface{}, error) {
 	}
 
 	p, err := ValueInit(t)
-
 	if err != nil {
-		return nil, errors.New("Unable to allocate value")
+		return nil, errors.New("unable to allocate value")
 	}
 	C.g_object_get_property(v.GObject, (*C.gchar)(cstr), p.native())
 	return p.GoValue()
 }
 
-// Wrapper around g_object_set_property
+// SetProperty is a wrapper around g_object_set_property().
 func (v *Object) SetProperty(name string, value interface{}) error {
 	cstr := C.CString(name)
 	defer C.free(unsafe.Pointer(cstr))
