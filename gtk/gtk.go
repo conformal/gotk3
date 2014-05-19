@@ -153,6 +153,7 @@ func init() {
 		{glib.Type(C.gtk_spin_button_get_type()), marshalSpinButton},
 		{glib.Type(C.gtk_spinner_get_type()), marshalSpinner},
 		{glib.Type(C.gtk_statusbar_get_type()), marshalStatusbar},
+		{glib.Type(C.gtk_status_icon_get_type()), marshalStatusIcon},
 		{glib.Type(C.gtk_switch_get_type()), marshalSwitch},
 		{glib.Type(C.gtk_text_view_get_type()), marshalTextView},
 		{glib.Type(C.gtk_text_tag_table_get_type()), marshalTextTagTable},
@@ -6236,6 +6237,61 @@ func (v *Spinner) Start() {
 // Stop is a wrapper around gtk_spinner_stop().
 func (v *Spinner) Stop() {
 	C.gtk_spinner_stop(v.native())
+}
+
+/*
+ * GtkStatusIcon
+ */
+type StatusIcon struct {
+	*glib.Object
+}
+
+func marshalStatusIcon(p uintptr) (interface{}, error) {
+	c := C.g_value_get_object((*C.GValue)(unsafe.Pointer(p)))
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	return wrapStatusIcon(obj), nil
+}
+
+func wrapStatusIcon(obj *glib.Object) *StatusIcon {
+	return &StatusIcon{obj}
+}
+
+func (this *StatusIcon) native() *C.GtkStatusIcon {
+	if this == nil || this.GObject == nil {
+		return nil
+	}
+	pointer := unsafe.Pointer(this.GObject)
+	return C.toGtkStatusIcon(pointer)
+}
+
+func StatusIconNew() (*StatusIcon, error) {
+	s := C.gtk_status_icon_new()
+	if s == nil {
+		return nil, nilPtrErr
+	}
+	object := &glib.Object{glib.ToGObject(unsafe.Pointer(s))}
+	e := wrapStatusIcon(object)
+	runtime.SetFinalizer(object, (*glib.Object).Unref)
+	return e, nil
+}
+
+func StatusIconNewFromFile(filename string) (*StatusIcon, error) {
+	cstr := C.CString(filename)
+	defer C.free(unsafe.Pointer(cstr))
+	s := C.gtk_status_icon_new_from_file((*C.gchar)(cstr))
+	if s == nil {
+		return nil, nilPtrErr
+	}
+	object := &glib.Object{glib.ToGObject(unsafe.Pointer(s))}
+	e := wrapStatusIcon(object)
+	runtime.SetFinalizer(object, (*glib.Object).Unref)
+	return e, nil
+}
+
+func (this *StatusIcon) SetTooltipText(text string) {
+	cstr := C.CString(text)
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_status_icon_set_tooltip_text(this.native(), (*C.gchar)(cstr))
 }
 
 /*
