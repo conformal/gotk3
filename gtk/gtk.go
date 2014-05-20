@@ -6288,10 +6288,109 @@ func StatusIconNewFromFile(filename string) (*StatusIcon, error) {
 	return e, nil
 }
 
+func StatusIconNewFromIconName(iconName string) (*StatusIcon, error) {
+	cstr := C.CString(iconName)
+	defer C.free(unsafe.Pointer(cstr))
+	s := C.gtk_status_icon_new_from_icon_name((*C.gchar)(cstr))
+	if s == nil {
+		return nil, nilPtrErr
+	}
+	object := &glib.Object{glib.ToGObject(unsafe.Pointer(s))}
+	e := wrapStatusIcon(object)
+	runtime.SetFinalizer(object, (*glib.Object).Unref)
+	return e, nil
+}
+
+func (this *StatusIcon) SetFromFile(filename string) {
+	cstr := C.CString(filename)
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_status_icon_set_from_file(this.native(), (*C.gchar)(cstr))
+}
+
+func (this *StatusIcon) SetFromIconName(iconName string) {
+	cstr := C.CString(iconName)
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_status_icon_set_from_icon_name(this.native(), (*C.gchar)(cstr))
+}
+
+func (this *StatusIcon) GetStorageType() ImageType {
+	return (ImageType)(C.gtk_status_icon_get_storage_type(this.native()))
+}
+
+func (this *StatusIcon) GetIconName() string {
+	cstr := (*C.char)(C.gtk_status_icon_get_icon_name(this.native()))
+	defer C.free(unsafe.Pointer(cstr))
+	return C.GoString(cstr)
+}
+
+func (this *StatusIcon) GetSize() int {
+	return int(C.gtk_status_icon_get_size(this.native()))
+}
+
 func (this *StatusIcon) SetTooltipText(text string) {
 	cstr := C.CString(text)
 	defer C.free(unsafe.Pointer(cstr))
 	C.gtk_status_icon_set_tooltip_text(this.native(), (*C.gchar)(cstr))
+}
+
+func (this *StatusIcon) GetTooltipText() string {
+	cstr := (*C.char)(C.gtk_status_icon_get_tooltip_text(this.native()))
+	defer C.free(unsafe.Pointer(cstr))
+	return C.GoString(cstr)
+}
+
+func (this *StatusIcon) SetTooltipMarkup(markup string) {
+	cstr := (*C.gchar)(C.CString(markup))
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_status_icon_set_tooltip_markup(this.native(), cstr)
+}
+
+func (this *StatusIcon) GetTooltipMarkup() string {
+	cstr := (*C.char)(C.gtk_status_icon_get_tooltip_markup(this.native()))
+	defer C.free(unsafe.Pointer(cstr))
+	return C.GoString(cstr)
+}
+
+func (this *StatusIcon) SetHasTooltip(hasTooltip bool) {
+	C.gtk_status_icon_set_has_tooltip(this.native(), gbool(hasTooltip))
+}
+
+func (this *StatusIcon) GetHasTooltip() bool {
+	return gobool(C.gtk_status_icon_get_has_tooltip(this.native()))
+}
+
+func (this *StatusIcon) SetTitle(title string) {
+	cstr := (*C.gchar)(C.CString(title))
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_status_icon_set_title(this.native(), cstr)
+}
+
+func (this *StatusIcon) GetTitle() string {
+	cstr := (*C.char)(C.gtk_status_icon_get_title(this.native()))
+	defer C.free(unsafe.Pointer(cstr))
+	return C.GoString(cstr)
+}
+
+func (this *StatusIcon) SetName(name string) {
+	cstr := (*C.gchar)(C.CString(name))
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_status_icon_set_name(this.native(), cstr)
+}
+
+func (this *StatusIcon) SetVisible(visible bool) {
+	C.gtk_status_icon_set_visible(this.native(), gbool(visible))
+}
+
+func (this *StatusIcon) GetVisible() bool {
+	return gobool(C.gtk_status_icon_get_visible(this.native()))
+}
+
+func (this *StatusIcon) IsEmbedded() bool {
+	return gobool(C.gtk_status_icon_is_embedded(this.native()))
+}
+
+func (this *StatusIcon) GetX11WindowId() int {
+	return int(C.gtk_status_icon_get_x11_window_id(this.native()))
 }
 
 /*
