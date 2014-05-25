@@ -6260,31 +6260,31 @@ func (v *StatusIcon) native() *C.GtkStatusIcon {
 	if v == nil || v.GObject == nil {
 		return nil
 	}
-	pointer := unsafe.Pointer(v.GObject)
-	return C.toGtkStatusIcon(pointer)
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkStatusIcon(p)
 }
 
 func StatusIconNew() (*StatusIcon, error) {
-	s := C.gtk_status_icon_new()
-	if s == nil {
+	c := C.gtk_status_icon_new()
+	if c == nil {
 		return nil, nilPtrErr
 	}
-	object := &glib.Object{glib.ToGObject(unsafe.Pointer(s))}
-	e := wrapStatusIcon(object)
-	runtime.SetFinalizer(object, (*glib.Object).Unref)
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	e := wrapStatusIcon(obj)
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return e, nil
 }
 
 func StatusIconNewFromFile(filename string) (*StatusIcon, error) {
 	cstr := C.CString(filename)
 	defer C.free(unsafe.Pointer(cstr))
-	s := C.gtk_status_icon_new_from_file((*C.gchar)(cstr))
-	if s == nil {
+	c := C.gtk_status_icon_new_from_file((*C.gchar)(cstr))
+	if c == nil {
 		return nil, nilPtrErr
 	}
-	object := &glib.Object{glib.ToGObject(unsafe.Pointer(s))}
-	e := wrapStatusIcon(object)
-	runtime.SetFinalizer(object, (*glib.Object).Unref)
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	e := wrapStatusIcon(obj)
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return e, nil
 }
 
@@ -6295,9 +6295,9 @@ func StatusIconNewFromIconName(iconName string) (*StatusIcon, error) {
 	if s == nil {
 		return nil, nilPtrErr
 	}
-	object := &glib.Object{glib.ToGObject(unsafe.Pointer(s))}
-	e := wrapStatusIcon(object)
-	runtime.SetFinalizer(object, (*glib.Object).Unref)
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(s))}
+	e := wrapStatusIcon(obj)
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return e, nil
 }
 
@@ -6389,7 +6389,7 @@ func (v *StatusIcon) IsEmbedded() bool {
 	return gobool(C.gtk_status_icon_is_embedded(v.native()))
 }
 
-func (v *StatusIcon) GetX11WindowId() int {
+func (v *StatusIcon) GetX11WindowID() int {
 	return int(C.gtk_status_icon_get_x11_window_id(v.native()))
 }
 
