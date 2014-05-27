@@ -6270,6 +6270,7 @@ func StatusIconNew() (*StatusIcon, error) {
 		return nil, nilPtrErr
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	obj.RefSink()
 	e := wrapStatusIcon(obj)
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return e, nil
@@ -6283,6 +6284,7 @@ func StatusIconNewFromFile(filename string) (*StatusIcon, error) {
 		return nil, nilPtrErr
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	obj.RefSink()
 	e := wrapStatusIcon(obj)
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return e, nil
@@ -6296,6 +6298,7 @@ func StatusIconNewFromIconName(iconName string) (*StatusIcon, error) {
 		return nil, nilPtrErr
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(s))}
+	obj.RefSink()
 	e := wrapStatusIcon(obj)
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return e, nil
