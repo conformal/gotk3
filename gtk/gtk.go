@@ -6242,6 +6242,8 @@ func (v *Spinner) Stop() {
 /*
  * GtkStatusIcon
  */
+
+// StatusIcon is a representation of GTK's GtkStatusIcon
 type StatusIcon struct {
 	*glib.Object
 }
@@ -6264,6 +6266,7 @@ func (v *StatusIcon) native() *C.GtkStatusIcon {
 	return C.toGtkStatusIcon(p)
 }
 
+// StatusIconNew is a wrapper around gtk_status_icon_new()
 func StatusIconNew() (*StatusIcon, error) {
 	c := C.gtk_status_icon_new()
 	if c == nil {
@@ -6276,6 +6279,7 @@ func StatusIconNew() (*StatusIcon, error) {
 	return e, nil
 }
 
+// StatusIconNewFromFile is a wrapper around gtk_status_icon_new_from_file()
 func StatusIconNewFromFile(filename string) (*StatusIcon, error) {
 	cstr := C.CString(filename)
 	defer C.free(unsafe.Pointer(cstr))
@@ -6290,6 +6294,7 @@ func StatusIconNewFromFile(filename string) (*StatusIcon, error) {
 	return e, nil
 }
 
+// StatusIconNewFromIconName is a wrapper around gtk_status_icon_new_from_name()
 func StatusIconNewFromIconName(iconName string) (*StatusIcon, error) {
 	cstr := C.CString(iconName)
 	defer C.free(unsafe.Pointer(cstr))
@@ -6304,94 +6309,112 @@ func StatusIconNewFromIconName(iconName string) (*StatusIcon, error) {
 	return e, nil
 }
 
+// SetFromFile is a wrapper around gtk_status_icon_set_from_file()
 func (v *StatusIcon) SetFromFile(filename string) {
 	cstr := C.CString(filename)
 	defer C.free(unsafe.Pointer(cstr))
 	C.gtk_status_icon_set_from_file(v.native(), (*C.gchar)(cstr))
 }
 
+// SetFromIconName is a wrapper around gtk_status_icon_set_from_icon_name()
 func (v *StatusIcon) SetFromIconName(iconName string) {
 	cstr := C.CString(iconName)
 	defer C.free(unsafe.Pointer(cstr))
 	C.gtk_status_icon_set_from_icon_name(v.native(), (*C.gchar)(cstr))
 }
 
+// GetStorageType is a wrapper around gtk_status_icon_get_storage_type()
 func (v *StatusIcon) GetStorageType() ImageType {
 	return (ImageType)(C.gtk_status_icon_get_storage_type(v.native()))
 }
 
+// GetIconName is a wrapper around gtk_status_icon_get_icon_name()
 func (v *StatusIcon) GetIconName() string {
 	cstr := (*C.char)(C.gtk_status_icon_get_icon_name(v.native()))
 	defer C.free(unsafe.Pointer(cstr))
 	return C.GoString(cstr)
 }
 
+// GetSize is a wrapper around gtk_status_icon_get_size()
 func (v *StatusIcon) GetSize() int {
 	return int(C.gtk_status_icon_get_size(v.native()))
 }
 
+// SetTooltipText is a wrapper around gtk_status_icon_set_tooltip_text()
 func (v *StatusIcon) SetTooltipText(text string) {
 	cstr := C.CString(text)
 	defer C.free(unsafe.Pointer(cstr))
 	C.gtk_status_icon_set_tooltip_text(v.native(), (*C.gchar)(cstr))
 }
 
+// GetTooltipText is a wrapper around gtk_status_icon_get_tooltip_text()
 func (v *StatusIcon) GetTooltipText() string {
 	cstr := (*C.char)(C.gtk_status_icon_get_tooltip_text(v.native()))
 	defer C.free(unsafe.Pointer(cstr))
 	return C.GoString(cstr)
 }
 
+// SetTooltipMarkup is a wrapper around gtk_status_icon_set_tooltip_markup()
 func (v *StatusIcon) SetTooltipMarkup(markup string) {
 	cstr := (*C.gchar)(C.CString(markup))
 	defer C.free(unsafe.Pointer(cstr))
 	C.gtk_status_icon_set_tooltip_markup(v.native(), cstr)
 }
 
+// GetTooltipMarkup is a wrapper around gtk_status_icon_get_tooltip_markup()
 func (v *StatusIcon) GetTooltipMarkup() string {
 	cstr := (*C.char)(C.gtk_status_icon_get_tooltip_markup(v.native()))
 	defer C.free(unsafe.Pointer(cstr))
 	return C.GoString(cstr)
 }
 
+// SetHasTooltip is a wrapper around gtk_status_icon_set_has_tooltip()
 func (v *StatusIcon) SetHasTooltip(hasTooltip bool) {
 	C.gtk_status_icon_set_has_tooltip(v.native(), gbool(hasTooltip))
 }
 
+// GetHasTooltip is a wrapper around gtk_status_icon_get_has_tooltip()
 func (v *StatusIcon) GetHasTooltip() bool {
 	return gobool(C.gtk_status_icon_get_has_tooltip(v.native()))
 }
 
+// SetTitle is a wrapper around gtk_status_icon_set_title()
 func (v *StatusIcon) SetTitle(title string) {
 	cstr := (*C.gchar)(C.CString(title))
 	defer C.free(unsafe.Pointer(cstr))
 	C.gtk_status_icon_set_title(v.native(), cstr)
 }
 
+// GetTitle is a wrapper around gtk_status_icon_get_title()
 func (v *StatusIcon) GetTitle() string {
 	cstr := (*C.char)(C.gtk_status_icon_get_title(v.native()))
 	defer C.free(unsafe.Pointer(cstr))
 	return C.GoString(cstr)
 }
 
+// SetName is a wrapper around gtk_status_icon_set_name()
 func (v *StatusIcon) SetName(name string) {
 	cstr := (*C.gchar)(C.CString(name))
 	defer C.free(unsafe.Pointer(cstr))
 	C.gtk_status_icon_set_name(v.native(), cstr)
 }
 
+// SetVisible is a wrapper around gtk_status_icon_set_visible()
 func (v *StatusIcon) SetVisible(visible bool) {
 	C.gtk_status_icon_set_visible(v.native(), gbool(visible))
 }
 
+// GetVisible is a wrapper around gtk_status_icon_get_visible()
 func (v *StatusIcon) GetVisible() bool {
 	return gobool(C.gtk_status_icon_get_visible(v.native()))
 }
 
+// IsEmbedded is a wrapper around gtk_status_icon_is_embedded()
 func (v *StatusIcon) IsEmbedded() bool {
 	return gobool(C.gtk_status_icon_is_embedded(v.native()))
 }
 
+// GetX11WindowID is a wrapper around gtk_status_icon_get_x11_window_id()
 func (v *StatusIcon) GetX11WindowID() int {
 	return int(C.gtk_status_icon_get_x11_window_id(v.native()))
 }
