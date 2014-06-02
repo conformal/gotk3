@@ -278,6 +278,24 @@ func marshalSurfaceType(p uintptr) (interface{}, error) {
 	return SurfaceType(c), nil
 }
 
+// Format is a representation of Cairo's cairo_format_t.
+type Format int
+
+const (
+	FORMAT_INVALID   Format = C.CAIRO_FORMAT_INVALID
+	FORMAT_ARGB32    Format = C.CAIRO_FORMAT_ARGB32
+	FORMAT_RGB24     Format = C.CAIRO_FORMAT_RGB24
+	FORMAT_A8        Format = C.CAIRO_FORMAT_A8
+	FORMAT_A1        Format = C.CAIRO_FORMAT_A1
+	FORMAT_RGB16_565 Format = C.CAIRO_FORMAT_RGB16_565
+	FORMAT_RGB30     Format = C.CAIRO_FORMAT_RGB30
+)
+
+func marshalFormat(p uintptr) (interface{}, error) {
+	c := C.g_value_get_enum((*C.GValue)(unsafe.Pointer(p)))
+	return Format(c), nil
+}
+
 /*
  * cairo_t
  */
@@ -624,6 +642,39 @@ func (v *Context) ShowPage() {
 
 // TODO(jrick) GetUserData (depends on UserDataKey)
 
+// Path-creation functions
+// http://cairographics.org/manual/cairo-Paths.html
+
+// Rectangle is a wrapper around cairo_rectangle()
+func (v *Context) Rectangle(x, y, width, height float64) {
+	C.cairo_rectangle(v.native(), C.double(x), C.double(y), C.double(width), C.double(height))
+}
+
+// Arc is a wrapper around cairo_arc()
+func (v *Context) Arc(xc, yc, radius, angle1, angle2 float64) {
+	C.cairo_arc(v.native(), C.double(xc), C.double(yc), C.double(radius), C.double(angle1), C.double(angle2))
+}
+
+// ArcNegative is a wrapper around cairo_arc_negative()
+func (v *Context) ArcNegative(xc, yc, radius, angle1, angle2 float64) {
+	C.cairo_arc_negative(v.native(), C.double(xc), C.double(yc), C.double(radius), C.double(angle1), C.double(angle2))
+}
+
+// MoveTo is a wrapper around cairo_move_to()
+func (v *Context) MoveTo(x, y float64) {
+	C.cairo_move_to(v.native(), C.double(x), C.double(y))
+}
+
+// LineTo is a wrapper around cairo_line_to()
+func (v *Context) LineTo(x, y float64) {
+	C.cairo_line_to(v.native(), C.double(x), C.double(y))
+}
+
+// CurveTo is a wrapper around cairo_curve_to()
+func (v *Context) CurveTo(x1, y1, x2, y2, x3, y3 float64) {
+	C.cairo_curve_to(v.native(), C.double(x1), C.double(y1), C.double(x2), C.double(y2), C.double(x3), C.double(y3))
+}
+
 /*
  * cairo_surface_t
  */
@@ -667,6 +718,20 @@ func NewSurface(s uintptr, needsRef bool) *Surface {
 	}
 	runtime.SetFinalizer(surface, (*Surface).destroy)
 	return surface
+}
+
+// ImageSurfaceCreate is a wrapper around cairo_image_surface_create()
+func ImageSurfaceCreate(format Format, width, height int) *Surface {
+	c := C.cairo_image_surface_create(C.cairo_format_t(format), C.int(width), C.int(height))
+	s := wrapSurface(c)
+	runtime.SetFinalizer(s, (*Surface).destroy)
+	return s
+}
+
+// WriteToPNG is a wrapper around cairo_surface_write_to_png
+// TODO: return value
+func (v *Surface) WriteToPNG(filename string) {
+	C.cairo_surface_write_to_png(v.native(), C.CString(filename))
 }
 
 // CreateSimilar is a wrapper around cairo_surface_create_similar().
