@@ -7740,6 +7740,11 @@ func (v *Widget) Hide() {
 	C.gtk_widget_hide(v.native())
 }
 
+// QueueDraw is a wrapper around gtk_widget_queue_draw().
+func (v *Widget) QueueDraw() {
+	C.gtk_widget_queue_draw(v.native())
+}
+
 // GetCanFocus is a wrapper around gtk_widget_get_can_focus().
 func (v *Widget) GetCanFocus() bool {
 	c := C.gtk_widget_get_can_focus(v.native())
