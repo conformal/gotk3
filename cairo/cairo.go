@@ -296,6 +296,33 @@ func marshalFormat(p uintptr) (interface{}, error) {
 	return Format(c), nil
 }
 
+// FontSlant is a representation of Cairo's cairo_font_slant_t.
+type FontSlant int
+
+const (
+	FONT_SLANT_NORMAL  FontSlant = C.CAIRO_FONT_SLANT_NORMAL
+	FONT_SLANT_ITALIC  FontSlant = C.CAIRO_FONT_SLANT_ITALIC
+	FONT_SLANT_OBLIQUE FontSlant = C.CAIRO_FONT_SLANT_OBLIQUE
+)
+
+func marshalFontSlant(p uintptr) (interface{}, error) {
+	c := C.g_value_get_enum((*C.GValue)(unsafe.Pointer(p)))
+	return FontSlant(c), nil
+}
+
+// FontWeight is a representation of Cairo's cairo_font_weight_t.
+type FontWeight int
+
+const (
+	FONT_WEIGHT_NORMAL FontWeight = C.CAIRO_FONT_WEIGHT_NORMAL
+	FONT_WEIGHT_BOLD   FontWeight = C.CAIRO_FONT_WEIGHT_BOLD
+)
+
+func marshalFontWeight(p uintptr) (interface{}, error) {
+	c := C.g_value_get_enum((*C.GValue)(unsafe.Pointer(p)))
+	return FontWeight(c), nil
+}
+
 /*
  * cairo_t
  */
@@ -673,6 +700,21 @@ func (v *Context) LineTo(x, y float64) {
 // CurveTo is a wrapper around cairo_curve_to()
 func (v *Context) CurveTo(x1, y1, x2, y2, x3, y3 float64) {
 	C.cairo_curve_to(v.native(), C.double(x1), C.double(y1), C.double(x2), C.double(y2), C.double(x3), C.double(y3))
+}
+
+// SelectFontFace is a wrapper around cairo_select_font_face().
+func (v *Context) SelectFontFace(name string, slant FontSlant, weight FontWeight) {
+	C.cairo_select_font_face(v.native(), C.CString(name), C.cairo_font_slant_t(slant), C.cairo_font_weight_t(weight))
+}
+
+// SetFontSize is a wrapper around cairo_set_font_size().
+func (v *Context) SetFontSize(size float64) {
+	C.cairo_set_font_size(v.native(), C.double(size))
+}
+
+// ShowText is a wrapper around cairo_show_text().
+func (v *Context) ShowText(text string) {
+	C.cairo_show_text(v.native(), C.CString(text))
 }
 
 /*

@@ -36,5 +36,12 @@ func main() {
 	cr.Arc(128, 128, 64, 0, math.Pi * 2)
 	cr.Stroke()
 
+	// text
+	cr.SetSourceRGB(0.3, 0.8, 0.8)
+	cr.MoveTo(20, 20)
+	cr.SelectFontFace("sans", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
+	cr.SetFontSize(16)
+	cr.ShowText("Hello World!")
+
 	surf.WriteToPNG("paths.png")
 }
