@@ -6187,6 +6187,11 @@ func (v *SpinButton) GetValue() float64 {
 	return float64(c)
 }
 
+// SetRange() is a wrapper around gtk_spin_button_set_range().
+func (v *SpinButton) SetRange(min, max float64) {
+	C.gtk_spin_button_set_range(v.native(), C.gdouble(min), C.gdouble(max))
+}
+
 /*
  * GtkSpinner
  */
