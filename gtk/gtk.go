@@ -8019,7 +8019,7 @@ func (v *Widget) GetEvents() int {
 }
 
 // AddEvents is a wrapper around gtk_widget_add_events().
-func (v *Widget) AddEvents(events int) {
+func (v *Widget) AddEvents(events gdk.EventMask) {
 	C.gtk_widget_add_events(v.native(), C.gint(events))
 }
 
