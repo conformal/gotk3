@@ -42,6 +42,9 @@ func init() {
 		{glib.Type(C.cairo_gobject_operator_get_type()), marshalOperator},
 		{glib.Type(C.cairo_gobject_status_get_type()), marshalStatus},
 		{glib.Type(C.cairo_gobject_surface_type_get_type()), marshalSurfaceType},
+		{glib.Type(C.cairo_gobject_format_get_type()), marshalFormat},
+		{glib.Type(C.cairo_gobject_font_slant_get_type()), marshalFontSlant},
+		{glib.Type(C.cairo_gobject_font_weight_get_type()), marshalFontWeight},
 
 		// Boxed
 		{glib.Type(C.cairo_gobject_context_get_type()), marshalContext},
