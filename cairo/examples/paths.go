@@ -2,7 +2,7 @@ package main
 
 import (
 	"math"
-	"../"
+	"github.com/conformal/gotk3/cairo"
 )
 
 func main() {
