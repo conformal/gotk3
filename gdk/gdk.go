@@ -531,6 +531,12 @@ func (v *Event) free() {
 	C.gdk_event_free(v.native())
 }
 
+// GetCoords is a wrapper around gdk_event_get_coords().
+func (v *Event) GetCoords(x_win *float64, y_win *float64) bool {
+	ok := C.gdk_event_get_coords(v.native(), (*C.gdouble)(x_win), (*C.gdouble)(y_win))
+	return bool(ok == 1)
+}
+
 /*
  * GdkPixbuf
  */
