@@ -768,6 +768,60 @@ func MainQuit() {
 	C.gtk_main_quit()
 }
 
+//Visionect specific at the moment.
+/*
+* GtkSettings
+*/
+
+// Settings is representation of GTK's GtkSettings
+type Settings struct {
+	*glib.Object
+}
+
+//native returns a pointer to the underlying GtkSettings
+func (s *Settings) native() *C.GtkSettings {
+	if s == nil || s.GObject == nil {
+		return nil
+	}
+	p  := unsafe.Pointer(s.GObject)
+	return C.toGtkSettings(p)
+}
+
+// SettingsDefault is a wrapper around gtk_settings_get_default().
+func SettingsDefault() (*Settings, error) {
+	c := C.gtk_settings_get_default()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	return &Settings{obj}, nil
+}
+
+// SettingsScreen is a wrapper around gtk_settings_get_for_screen()
+func SettingsScreen(screen *gdk.Screen) (*Settings, error) {
+	c := C.gtk_settings_get_for_screen((*C.GdkScreen)(unsafe.Pointer(screen.Native())))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	return &Settings{obj}, nil
+}
+
+/*
+TODO(miha)
+void 	gtk_settings_install_property ()
+void 	gtk_settings_install_property_parser ()
+gboolean 	gtk_rc_property_parse_color ()
+gboolean 	gtk_rc_property_parse_enum ()
+gboolean 	gtk_rc_property_parse_flags ()
+gboolean 	gtk_rc_property_parse_requisition ()
+gboolean 	gtk_rc_property_parse_border ()
+void 	gtk_settings_set_property_value ()
+void 	gtk_settings_set_string_property ()
+void 	gtk_settings_set_long_property ()
+void 	gtk_settings_set_double_property ()
+*/
+
 /*
  * GtkAboutDialog
  */
