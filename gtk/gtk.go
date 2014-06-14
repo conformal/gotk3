@@ -861,6 +861,12 @@ func (v *AboutDialog) SetLicenseType(license License) {
 	C.gtk_about_dialog_set_license_type(v.native(), C.GtkLicense(license))
 }
 
+// SetLogo is a wrapper around gtk_about_dialog_set_logo().
+func (v *AboutDialog) SetLogo(logo *gdk.Pixbuf) {
+	logoPtr := (*C.GdkDisplay)(unsafe.Pointer(logo.Native()))
+	C.gtk_about_dialog_set_logo(v.native(), logoPtr)
+}
+
 // GetLogoIconName is a wrapper around gtk_about_dialog_get_logo_icon_name().
 func (v *AboutDialog) GetLogoIconName() string {
 	c := C.gtk_about_dialog_get_logo_icon_name(v.native())
