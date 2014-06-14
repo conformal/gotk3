@@ -673,6 +673,42 @@ func PixbufNewFromFile(filename string) (*Pixbuf, error) {
 	return p, nil
 }
 
+// PixbufNewFromFileAtScale is a wrapper around gdk_pixbuf_new_from_file_at_scale().
+// TODO: error handling
+func PixbufNewFromFileAtScale(filename string, width, height int, preserve_aspect_ratio bool) (*Pixbuf, error) {
+	var err *C.GError
+	var par C.gboolean
+	if preserve_aspect_ratio {
+		par = C.gboolean(1)
+	} else {
+		par = C.gboolean(0)
+	}
+	c := C.gdk_pixbuf_new_from_file_at_scale(C.CString(filename), C.int(width), C.int(height), par, &err)
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	p := &Pixbuf{obj}
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return p, nil
+}
+
+// PixbufNewFromFileAtSize is a wrapper around gdk_pixbuf_new_from_file_at_size().
+// TODO: error handling
+func PixbufNewFromFileAtSize(filename string, width, height int) (*Pixbuf, error) {
+	var err *C.GError
+	c := C.gdk_pixbuf_new_from_file_at_size(C.CString(filename), C.int(width), C.int(height), &err)
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	p := &Pixbuf{obj}
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return p, nil
+}
+
 /*
  * GdkScreen
  */
