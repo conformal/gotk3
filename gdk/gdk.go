@@ -658,6 +658,21 @@ func PixbufNew(colorspace Colorspace, hasAlpha bool, bitsPerSample, width, heigh
 	return p, nil
 }
 
+// PixbufNewFromFile is a wrapper around gdk_pixbuf_new_from_file().
+// TODO: error handling
+func PixbufNewFromFile(filename string) (*Pixbuf, error) {
+	var err *C.GError
+	c := C.gdk_pixbuf_new_from_file(C.CString(filename), &err)
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	p := &Pixbuf{obj}
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return p, nil
+}
+
 /*
  * GdkScreen
  */
