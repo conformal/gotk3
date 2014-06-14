@@ -8305,6 +8305,12 @@ func (v *Window) SetDefaultGeometry(width, height int) {
 		C.gint(height))
 }
 
+// SetIcon is a wrapper around gtk_window_set_icon().
+func (v *Window) SetIcon(icon *gdk.Pixbuf) {
+	iconPtr := (*C.GdkDisplay)(unsafe.Pointer(icon.Native()))
+	C.gtk_window_set_icon(v.native(), iconPtr)
+}
+
 // TODO(jrick) GdkGeometry GdkWindowHints.
 /*
 func (v *Window) SetGeometryHints() {
