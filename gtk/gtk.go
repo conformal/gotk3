@@ -7827,6 +7827,18 @@ func (v *Widget) GetNoShowAll() bool {
 	return gobool(c)
 }
 
+// GetAllocatedWidth is a wrapper around gtk_widget_get_allocated_width().
+func (v *Widget) GetAllocatedWidth() int {
+	c := C.gtk_widget_get_allocated_width(v.native())
+	return int(c)
+}
+
+// GetAllocatedHeight is a wrapper around gtk_widget_get_allocated_width().
+func (v *Widget) GetAllocatedHeight() int {
+	c := C.gtk_widget_get_allocated_height(v.native())
+	return int(c)
+}
+
 // Map is a wrapper around gtk_widget_map().
 func (v *Widget) Map() {
 	C.gtk_widget_map(v.native())
