@@ -677,13 +677,7 @@ func PixbufNewFromFile(filename string) (*Pixbuf, error) {
 // TODO: error handling
 func PixbufNewFromFileAtScale(filename string, width, height int, preserve_aspect_ratio bool) (*Pixbuf, error) {
 	var err *C.GError
-	var par C.gboolean
-	if preserve_aspect_ratio {
-		par = C.gboolean(1)
-	} else {
-		par = C.gboolean(0)
-	}
-	c := C.gdk_pixbuf_new_from_file_at_scale(C.CString(filename), C.int(width), C.int(height), par, &err)
+	c := C.gdk_pixbuf_new_from_file_at_scale(C.CString(filename), C.int(width), C.int(height), gbool(preserve_aspect_ratio), &err)
 	if c == nil {
 		return nil, nilPtrErr
 	}
