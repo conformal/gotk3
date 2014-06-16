@@ -5535,6 +5535,11 @@ func (v *Paned) Pack2(child IWidget, resize, shrink bool) {
 	C.gtk_paned_pack2(v.native(), child.toWidget(), gbool(resize), gbool(shrink))
 }
 
+// SetPosition() is a wrapper around gtk_paned_set_position().
+func (v *Paned) SetPosition(position int) {
+	C.gtk_paned_set_position(v.native(), C.gint(position))
+}
+
 /*
  * GtkProgressBar
  */
