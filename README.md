@@ -99,8 +99,7 @@ release (3.12).
 To install gotk3 targeting the latest GTK version:
 
 ```bash
-$ go get github.com/visionect
-/gotk3/gtk
+$ go get github.com/visionect/gotk3/gtk
 ```
 
 On MacOS (using homebrew) you would likely specify PKG_CONFIG_PATH as such:
