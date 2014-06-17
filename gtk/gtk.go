@@ -54,6 +54,7 @@ import (
 	"github.com/visionect/gotk3/cairo"
 	"github.com/visionect/gotk3/gdk"
 	"github.com/visionect/gotk3/glib"
+	"github.com/visionect/gotk3/pango"
 	"runtime"
 	"unsafe"
 )
@@ -122,6 +123,7 @@ func init() {
 		{glib.Type(C.gtk_entry_completion_get_type()), marshalEntryCompletion},
 		{glib.Type(C.gtk_event_box_get_type()), marshalEventBox},
 		{glib.Type(C.gtk_file_chooser_get_type()), marshalFileChooser},
+		{glib.Type(C.gtk_file_chooser_button_get_type()), marshalFileChooserButton},
 		{glib.Type(C.gtk_file_chooser_widget_get_type()), marshalFileChooserWidget},
 		{glib.Type(C.gtk_frame_get_type()), marshalFrame},
 		{glib.Type(C.gtk_grid_get_type()), marshalGrid},
@@ -2697,19 +2699,6 @@ func (v *Dialog) GetWidgetForResponse(id ResponseType) (*Widget, error) {
 	return w, nil
 }
 
-// GetActionArea() is a wrapper around gtk_dialog_get_action_area().
-func (v *Dialog) GetActionArea() (*Widget, error) {
-	c := C.gtk_dialog_get_action_area(v.native())
-	if c == nil {
-		return nil, nilPtrErr
-	}
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	w := wrapWidget(obj)
-	obj.RefSink()
-	runtime.SetFinalizer(obj, (*glib.Object).Unref)
-	return w, nil
-}
-
 // GetContentArea() is a wrapper around gtk_dialog_get_content_area().
 func (v *Dialog) GetContentArea() (*Box, error) {
 	c := C.gtk_dialog_get_content_area(v.native())
@@ -3645,6 +3634,54 @@ func (v *FileChooser) GetFilename() string {
 }
 
 /*
+ * GtkFileChooserButton
+ */
+
+// FileChooserButton is a representation of GTK's GtkFileChooserButton.
+type FileChooserButton struct {
+	Box
+
+	// Interfaces
+	FileChooser
+}
+
+// native returns a pointer to the underlying GtkFileChooserButton.
+func (v *FileChooserButton) native() *C.GtkFileChooserButton {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkFileChooserButton(p)
+}
+
+func marshalFileChooserButton(p uintptr) (interface{}, error) {
+	c := C.g_value_get_object((*C.GValue)(unsafe.Pointer(p)))
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	return wrapFileChooserButton(obj), nil
+}
+
+func wrapFileChooserButton(obj *glib.Object) *FileChooserButton {
+	fc := wrapFileChooser(obj)
+	return &FileChooserButton{Box{Container{Widget{glib.InitiallyUnowned{obj}}}}, *fc}
+}
+
+// FileChooserButtonNew is a wrapper around gtk_file_chooser_button_new().
+func FileChooserButtonNew(title string, action FileChooserAction) (*FileChooserButton, error) {
+	cstr := C.CString(title)
+	defer C.free(unsafe.Pointer(cstr))
+	c := C.gtk_file_chooser_button_new((*C.gchar)(cstr),
+		(C.GtkFileChooserAction)(action))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	f := wrapFileChooserButton(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return f, nil
+}
+
+/*
  * GtkFileChooserWidget
  */
 
@@ -4228,6 +4265,11 @@ func (v *Label) SetJustify(jtype Justification) {
 	C.gtk_label_set_justify(v.native(), C.GtkJustification(jtype))
 }
 
+// SetEllipsize is a wrapper around gtk_label_set_ellipsize().
+func (v *Label) SetEllipsize(mode pango.EllipsizeMode) {
+	C.gtk_label_set_ellipsize(v.native(), C.PangoEllipsizeMode(mode))
+}
+
 // GetWidthChars is a wrapper around gtk_label_get_width_chars().
 func (v *Label) GetWidthChars() int {
 	c := C.gtk_label_get_width_chars(v.native())
@@ -4261,6 +4303,11 @@ func (v *Label) SetLineWrap(wrap bool) {
 	C.gtk_label_set_line_wrap(v.native(), gbool(wrap))
 }
 
+// SetLineWrapMode is a wrapper around gtk_label_set_line_wrap_mode().
+func (v *Label) SetLineWrapMode(wrapMode pango.WrapMode) {
+	C.gtk_label_set_line_wrap_mode(v.native(), C.PangoWrapMode(wrapMode))
+}
+
 // GetSelectable is a wrapper around gtk_label_get_selectable().
 func (v *Label) GetSelectable() bool {
 	c := C.gtk_label_get_selectable(v.native())
@@ -4280,6 +4327,12 @@ func (v *Label) GetText() (string, error) {
 func (v *Label) GetJustify() Justification {
 	c := C.gtk_label_get_justify(v.native())
 	return Justification(c)
+}
+
+// GetEllipsize is a wrapper around gtk_label_get_ellipsize().
+func (v *Label) GetEllipsize() pango.EllipsizeMode {
+	c := C.gtk_label_get_ellipsize(v.native())
+	return pango.EllipsizeMode(c)
 }
 
 // GetCurrentUri is a wrapper around gtk_label_get_current_uri().
@@ -8857,6 +8910,12 @@ func cast(c *C.GObject) (glib.IObject, error) {
 		g = wrapEventBox(obj)
 	case "GtkFrame":
 		g = wrapFrame(obj)
+	case "GtkFileChooser":
+		g = wrapFileChooser(obj)
+	case "GtkFileChooserButton":
+		g = wrapFileChooserButton(obj)
+	case "GtkFileChooserWidget":
+		g = wrapFileChooserWidget(obj)
 	case "GtkGrid":
 		g = wrapGrid(obj)
 	case "GtkImage":
