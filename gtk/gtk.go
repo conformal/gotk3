@@ -124,6 +124,7 @@ func init() {
 		{glib.Type(C.gtk_event_box_get_type()), marshalEventBox},
 		{glib.Type(C.gtk_file_chooser_get_type()), marshalFileChooser},
 		{glib.Type(C.gtk_file_chooser_button_get_type()), marshalFileChooserButton},
+		{glib.Type(C.gtk_file_chooser_dialog_get_type()), marshalFileChooserDialog},
 		{glib.Type(C.gtk_file_chooser_widget_get_type()), marshalFileChooserWidget},
 		{glib.Type(C.gtk_frame_get_type()), marshalFrame},
 		{glib.Type(C.gtk_grid_get_type()), marshalGrid},
@@ -3632,6 +3633,81 @@ func FileChooserButtonNew(title string, action FileChooserAction) (*FileChooserB
 	obj.RefSink()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return f, nil
+}
+
+/*
+ * GtkFileChooserDialog
+ */
+
+// FileChooserDialog is a representation of GTK's GtkFileChooserDialog.
+type FileChooserDialog struct {
+	Dialog
+
+	// Interfaces
+	FileChooser
+}
+
+// native returns a pointer to the underlying GtkFileChooserDialog.
+func (v *FileChooserDialog) native() *C.GtkFileChooserDialog {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkFileChooserDialog(p)
+}
+
+func marshalFileChooserDialog(p uintptr) (interface{}, error) {
+	c := C.g_value_get_object((*C.GValue)(unsafe.Pointer(p)))
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	return wrapFileChooserDialog(obj), nil
+}
+
+func wrapFileChooserDialog(obj *glib.Object) *FileChooserDialog {
+	fc := wrapFileChooser(obj)
+	return &FileChooserDialog{Dialog{Window{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}}, *fc}
+}
+
+// FileChooserDialogNew is a wrapper around gtk_file_chooser_dialog_new().
+func FileChooserDialogNew1(
+	title string,
+	parent *Window,
+	action FileChooserAction,
+	first_button_text string,
+	first_button_id ResponseType) (*FileChooserDialog, error) {
+	c := C.gtk_file_chooser_dialog_new_1(
+		(*C.gchar)(C.CString(title)), parent.native(), C.GtkFileChooserAction(action),
+		(*C.gchar)(C.CString(first_button_text)), C.int(first_button_id))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	a := wrapFileChooserDialog(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return a, nil
+}
+
+// FileChooserDialogNew is a wrapper around gtk_file_chooser_dialog_new().
+func FileChooserDialogNew2(
+	title string,
+	parent *Window,
+	action FileChooserAction,
+	first_button_text string,
+	first_button_id ResponseType,
+	second_button_text string,
+	second_button_id ResponseType) (*FileChooserDialog, error) {
+	c := C.gtk_file_chooser_dialog_new_2(
+		(*C.gchar)(C.CString(title)), parent.native(), C.GtkFileChooserAction(action),
+		(*C.gchar)(C.CString(first_button_text)), C.int(first_button_id),
+		(*C.gchar)(C.CString(second_button_text)), C.int(second_button_id))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	a := wrapFileChooserDialog(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return a, nil
 }
 
 /*
