@@ -773,7 +773,7 @@ func MainQuit() {
 //Visionect specific at the moment.
 /*
 * GtkSettings
-*/
+ */
 
 // Settings is representation of GTK's GtkSettings
 type Settings struct {
@@ -785,7 +785,7 @@ func (s *Settings) native() *C.GtkSettings {
 	if s == nil || s.GObject == nil {
 		return nil
 	}
-	p  := unsafe.Pointer(s.GObject)
+	p := unsafe.Pointer(s.GObject)
 	return C.toGtkSettings(p)
 }
 
