@@ -404,6 +404,12 @@ toGtkFileChooserWidget(void *p)
 	return (GTK_FILE_CHOOSER_WIDGET(p));
 }
 
+static GtkFileFilter *
+toGtkFileFilter(void *p)
+{
+	return (GTK_FILE_FILTER(p));
+}
+
 static GtkMenuButton *
 toGtkMenuButton(void *p)
 {
