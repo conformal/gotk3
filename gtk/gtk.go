@@ -7690,6 +7690,19 @@ func (v *TreePath) String() string {
 	return C.GoString((*C.char)(c))
 }
 
+// TreePathNewFromString is a wrapper around gtk_tree_path_new_from_string().
+func TreePathNewFromString(path string) (*TreePath, error) {
+	cstr := C.CString(path)
+	defer C.free(unsafe.Pointer(cstr))
+	c := C.gtk_tree_path_new_from_string((*C.gchar)(cstr))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	t := &TreePath{c}
+	runtime.SetFinalizer(t, (*TreePath).free)
+	return t, nil
+}
+
 /*
  * GtkTreeSelection
  */
@@ -7730,6 +7743,11 @@ func (v *TreeSelection) GetSelected(model *ITreeModel, iter *TreeIter) bool {
 	c := C.gtk_tree_selection_get_selected(v.native(),
 		pcmodel, iter.native())
 	return gobool(c)
+}
+
+// SelectPath() is a wrapper around gtk_tree_selection_select_path().
+func (v *TreeSelection) SelectPath(path *TreePath) {
+	C.gtk_tree_selection_select_path(v.native(), path.native())
 }
 
 /*
