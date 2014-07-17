@@ -7485,6 +7485,21 @@ func (v *TreeSelection) GetSelected(model *ITreeModel, iter *TreeIter) bool {
 	return gobool(c)
 }
 
+// GetSelectedRows() is a wrapper around gtk_tree_selection_get_selected_rows().
+func (v *TreeSelection) GetSelectedRows(model *ITreeModel) *glib.List {
+	var pcmodel **C.GtkTreeModel
+	if model != nil {
+		cmodel := (*model).toTreeModel()
+		pcmodel = &cmodel
+	} else {
+		pcmodel = nil
+	}
+	glist := (*C.GList)(unsafe.Pointer(v))
+	glist = C.gtk_tree_selection_get_selected_rows(v.native(),
+		pcmodel)
+	return (*glib.List)(unsafe.Pointer(glist))
+}
+
 /*
  * GtkTreeView
  */
