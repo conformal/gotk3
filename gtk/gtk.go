@@ -7497,7 +7497,10 @@ func (v *TreeSelection) GetSelectedRows(model *ITreeModel) *glib.List {
 	glist := (*C.GList)(unsafe.Pointer(v))
 	glist = C.gtk_tree_selection_get_selected_rows(v.native(),
 		pcmodel)
-	runtime.SetFinalizer(glist, C.gtk_tree_path_free)
+	runtime.SetFinalizer(glist, func() {
+		C.g_list_free_full((*C.GList)(unsafe.Pointer(glist)),
+			(C.GDestroyNotify)(C.gtk_tree_path_free))
+	})
 	return (*glib.List)(unsafe.Pointer(glist))
 }
 
