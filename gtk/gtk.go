@@ -7433,6 +7433,12 @@ func marshalTreePath(p uintptr) (interface{}, error) {
 	return &TreePath{(*C.GtkTreePath)(unsafe.Pointer(c))}, nil
 }
 
+// Returns TreePath from an uintptr. Example GList
+func TreePathFromUintptr(p uintptr) (interface{}, error) {
+	c := C.g_value_get_boxed((*C.GValue)(unsafe.Pointer(p)))
+	return &TreePath{(*C.GtkTreePath)(unsafe.Pointer(c))}, nil
+}
+
 func (v *TreePath) free() {
 	C.gtk_tree_path_free(v.native())
 }
