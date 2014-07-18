@@ -7486,7 +7486,7 @@ func (v *TreeSelection) GetSelected(model *ITreeModel, iter *TreeIter) bool {
 }
 
 // GetSelectedRows() is a wrapper around gtk_tree_selection_get_selected_rows().
-func (v *TreeSelection) GetSelectedRows(model *ITreeModel) *TreePath {
+func (v *TreeSelection) GetSelectedRows(model *ITreeModel) *glib.List {
 	var pcmodel **C.GtkTreeModel
 	if model != nil {
 		cmodel := (*model).toTreeModel()
@@ -7501,7 +7501,7 @@ func (v *TreeSelection) GetSelectedRows(model *ITreeModel) *TreePath {
 		C.g_list_free_full((*C.GList)(unsafe.Pointer(glist)),
 			(C.GDestroyNotify)(C.gtk_tree_path_free))
 	})
-	return (*TreePath)(unsafe.Pointer(glist))
+	return (*glib.List)(unsafe.Pointer(glist))
 }
 
 /*
