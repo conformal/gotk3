@@ -2513,7 +2513,7 @@ func (v *Container) PropagateDraw(child IWidget, cr *cairo.Context) {
 
 // GetFocusChain is a wrapper around gtk_container_get_focus_chain().
 func (v *Container) GetFocusChain() ([]*Widget, bool) {
-	var cwlist *C.struct__GList
+	var cwlist *C.GList
 	c := C.gtk_container_get_focus_chain(v.native(), &cwlist)
 
 	var widgets []*Widget
@@ -7420,6 +7420,14 @@ type TreePath struct {
 	GtkTreePath *C.GtkTreePath
 }
 
+// Return a TreePath from the GList
+func TreePathFromList(list *glib.List) *TreePath {
+	if list == nil {
+		return nil
+	}
+	return &TreePath{(*C.GtkTreePath)(unsafe.Pointer(list.Data))}
+}
+
 // native returns a pointer to the underlying GtkTreePath.
 func (v *TreePath) native() *C.GtkTreePath {
 	if v == nil {
@@ -7483,6 +7491,24 @@ func (v *TreeSelection) GetSelected(model *ITreeModel, iter *TreeIter) bool {
 	c := C.gtk_tree_selection_get_selected(v.native(),
 		pcmodel, iter.native())
 	return gobool(c)
+}
+
+// GetSelectedRows() is a wrapper around gtk_tree_selection_get_selected_rows().
+func (v *TreeSelection) GetSelectedRows(model *ITreeModel) *glib.List {
+	var pcmodel **C.GtkTreeModel
+	if model != nil {
+		cmodel := (*model).toTreeModel()
+		pcmodel = &cmodel
+	} else {
+		pcmodel = nil
+	}
+	glist := C.gtk_tree_selection_get_selected_rows(v.native(),
+		pcmodel)
+	runtime.SetFinalizer(glist, func() {
+		C.g_list_free_full(glist,
+			(C.GDestroyNotify)(C.gtk_tree_path_free))
+	})
+	return (*glib.List)(unsafe.Pointer(glist))
 }
 
 /*
