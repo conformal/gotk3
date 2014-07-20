@@ -7420,6 +7420,14 @@ type TreePath struct {
 	GtkTreePath *C.GtkTreePath
 }
 
+// Return a TreePath from the GList
+func TreePathFromList(list *glib.List) *TreePath {
+	if list == nil {
+		return nil
+	}
+	return &TreePath{(*C.GtkTreePath)(unsafe.Pointer(list.Data))}
+}
+
 // native returns a pointer to the underlying GtkTreePath.
 func (v *TreePath) native() *C.GtkTreePath {
 	if v == nil {
