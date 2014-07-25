@@ -7511,6 +7511,11 @@ func (v *TreeSelection) GetSelectedRows(model *ITreeModel) *glib.List {
 	return (*glib.List)(unsafe.Pointer(glist))
 }
 
+// CountSelectedRows() is a wrapper around gtk_tree_selection_count_selected_rows().
+func (v *TreeSelection) CountSelectedRows() int {
+	return int(C.gtk_tree_selection_count_selected_rows(v.native()))
+}
+
 /*
  * GtkTreeView
  */
