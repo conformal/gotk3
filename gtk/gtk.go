@@ -7420,7 +7420,11 @@ type TreePath struct {
 	GtkTreePath *C.GtkTreePath
 }
 
+<<<<<<< HEAD
 // Return a TreePath from the GList
+=======
+// Return a TreePath from GList
+>>>>>>> origin
 func TreePathFromList(list *glib.List) *TreePath {
 	if list == nil {
 		return nil
