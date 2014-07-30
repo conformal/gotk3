@@ -104,6 +104,10 @@ const (
 	TYPE_VARIANT   Type = C.G_TYPE_VARIANT
 )
 
+func TypeInit() {
+    C.g_type_init();
+}
+
 // Name is a wrapper around g_type_name().
 func (t Type) Name() string {
 	return C.GoString((*C.char)(C.g_type_name(C.GType(t))))

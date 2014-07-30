@@ -291,7 +291,7 @@ const (
 	FORMAT_A8        Format = C.CAIRO_FORMAT_A8
 	FORMAT_A1        Format = C.CAIRO_FORMAT_A1
 	FORMAT_RGB16_565 Format = C.CAIRO_FORMAT_RGB16_565
-	FORMAT_RGB30     Format = C.CAIRO_FORMAT_RGB30
+	//FORMAT_RGB30     Format = C.CAIRO_FORMAT_RGB30  // not in GTK 3.6
 )
 
 func marshalFormat(p uintptr) (interface{}, error) {
