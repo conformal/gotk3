@@ -632,6 +632,23 @@ func PixbufNew(colorspace Colorspace, hasAlpha bool, bitsPerSample, width, heigh
 	return p, nil
 }
 
+// PixbufNew is a wrapper around gdk_pixbuf_new_from_file().
+func PixbufNewFromFile(filename string) (*Pixbuf, error) {
+	cstr := C.CString(filename)
+	defer C.free(unsafe.Pointer(cstr))
+	var err *C.GError = nil
+	res := C.gdk_pixbuf_new_from_file((*C.char)(cstr), &err)
+	if res == nil {
+		defer C.g_error_free(err)
+		return nil, errors.New(C.GoString((*C.char)(C.error_get_message(err))))
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(res))}
+	p := &gPixbuf{obj}
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return p, nil
+}
+
 // ScaleSimple is a wrapper around gdk_pixbuf_scale_simple().
 func (v *Pixbuf) ScaleSimple(destWidth, destHeight int, interpType InterpType) (*Pixbuf, error) {
 	c := C.gdk_pixbuf_scale_simple(v.native(), C.int(destWidth),
