@@ -643,7 +643,7 @@ func PixbufNewFromFile(filename string) (*Pixbuf, error) {
 		return nil, errors.New(C.GoString((*C.char)(C.error_get_message(err))))
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(res))}
-	p := &gPixbuf{obj}
+	p := &Pixbuf{obj}
 	obj.Ref()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return p, nil
