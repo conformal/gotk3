@@ -51,12 +51,13 @@ import "C"
 import (
 	"errors"
 	"fmt"
+	"runtime"
+	"unsafe"
+
 	"github.com/visionect/gotk3/cairo"
 	"github.com/visionect/gotk3/gdk"
 	"github.com/visionect/gotk3/glib"
 	"github.com/visionect/gotk3/pango"
-	"runtime"
-	"unsafe"
 )
 
 func init() {
@@ -4100,11 +4101,11 @@ func (v *Image) SetFromResource(resourcePath string) {
 	C.gtk_image_set_from_resource(v.native(), (*C.gchar)(cstr))
 }
 
-// TODO(jrick) GdkPixbuf
-/*
-func (v *Image) SetFromPixbuf() {
+// SetFromFixbuf is a wrapper around gtk_image_set_from_pixbuf().
+func (v *Image) SetFromPixbuf(pixbuf *gdk.Pixbuf) {
+	pbptr := (*C.GdkPixbuf)(unsafe.Pointer(pixbuf.Native()))
+	C.gtk_image_set_from_pixbuf(v.native(), pbptr)
 }
-*/
 
 // TODO(jrick) GtkIconSet
 /*
@@ -7881,7 +7882,7 @@ func (v *Widget) GetDoubleBuffered() bool {
 	return gobool(c)
 }
 
-// GetDoubleBuffered is a wrapper around gtk_widget_get_double_buffered().
+// SetDoubleBuffered is a wrapper around gtk_widget_get_double_buffered().
 func (v *Widget) SetDoubleBuffered(doubleBuffered bool) {
 	C.gtk_widget_set_double_buffered(v.native(), gbool(doubleBuffered))
 }
@@ -7979,6 +7980,16 @@ func (v *Widget) SetAccelPath() {
 func (v *Widget) ListAccelClosures() {
 }
 */
+
+// GetAllocatedWidth() is a wrapper around gtk_widget_get_allocated_width().
+func (v *Widget) GetAllocatedWidth() int {
+	return int(C.gtk_widget_get_allocated_width(v.native()))
+}
+
+// GetAllocatedHeight() is a wrapper around gtk_widget_get_allocated_height().
+func (v *Widget) GetAllocatedHeight() int {
+	return int(C.gtk_widget_get_allocated_height(v.native()))
+}
 
 //gboolean gtk_widget_can_activate_accel(GtkWidget *widget, guint signal_id);
 
