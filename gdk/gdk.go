@@ -676,6 +676,7 @@ func marshalScreen(p uintptr) (interface{}, error) {
 	return &Screen{obj}, nil
 }
 
+// GetRGBAVisual is a wrapper around gdk_screen_get_rgba_visual().
 func (v *Screen) GetRGBAVisual() (*Visual, error) {
 	c := C.gdk_screen_get_rgba_visual(v.native())
 	if c == nil {
@@ -688,6 +689,7 @@ func (v *Screen) GetRGBAVisual() (*Visual, error) {
 	return visual, nil
 }
 
+// GetSystemVisual is a wrapper around gdk_screen_get_system_visual().
 func (v *Screen) GetSystemVisual() (*Visual, error) {
 	c := C.gdk_screen_get_system_visual(v.native())
 	if c == nil {
