@@ -23,10 +23,11 @@ package gdk
 import "C"
 import (
 	"errors"
-	"github.com/conformal/gotk3/glib"
 	"reflect"
 	"runtime"
 	"unsafe"
+
+	"github.com/conformal/gotk3/glib"
 )
 
 func init() {
@@ -673,6 +674,57 @@ func marshalScreen(p uintptr) (interface{}, error) {
 	c := C.g_value_get_object((*C.GValue)(unsafe.Pointer(p)))
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	return &Screen{obj}, nil
+}
+
+func (v *Screen) GetRGBAVisual() (*Visual, error) {
+	c := C.gdk_screen_get_rgba_visual(v.native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	visual := &Visual{obj}
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return visual, nil
+}
+
+func (v *Screen) GetSystemVisual() (*Visual, error) {
+	c := C.gdk_screen_get_system_visual(v.native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	visual := &Visual{obj}
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return visual, nil
+}
+
+/*
+ * GdkVisual
+ */
+
+// Visual is a representation of GDK's GdkVisual.
+type Visual struct {
+	*glib.Object
+}
+
+func (v *Visual) native() *C.GdkVisual {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGdkVisual(p)
+}
+
+func (v *Visual) Native() uintptr {
+	return uintptr(unsafe.Pointer(v.native()))
+}
+
+func marshalVisual(p uintptr) (interface{}, error) {
+	c := C.g_value_get_object((*C.GValue)(unsafe.Pointer(p)))
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	return &Visual{obj}, nil
 }
 
 /*

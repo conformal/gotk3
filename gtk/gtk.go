@@ -8197,6 +8197,12 @@ func (v *Widget) SetVExpand(expand bool) {
 	C.gtk_widget_set_vexpand(v.native(), gbool(expand))
 }
 
+// SetVisual is a wrapper around gtk_widget_set_visual().
+func (v *Widget) SetVisual(visual *gdk.Visual) {
+	C.gtk_widget_set_visual(v.native(),
+		(*C.GdkVisual)(unsafe.Pointer(visual.Native())))
+}
+
 /*
  * GtkWindow
  */
@@ -8298,6 +8304,19 @@ func (v *Window) SetDefaultSize(width, height int) {
 func (v *Window) SetDefaultGeometry(width, height int) {
 	C.gtk_window_set_default_geometry(v.native(), C.gint(width),
 		C.gint(height))
+}
+
+// GetScreen is a wrapper around gtk_window_get_screen().
+func (v *Window) GetScreen() (*gdk.Screen, error) {
+	c := C.gtk_window_get_screen(v.native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	s := &gdk.Screen{obj}
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return s, nil
 }
 
 // TODO(jrick) GdkGeometry GdkWindowHints.
