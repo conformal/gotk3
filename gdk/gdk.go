@@ -99,6 +99,19 @@ const (
 	INTERP_HYPER    InterpType = C.GDK_INTERP_HYPER
 )
 
+type PixbufRotation int
+
+const (
+	GDK_PIXBUF_ROTATE_NONE PixbufRotation = 
+		C.GDK_PIXBUF_ROTATE_NONE
+	PIXBUF_ROTATE_COUNTERCLOCKWISE PixbufRotation = 
+		C.GDK_PIXBUF_ROTATE_COUNTERCLOCKWISE
+	GDK_PIXBUF_ROTATE_UPSIDEDOWN PixbufRotation = 
+		C.GDK_PIXBUF_ROTATE_UPSIDEDOWN
+	GDK_PIXBUF_ROTATE_CLOCKWISE PixbufRotation = 
+		C.GDK_PIXBUF_ROTATE_CLOCKWISE
+)
+
 func marshalInterpType(p uintptr) (interface{}, error) {
 	c := C.g_value_get_enum((*C.GValue)(unsafe.Pointer(p)))
 	return InterpType(c), nil
@@ -653,6 +666,19 @@ func PixbufNewFromFile(filename string) (*Pixbuf, error) {
 func (v *Pixbuf) ScaleSimple(destWidth, destHeight int, interpType InterpType) (*Pixbuf, error) {
 	c := C.gdk_pixbuf_scale_simple(v.native(), C.int(destWidth),
 		C.int(destHeight), C.GdkInterpType(interpType))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	p := &Pixbuf{obj}
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return p, nil
+}
+
+// RotateSimple is a wrapper around gdk_pixbuf_rotate_simple().
+func (v *Pixbuf) RotateSimple(angle PixbufRotation) (*Pixbuf, error) {
+	c := C.gdk_pixbuf_rotate_simple(v.native(), C.GdkPixbufRotation(angle))
 	if c == nil {
 		return nil, nilPtrErr
 	}
