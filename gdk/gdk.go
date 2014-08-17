@@ -702,6 +702,18 @@ func (v *Screen) GetSystemVisual() (*Visual, error) {
 	return visual, nil
 }
 
+// GetWidth is a wrapper around gdk_screen_get_width().
+func (v *Screen) GetWidth() int {
+	c := C.gdk_screen_get_width(v.native())
+	return int(c)
+}
+
+// GetHeight is a wrapper around gdk_screen_get_height().
+func (v *Screen) GetHeight() int {
+	c := C.gdk_screen_get_height(v.native())
+	return int(c)
+}
+
 /*
  * GdkVisual
  */
