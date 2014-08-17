@@ -544,6 +544,7 @@ func (v *Context) ResetClip() {
 	C.cairo_reset_clip(v.native())
 }
 
+// Rectangle is a wrapper around cairo_rectangle().
 func (v *Context) Rectangle(x, y, w, h float64) {
 	C.cairo_rectangle(v.native(), C.double(x), C.double(y), C.double(w), C.double(h))
 }
