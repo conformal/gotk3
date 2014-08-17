@@ -544,6 +544,10 @@ func (v *Context) ResetClip() {
 	C.cairo_reset_clip(v.native())
 }
 
+func (v *Context) Rectangle(x, y, w, h float64) {
+	C.cairo_rectangle(v.native(), C.double(x), C.double(y), C.double(w), C.double(h))
+}
+
 // TODO(jrick) CopyRectangleList (depends on RectangleList)
 
 // Fill is a wrapper around cairo_fill().

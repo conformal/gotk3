@@ -7774,6 +7774,11 @@ func (v *Widget) SetRealized(realized bool) {
 	C.gtk_widget_set_realized(v.native(), gbool(realized))
 }
 
+// SetDoubleBuffered is a wrapper around gtk_widget_set_double_buffered().
+func (v *Widget) SetDoubleBuffered(doubleBuffered bool) {
+	C.gtk_widget_set_double_buffered(v.native(), gbool(doubleBuffered))
+}
+
 // GetDoubleBuffered is a wrapper around gtk_widget_get_double_buffered().
 func (v *Widget) GetDoubleBuffered() bool {
 	c := C.gtk_widget_get_double_buffered(v.native())
@@ -8201,6 +8206,17 @@ func (v *Widget) SetVExpand(expand bool) {
 func (v *Widget) SetVisual(visual *gdk.Visual) {
 	C.gtk_widget_set_visual(v.native(),
 		(*C.GdkVisual)(unsafe.Pointer(visual.Native())))
+}
+
+// SetAppPaintable is a wrapper around gtk_widget_set_app_paintable().
+func (v *Widget) SetAppPaintable(paintable bool) {
+	C.gtk_widget_set_app_paintable(v.native(), gbool(paintable))
+}
+
+// GetAppPaintable is a wrapper around gtk_widget_get_app_paintable().
+func (v *Widget) GetAppPaintable() bool {
+	c := C.gtk_widget_get_app_paintable(v.native())
+	return gobool(c)
 }
 
 /*
