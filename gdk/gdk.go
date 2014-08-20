@@ -513,6 +513,29 @@ func (v *Event) free() {
 }
 
 /*
+ * GdkEventKey
+ */
+
+// EventKey is a representation of GDK's GdkEventKey.
+type EventKey struct {
+	*Event
+}
+
+// Native returns a pointer to the underlying GdkEventKey.
+func (v *EventKey) Native() uintptr {
+	return uintptr(unsafe.Pointer(v.native()))
+}
+
+func (v *EventKey) native() *C.GdkEventKey {
+	return (*C.GdkEventKey)(unsafe.Pointer(v.Event.native()))
+}
+
+func (v *EventKey) KeyVal() uint {
+	c := v.native().keyval
+	return uint(c)
+}
+
+/*
  * GdkPixbuf
  */
 

@@ -8219,6 +8219,11 @@ func (v *Widget) GetAppPaintable() bool {
 	return gobool(c)
 }
 
+// QueueDraw is a wrapper around gtk_widget_queue_draw().
+func (v *Widget) QueueDraw() {
+	C.gtk_widget_queue_draw(v.native())
+}
+
 /*
  * GtkWindow
  */
