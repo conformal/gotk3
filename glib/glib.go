@@ -445,6 +445,12 @@ func sourceAttach(src *C.GSource, rf reflect.Value, args ...interface{}) (Source
  * Miscellaneous Utility Functions
  */
 
+ // GetPrgName is a wrapper around g_get_prgname ()
+ // Gets the name of the program.
+func GetPrgName() string {
+	return C.GoString((*C.char)(C.g_get_prgname()))
+}
+
 // GetUserSpecialDir is a wrapper around g_get_user_special_dir().  A
 // non-nil error is returned in the case that g_get_user_special_dir()
 // returns NULL to differentiate between NULL and an empty string.
