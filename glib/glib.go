@@ -135,6 +135,16 @@ const (
 
 const USER_N_DIRECTORIES int = C.G_USER_N_DIRECTORIES
 
+// FileTest is a representation of GLib's GFileTest.
+type FileTestType int
+const (
+	FILE_TEST_IS_REGULAR	FileTestType = C.G_FILE_TEST_IS_REGULAR
+	FILE_TEST_IS_SYMLINK	FileTestType = C.G_FILE_TEST_IS_SYMLINK
+	FILE_TEST_IS_DIR	FileTestType = C.G_FILE_TEST_IS_DIR
+	FILE_TEST_IS_EXECUTABLE FileTestType = C.G_FILE_TEST_IS_EXECUTABLE
+	FILE_TEST_EXISTS	FileTestType = C.G_FILE_TEST_EXISTS
+)
+
 /*
  * Events
  */
@@ -444,6 +454,56 @@ func GetUserSpecialDir(directory UserDirectory) (string, error) {
 		return "", errNilPtr
 	}
 	return C.GoString((*C.char)(c)), nil
+}
+
+// GetHomeDir is a wrapper around g_get_home_dir(). 
+// Gets the current user's home directory. 
+func GetHomeDir() (string) {
+	c := C.g_get_home_dir()
+	defer C.g_free((C.gpointer)(unsafe.Pointer(c)))
+	return C.GoString((*C.char)(c))
+}
+
+// GetUserConfigDir is a wrapper around g_get_user_config_dir(). 
+// Returns a base directory in which to store user-specific application configuration information
+// such as user preferences and settings.  
+func GetUserConfigDir() (string) {
+	c := C.g_get_user_config_dir()
+	defer C.g_free((C.gpointer)(unsafe.Pointer(c)))
+	return C.GoString((*C.char)(c))
+}
+
+// GetUserCacheDir is a wrapper around g_get_user_cache_dir(). 
+// Returns a base directory in which to store non-essential,
+// cached data specific to particular user. 
+func GetUserCacheDir() (string) {
+	c := C.g_get_user_cache_dir()
+	defer C.g_free((C.gpointer)(unsafe.Pointer(c)))
+	return C.GoString((*C.char)(c))
+}
+
+/*
+* File Utilities functions
+*/
+
+// MkdirWithParents is a wraper around  g_mkdir_with_parents()
+// Create a directory if it doesn't already exist. Create intermediate parent directories as needed, too.
+func MkdirWithParents(pathname string, mode int) bool {
+	ret := C.g_mkdir_with_parents((*C.gchar)(C.CString(pathname)),
+		C.gint(mode))
+	if int(ret) == 0 {
+		return true
+	}
+	return false
+}
+
+func FileTest(filename string, test FileTestType) bool {
+	ret := C.g_file_test((*C.gchar)(C.CString(filename)),
+			C.GFileTest(test))
+	if int(ret) == 0 {
+		return false
+	}
+	return true
 }
 
 /*
