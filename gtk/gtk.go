@@ -2227,6 +2227,15 @@ func (v *Clipboard) native() *C.GtkClipboard {
 	return C.toGtkClipboard(p)
 }
 
+// WaitForText is a wrapper around gtk_clipboard_wait_for_text
+func (v *Clipboard) WaitForText() (string, error) {
+	c := C.gtk_clipboard_wait_for_text(v.native())
+	if c == nil {
+		return "", nilPtrErr
+	}
+	return C.GoString((*C.char)(c)), nil
+}
+
 func marshalClipboard(p uintptr) (interface{}, error) {
 	c := C.g_value_get_object((*C.GValue)(unsafe.Pointer(p)))
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
