@@ -466,7 +466,6 @@ func GetUserSpecialDir(directory UserDirectory) (string, error) {
 // Gets the current user's home directory. 
 func GetHomeDir() (string) {
 	c := C.g_get_home_dir()
-	defer C.g_free((C.gpointer)(unsafe.Pointer(c)))
 	return C.GoString((*C.char)(c))
 }
 
@@ -475,7 +474,6 @@ func GetHomeDir() (string) {
 // such as user preferences and settings.  
 func GetUserConfigDir() (string) {
 	c := C.g_get_user_config_dir()
-	defer C.g_free((C.gpointer)(unsafe.Pointer(c)))
 	return C.GoString((*C.char)(c))
 }
 
@@ -484,7 +482,6 @@ func GetUserConfigDir() (string) {
 // cached data specific to particular user. 
 func GetUserCacheDir() (string) {
 	c := C.g_get_user_cache_dir()
-	defer C.g_free((C.gpointer)(unsafe.Pointer(c)))
 	return C.GoString((*C.char)(c))
 }
 
