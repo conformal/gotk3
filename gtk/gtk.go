@@ -2233,6 +2233,7 @@ func (v *Clipboard) WaitForText() (string, error) {
 	if c == nil {
 		return "", nilPtrErr
 	}
+	defer C.g_free(C.gpointer(c))
 	return C.GoString((*C.char)(c)), nil
 }
 
