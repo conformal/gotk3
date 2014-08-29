@@ -1337,7 +1337,7 @@ func (b *Builder) AddFromFile(filename string) error {
 	res := C.gtk_builder_add_from_file(b.native(), (*C.gchar)(cstr), &err)
 	if res == 0 {
 		defer C.g_error_free(err)
-		return errors.New(C.GoString((*C.char)(C.error_get_message(err))))
+		return errors.New(C.GoString((*C.char)(err._message)))
 	}
 	return nil
 }
@@ -1350,7 +1350,7 @@ func (b *Builder) AddFromResource(path string) error {
 	res := C.gtk_builder_add_from_resource(b.native(), (*C.gchar)(cstr), &err)
 	if res == 0 {
 		defer C.g_error_free(err)
-		return errors.New(C.GoString((*C.char)(C.error_get_message(err))))
+		return errors.New(C.GoString((*C.char)(err._message)))
 	}
 	return nil
 }
@@ -1364,7 +1364,7 @@ func (b *Builder) AddFromString(str string) error {
 	res := C.gtk_builder_add_from_string(b.native(), (*C.gchar)(cstr), length, &err)
 	if res == 0 {
 		defer C.g_error_free(err)
-		return errors.New(C.GoString((*C.char)(C.error_get_message(err))))
+		return errors.New(C.GoString((*C.char)(err._message)))
 	}
 	return nil
 }
@@ -8640,7 +8640,7 @@ func (v *Window) SetIconFromFile(file string) error {
 	res := C.gtk_window_set_icon_from_file(v.native(), (*C.gchar)(cstr), &err)
 	if res == 0 {
 		defer C.g_error_free(err)
-		return errors.New(C.GoString((*C.char)(C.error_get_message(err))))
+		return errors.New(C.GoString((*C.char)(err._message)))
 	}
 	return nil
 }

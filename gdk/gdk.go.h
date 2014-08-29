@@ -60,9 +60,3 @@ toGdkWindow(void *p)
 {
 	return (GDK_WINDOW(p));
 }
-
-static gchar *
-error_get_message(GError *error)
-{
-	return error->message;
-}
