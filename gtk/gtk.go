@@ -6511,23 +6511,6 @@ func (v *Statusbar) GetMessageArea() (*Box, error) {
 }
 
 /*
- * GtkStatusIcon
- */
-
-// StatusIcon is a representation of GTK's GtkStatusIcon
-type StatusIcon struct {
-	StatusIcon *C.struct__GtkStatusIcon
-}
-
-func StatusIconNewFromIconName(iconName string) *StatusIcon {
-	// var statusIcon *StatusIcon
-	cstr := C.CString(iconName)
-	defer C.free(unsafe.Pointer(cstr))
-	cstatusIcon := C.gtk_status_icon_new_from_icon_name((*C.gchar)(cstr))
-	return &StatusIcon{cstatusIcon}
-}
-
-/*
  * GtkSwitch
  */
 
