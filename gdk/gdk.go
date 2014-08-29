@@ -641,11 +641,11 @@ func PixbufNew(colorspace Colorspace, hasAlpha bool, bitsPerSample, width, heigh
 	return p, nil
 }
 
-// PixbufNew is a wrapper around gdk_pixbuf_new_from_file().
+// PixbufNewFromFile is a wrapper around gdk_pixbuf_new_from_file().
 func PixbufNewFromFile(filename string) (*Pixbuf, error) {
 	cstr := C.CString(filename)
 	defer C.free(unsafe.Pointer(cstr))
-	var err *C.GError = nil
+	var err *C.GError
 	res := C.gdk_pixbuf_new_from_file((*C.char)(cstr), &err)
 	if res == nil {
 		defer C.g_error_free(err)
