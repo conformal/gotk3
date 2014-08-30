@@ -649,7 +649,7 @@ func PixbufNewFromFile(filename string) (*Pixbuf, error) {
 	res := C.gdk_pixbuf_new_from_file((*C.char)(cstr), &err)
 	if res == nil {
 		defer C.g_error_free(err)
-		return nil, errors.New(C.GoString((*C.char)(err._message)))
+		return nil, errors.New(C.GoString((*C.char)(err.message)))
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(res))}
 	p := &Pixbuf{obj}
