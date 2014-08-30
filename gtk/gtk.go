@@ -7700,13 +7700,13 @@ func (v *TreeSelection) GetSelectedRows(model *ITreeModel) *glib.List {
 	} else {
 		pcmodel = nil
 	}
-	glist := C.gtk_tree_selection_get_selected_rows(v.native(),
-		pcmodel)
-	runtime.SetFinalizer(glist, func() {
-		C.g_list_free_full(glist,
+	clist := C.gtk_tree_selection_get_selected_rows(v.native(), pcmodel)
+	glist := (*glib.List)(unsafe.Pointer(clist))
+	runtime.SetFinalizer(glist, func(glist *glib.List) {
+		C.g_list_free_full((*C.GList)(unsafe.Pointer(glist)),
 			(C.GDestroyNotify)(C.gtk_tree_path_free))
 	})
-	return (*glib.List)(unsafe.Pointer(glist))
+	return glist
 }
 
 // CountSelectedRows() is a wrapper around gtk_tree_selection_count_selected_rows().
