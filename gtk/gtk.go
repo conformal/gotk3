@@ -7618,6 +7618,14 @@ type TreePath struct {
 	GtkTreePath *C.GtkTreePath
 }
 
+// Return a TreePath from GList
+func TreePathFromList(list *glib.List) *TreePath {
+	if list == nil {
+		return nil
+	}
+	return &TreePath{(*C.GtkTreePath)(unsafe.Pointer(list.Data))}
+}
+
 // native returns a pointer to the underlying GtkTreePath.
 func (v *TreePath) native() *C.GtkTreePath {
 	if v == nil {
@@ -7681,6 +7689,29 @@ func (v *TreeSelection) GetSelected(model *ITreeModel, iter *TreeIter) bool {
 	c := C.gtk_tree_selection_get_selected(v.native(),
 		pcmodel, iter.native())
 	return gobool(c)
+}
+
+// GetSelectedRows() is a wrapper around gtk_tree_selection_get_selected_rows().
+func (v *TreeSelection) GetSelectedRows(model *ITreeModel) *glib.List {
+	var pcmodel **C.GtkTreeModel
+	if model != nil {
+		cmodel := (*model).toTreeModel()
+		pcmodel = &cmodel
+	} else {
+		pcmodel = nil
+	}
+	clist := C.gtk_tree_selection_get_selected_rows(v.native(), pcmodel)
+	glist := (*glib.List)(unsafe.Pointer(clist))
+	runtime.SetFinalizer(glist, func(glist *glib.List) {
+		C.g_list_free_full((*C.GList)(unsafe.Pointer(glist)),
+			(C.GDestroyNotify)(C.gtk_tree_path_free))
+	})
+	return glist
+}
+
+// CountSelectedRows() is a wrapper around gtk_tree_selection_count_selected_rows().
+func (v *TreeSelection) CountSelectedRows() int {
+	return int(C.gtk_tree_selection_count_selected_rows(v.native()))
 }
 
 /*
