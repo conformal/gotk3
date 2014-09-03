@@ -43,6 +43,7 @@ func init() {
 		{glib.Type(C.gdk_display_get_type()), marshalDisplay},
 		{glib.Type(C.gdk_pixbuf_get_type()), marshalPixbuf},
 		{glib.Type(C.gdk_screen_get_type()), marshalScreen},
+		{glib.Type(C.gdk_screen_get_type()), marshalVisual},
 		{glib.Type(C.gdk_window_get_type()), marshalWindow},
 
 		// Boxed
