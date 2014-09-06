@@ -24,6 +24,7 @@ package cairo
 // #include <cairo-gobject.h>
 import "C"
 import (
+	"errors"
 	"reflect"
 	"runtime"
 	"unsafe"
@@ -42,6 +43,9 @@ func init() {
 		{glib.Type(C.cairo_gobject_operator_get_type()), marshalOperator},
 		{glib.Type(C.cairo_gobject_status_get_type()), marshalStatus},
 		{glib.Type(C.cairo_gobject_surface_type_get_type()), marshalSurfaceType},
+		{glib.Type(C.cairo_gobject_format_get_type()), marshalFormat},
+		{glib.Type(C.cairo_gobject_font_slant_get_type()), marshalFontSlant},
+		{glib.Type(C.cairo_gobject_font_weight_get_type()), marshalFontWeight},
 
 		// Boxed
 		{glib.Type(C.cairo_gobject_context_get_type()), marshalContext},
@@ -276,6 +280,51 @@ const (
 func marshalSurfaceType(p uintptr) (interface{}, error) {
 	c := C.g_value_get_enum((*C.GValue)(unsafe.Pointer(p)))
 	return SurfaceType(c), nil
+}
+
+// Format is a representation of Cairo's cairo_format_t.
+type Format int
+
+const (
+	FORMAT_INVALID   Format = C.CAIRO_FORMAT_INVALID
+	FORMAT_ARGB32    Format = C.CAIRO_FORMAT_ARGB32
+	FORMAT_RGB24     Format = C.CAIRO_FORMAT_RGB24
+	FORMAT_A8        Format = C.CAIRO_FORMAT_A8
+	FORMAT_A1        Format = C.CAIRO_FORMAT_A1
+	FORMAT_RGB16_565 Format = C.CAIRO_FORMAT_RGB16_565
+	FORMAT_RGB30     Format = C.CAIRO_FORMAT_RGB30
+)
+
+func marshalFormat(p uintptr) (interface{}, error) {
+	c := C.g_value_get_enum((*C.GValue)(unsafe.Pointer(p)))
+	return Format(c), nil
+}
+
+// FontSlant is a representation of Cairo's cairo_font_slant_t.
+type FontSlant int
+
+const (
+	FONT_SLANT_NORMAL  FontSlant = C.CAIRO_FONT_SLANT_NORMAL
+	FONT_SLANT_ITALIC  FontSlant = C.CAIRO_FONT_SLANT_ITALIC
+	FONT_SLANT_OBLIQUE FontSlant = C.CAIRO_FONT_SLANT_OBLIQUE
+)
+
+func marshalFontSlant(p uintptr) (interface{}, error) {
+	c := C.g_value_get_enum((*C.GValue)(unsafe.Pointer(p)))
+	return FontSlant(c), nil
+}
+
+// FontWeight is a representation of Cairo's cairo_font_weight_t.
+type FontWeight int
+
+const (
+	FONT_WEIGHT_NORMAL FontWeight = C.CAIRO_FONT_WEIGHT_NORMAL
+	FONT_WEIGHT_BOLD   FontWeight = C.CAIRO_FONT_WEIGHT_BOLD
+)
+
+func marshalFontWeight(p uintptr) (interface{}, error) {
+	c := C.g_value_get_enum((*C.GValue)(unsafe.Pointer(p)))
+	return FontWeight(c), nil
 }
 
 /*
@@ -670,6 +719,21 @@ func (v *Context) ShowPage() {
 
 // TODO(jrick) GetUserData (depends on UserDataKey)
 
+// SelectFontFace is a wrapper around cairo_select_font_face().
+func (v *Context) SelectFontFace(name string, slant FontSlant, weight FontWeight) {
+	C.cairo_select_font_face(v.native(), C.CString(name), C.cairo_font_slant_t(slant), C.cairo_font_weight_t(weight))
+}
+
+// SetFontSize is a wrapper around cairo_set_font_size().
+func (v *Context) SetFontSize(size float64) {
+	C.cairo_set_font_size(v.native(), C.double(size))
+}
+
+// ShowText is a wrapper around cairo_show_text().
+func (v *Context) ShowText(text string) {
+	C.cairo_show_text(v.native(), C.CString(text))
+}
+
 /*
  * cairo_surface_t
  */
@@ -713,6 +777,23 @@ func NewSurface(s uintptr, needsRef bool) *Surface {
 	}
 	runtime.SetFinalizer(surface, (*Surface).destroy)
 	return surface
+}
+
+// ImageSurfaceCreate is a wrapper around cairo_image_surface_create().
+func ImageSurfaceCreate(format Format, width, height int) *Surface {
+	c := C.cairo_image_surface_create(C.cairo_format_t(format), C.int(width), C.int(height))
+	s := wrapSurface(c)
+	runtime.SetFinalizer(s, (*Surface).destroy)
+	return s
+}
+
+// WriteToPNG is a wrapper around cairo_surface_write_to_png().
+func (v *Surface) WriteToPNG(filename string) error {
+	status := C.cairo_surface_write_to_png(v.native(), C.CString(filename))
+	if status != C.CAIRO_STATUS_SUCCESS {
+		return errors.New("error writing to PNG file")
+	}
+	return nil
 }
 
 // CreateSimilar is a wrapper around cairo_surface_create_similar().
