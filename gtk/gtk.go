@@ -979,6 +979,87 @@ func wrapAdjustment(obj *glib.Object) *Adjustment {
 	return &Adjustment{glib.InitiallyUnowned{obj}}
 }
 
+// TODO: AdjustmentNew()
+
+// GetValue is a wrapper around gtk_adjustment_get_value().
+func (v *Adjustment) GetValue() float64 {
+	c := C.gtk_adjustment_get_value(v.native())
+	return float64(c)
+}
+
+// SetValue is a wrapper around gtk_adjustment_set_value().
+func (v *Adjustment) SetValue(value float64) {
+	C.gtk_adjustment_set_value(v.native(), C.gdouble(value))
+}
+
+// GetLower is a wrapper around gtk_adjustment_get_lower().
+func (v *Adjustment) GetLower() float64 {
+	c := C.gtk_adjustment_get_lower(v.native())
+	return float64(c)
+}
+
+// SetLower is a wrapper around gtk_adjustment_set_lower().
+func (v *Adjustment) SetLower(value float64) {
+	C.gtk_adjustment_set_lower(v.native(), C.gdouble(value))
+}
+
+// GetUpper is a wrapper around gtk_adjustment_get_upper().
+func (v *Adjustment) GetUpper() float64 {
+	c := C.gtk_adjustment_get_upper(v.native())
+	return float64(c)
+}
+
+// SetUpper is a wrapper around gtk_adjustment_set_upper().
+func (v *Adjustment) SetUpper(value float64) {
+	C.gtk_adjustment_set_upper(v.native(), C.gdouble(value))
+}
+
+// GetPageSize is a wrapper around gtk_adjustment_get_page_size().
+func (v *Adjustment) GetPageSize() float64 {
+	c := C.gtk_adjustment_get_page_size(v.native())
+	return float64(c)
+}
+
+// SetPageSize is a wrapper around gtk_adjustment_set_page_size().
+func (v *Adjustment) SetPageSize(value float64) {
+	C.gtk_adjustment_set_page_size(v.native(), C.gdouble(value))
+}
+
+// GetPageIncrement is a wrapper around gtk_adjustment_get_page_increment().
+func (v *Adjustment) GetPageIncrement() float64 {
+	c := C.gtk_adjustment_get_page_increment(v.native())
+	return float64(c)
+}
+
+// SetPageIncrement is a wrapper around gtk_adjustment_set_page_increment().
+func (v *Adjustment) SetPageIncrement(value float64) {
+	C.gtk_adjustment_set_page_increment(v.native(), C.gdouble(value))
+}
+
+// GetStepIncrement is a wrapper around gtk_adjustment_get_step_increment().
+func (v *Adjustment) GetStepIncrement() float64 {
+	c := C.gtk_adjustment_get_step_increment(v.native())
+	return float64(c)
+}
+
+// SetStepIncrement is a wrapper around gtk_adjustment_set_step_increment().
+func (v *Adjustment) SetStepIncrement(value float64) {
+	C.gtk_adjustment_set_step_increment(v.native(), C.gdouble(value))
+}
+
+// GetMinimumIncrement is a wrapper around gtk_adjustment_get_minimum_increment().
+func (v *Adjustment) GetMinimumIncrement() float64 {
+	c := C.gtk_adjustment_get_minimum_increment(v.native())
+	return float64(c)
+}
+
+/*
+void	gtk_adjustment_clamp_page ()
+void	gtk_adjustment_changed ()
+void	gtk_adjustment_value_changed ()
+void	gtk_adjustment_configure ()
+*/
+
 /*
  * GtkAlignment
  */
@@ -5957,6 +6038,32 @@ func (v *ScrolledWindow) SetPolicy(hScrollbarPolicy, vScrollbarPolicy PolicyType
 	C.gtk_scrolled_window_set_policy(v.native(),
 		C.GtkPolicyType(hScrollbarPolicy),
 		C.GtkPolicyType(vScrollbarPolicy))
+}
+
+// GetHAdjustment() is a wrapper around gtk_scrolled_window_get_hadjustment().
+func (v *ScrolledWindow) GetHAdjustment() *Adjustment {
+	c := C.gtk_scrolled_window_get_hadjustment(v.native())
+	if c == nil {
+		return nil
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	a := wrapAdjustment(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return a
+}
+
+// GetVAdjustment() is a wrapper around gtk_scrolled_window_get_vadjustment().
+func (v *ScrolledWindow) GetVAdjustment() *Adjustment {
+	c := C.gtk_scrolled_window_get_vadjustment(v.native())
+	if c == nil {
+		return nil
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	a := wrapAdjustment(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return a
 }
 
 /*
