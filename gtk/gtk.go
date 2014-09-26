@@ -760,6 +760,11 @@ func Init(args *[]string) {
 	}
 }
 
+// MainIterationDo is a wrapper around gtk_main_iteration_do
+func MainIterationDo(blocking bool) bool {
+	return gobool(C.gtk_main_iteration_do(gbool(blocking)))
+}
+
 // Main() is a wrapper around gtk_main() and runs the GTK main loop,
 // blocking until MainQuit() is called.
 func Main() {
@@ -2236,6 +2241,11 @@ func (v *Clipboard) WaitForText() (string, error) {
 	}
 	defer C.g_free(C.gpointer(c))
 	return C.GoString((*C.char)(c)), nil
+}
+
+// Store is a wrapper around gtk_clipboard_store
+func (v *Clipboard) Store() {
+	C.gtk_clipboard_store(v.native())
 }
 
 func marshalClipboard(p uintptr) (interface{}, error) {
