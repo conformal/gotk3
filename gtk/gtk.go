@@ -3976,6 +3976,13 @@ func ImageNewFromFile(filename string) (*Image, error) {
 	return i, nil
 }
 
+// GdkCairoSetSourcePixBuf() is a wrapper around gdk_cairo_set_source_pixbuf().
+func GdkCairoSetSourcePixBuf(cr *cairo.Context, pixbuf *gdk.Pixbuf, pixbufX, pixbufY float64) {
+	context := (*C.cairo_t)(unsafe.Pointer(cr.Native()))
+	ptr := (*C.GdkPixbuf)(unsafe.Pointer(pixbuf.Native()))
+	C.gdk_cairo_set_source_pixbuf(context, ptr, C.gdouble(pixbufX), C.gdouble(pixbufY))
+}
+
 // ImageNewFromResource() is a wrapper around gtk_image_new_from_resource().
 func ImageNewFromResource(resourcePath string) (*Image, error) {
 	cstr := C.CString(resourcePath)
