@@ -492,7 +492,9 @@ func GetUserCacheDir() (string) {
 // MkdirWithParents is a wraper around  g_mkdir_with_parents()
 // Create a directory if it doesn't already exist. Create intermediate parent directories as needed, too.
 func MkdirWithParents(pathname string, mode int) bool {
-	ret := C.g_mkdir_with_parents((*C.gchar)(C.CString(pathname)),
+	cstr := C.CString(pathname)
+	defer C.free(unsafe.Pointer(cstr))
+	ret := C.g_mkdir_with_parents((*C.gchar)(cstr),
 		C.gint(mode))
 	if int(ret) == 0 {
 		return true
@@ -501,7 +503,9 @@ func MkdirWithParents(pathname string, mode int) bool {
 }
 
 func FileTest(filename string, test FileTestType) bool {
-	ret := C.g_file_test((*C.gchar)(C.CString(filename)),
+	cstr := C.CString(filename)
+	defer C.free(unsafe.Pointer(cstr))
+	ret := C.g_file_test((*C.gchar)(cstr),
 			C.GFileTest(test))
 	if int(ret) == 0 {
 		return false

@@ -412,7 +412,9 @@ func (v *Context) SetSourceSurface(surface *Surface, x, y float64) {
 // TODO(jrick) GetSource (depends on Pattern)
 
 func (v *Surface) WriteToPng(filename string) error {
-	status := C.cairo_surface_write_to_png(v.native(), C.CString(filename))
+	cstr := C.CString(filename)
+	defer C.free(unsafe.Pointer(cstr))
+	status := C.cairo_surface_write_to_png(v.native(), cstr)
 	if status != C.CAIRO_STATUS_SUCCESS {
 		return errors.New("error writing to PNG file")
 	}
