@@ -684,6 +684,36 @@ func PixbufNewFromFile(filename string) (*Pixbuf, error) {
 	return p, nil
 }
 
+// PixbufNewFromFileAtScale is a wrapper around gdk_pixbuf_new_from_file_at_scale().
+func PixbufNewFromFileAtScale(filename string, width, height int, preserve_aspect_ratio bool) (*Pixbuf, error) {
+	var err *C.GError = nil
+	c := C.gdk_pixbuf_new_from_file_at_scale(C.CString(filename), C.int(width), C.int(height), gbool(preserve_aspect_ratio), &err)
+	if c == nil {
+		defer C.g_error_free(err)
+		return errors.New(C.GoString((*C.char)(err.message)))
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	p := &Pixbuf{obj}
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return p, nil
+}
+
+// PixbufNewFromFileAtSize is a wrapper around gdk_pixbuf_new_from_file_at_size().
+func PixbufNewFromFileAtSize(filename string, width, height int) (*Pixbuf, error) {
+	var err *C.GError = nil
+	c := C.gdk_pixbuf_new_from_file_at_size(C.CString(filename), C.int(width), C.int(height), &err)
+	if c == nil {
+		defer C.g_error_free(err)
+		return errors.New(C.GoString((*C.char)(err.message)))
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	p := &Pixbuf{obj}
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return p, nil
+}
+
 // ScaleSimple is a wrapper around gdk_pixbuf_scale_simple().
 func (v *Pixbuf) ScaleSimple(destWidth, destHeight int, interpType InterpType) (*Pixbuf, error) {
 	c := C.gdk_pixbuf_scale_simple(v.native(), C.int(destWidth),
