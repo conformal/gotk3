@@ -1300,6 +1300,7 @@ func (v *Bin) GetChild() (*Widget, error) {
 // Builder is a representation of GTK's GtkBuilder.
 type Builder struct {
 	*glib.Object
+	callbacks []interface{}
 }
 
 // native() returns a pointer to the underlying GtkBuilder.
@@ -1314,7 +1315,7 @@ func (b *Builder) native() *C.GtkBuilder {
 func marshalBuilder(p uintptr) (interface{}, error) {
 	c := C.g_value_get_object((*C.GValue)(unsafe.Pointer(p)))
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	return &Builder{obj}, nil
+	return &Builder{obj, []interface{}{}}, nil
 }
 
 // BuilderNew is a wrapper around gtk_builder_new().
@@ -1324,7 +1325,7 @@ func BuilderNew() (*Builder, error) {
 		return nil, nilPtrErr
 	}
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	b := &Builder{obj}
+	b := &Builder{obj, []interface{}{}}
 	obj.RefSink()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return b, nil
