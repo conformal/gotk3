@@ -14,6 +14,10 @@
 
 package glib
 
+import (
+	"errors"
+)
+
 // Gets the marshaller for a given type
 func (t Type) GetMarshaller() (GValueMarshaler, error) {
 	if f, ok := gValueMarshalers[t]; ok {
