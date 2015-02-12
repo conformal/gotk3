@@ -154,6 +154,7 @@ func init() {
 		{glib.Type(C.gtk_spin_button_get_type()), marshalSpinButton},
 		{glib.Type(C.gtk_spinner_get_type()), marshalSpinner},
 		{glib.Type(C.gtk_statusbar_get_type()), marshalStatusbar},
+		{glib.Type(C.gtk_status_icon_get_type()), marshalStatusIcon},
 		{glib.Type(C.gtk_switch_get_type()), marshalSwitch},
 		{glib.Type(C.gtk_text_view_get_type()), marshalTextView},
 		{glib.Type(C.gtk_text_tag_table_get_type()), marshalTextTagTable},
@@ -1391,7 +1392,7 @@ func (b *Builder) AddFromFile(filename string) error {
 	res := C.gtk_builder_add_from_file(b.native(), (*C.gchar)(cstr), &err)
 	if res == 0 {
 		defer C.g_error_free(err)
-		return errors.New(C.GoString((*C.char)(C.error_get_message(err))))
+		return errors.New(C.GoString((*C.char)(err.message)))
 	}
 	return nil
 }
@@ -1404,7 +1405,7 @@ func (b *Builder) AddFromResource(path string) error {
 	res := C.gtk_builder_add_from_resource(b.native(), (*C.gchar)(cstr), &err)
 	if res == 0 {
 		defer C.g_error_free(err)
-		return errors.New(C.GoString((*C.char)(C.error_get_message(err))))
+		return errors.New(C.GoString((*C.char)(err.message)))
 	}
 	return nil
 }
@@ -1418,7 +1419,7 @@ func (b *Builder) AddFromString(str string) error {
 	res := C.gtk_builder_add_from_string(b.native(), (*C.gchar)(cstr), length, &err)
 	if res == 0 {
 		defer C.g_error_free(err)
-		return errors.New(C.GoString((*C.char)(C.error_get_message(err))))
+		return errors.New(C.GoString((*C.char)(err.message)))
 	}
 	return nil
 }
@@ -2279,6 +2280,16 @@ func (v *Clipboard) native() *C.GtkClipboard {
 	}
 	p := unsafe.Pointer(v.GObject)
 	return C.toGtkClipboard(p)
+}
+
+// WaitForText is a wrapper around gtk_clipboard_wait_for_text
+func (v *Clipboard) WaitForText() (string, error) {
+	c := C.gtk_clipboard_wait_for_text(v.native())
+	if c == nil {
+		return "", nilPtrErr
+	}
+	defer C.g_free(C.gpointer(c))
+	return C.GoString((*C.char)(c)), nil
 }
 
 func marshalClipboard(p uintptr) (interface{}, error) {
@@ -4891,6 +4902,13 @@ func (v *MenuItem) SetSubmenu(submenu IWidget) {
 	C.gtk_menu_item_set_submenu(v.native(), submenu.toWidget())
 }
 
+// Sets text on the menu_item label
+func (v *MenuItem) SetLabel(label string) {
+	cstr := C.CString(label)
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_menu_item_set_label(v.native(), (*C.gchar)(cstr))
+}
+
 /*
  * GtkMenuShell
  */
@@ -5572,6 +5590,17 @@ func (v *ProgressBar) SetFraction(fraction float64) {
 func (v *ProgressBar) GetFraction() float64 {
 	c := C.gtk_progress_bar_get_fraction(v.native())
 	return float64(c)
+}
+
+// SetShowText is a wrapper around gtk_progress_bar_set_show_text().
+func (v *ProgressBar) SetShowText(showText bool) {
+	C.gtk_progress_bar_set_show_text(v.native(), gbool(showText))
+}
+
+// GetShowText is a wrapper around gtk_progress_bar_get_show_text().
+func (v *ProgressBar) GetShowText() bool {
+	c := C.gtk_progress_bar_get_show_text(v.native())
+	return gobool(c)
 }
 
 // SetText() is a wrapper around gtk_progress_bar_set_text().
@@ -6294,6 +6323,186 @@ func (v *Spinner) Stop() {
 }
 
 /*
+ * GtkStatusIcon
+ */
+
+// StatusIcon is a representation of GTK's GtkStatusIcon
+type StatusIcon struct {
+	*glib.Object
+}
+
+func marshalStatusIcon(p uintptr) (interface{}, error) {
+	c := C.g_value_get_object((*C.GValue)(unsafe.Pointer(p)))
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	return wrapStatusIcon(obj), nil
+}
+
+func wrapStatusIcon(obj *glib.Object) *StatusIcon {
+	return &StatusIcon{obj}
+}
+
+func (v *StatusIcon) native() *C.GtkStatusIcon {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkStatusIcon(p)
+}
+
+// StatusIconNew is a wrapper around gtk_status_icon_new()
+func StatusIconNew() (*StatusIcon, error) {
+	c := C.gtk_status_icon_new()
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	obj.RefSink()
+	e := wrapStatusIcon(obj)
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return e, nil
+}
+
+// StatusIconNewFromFile is a wrapper around gtk_status_icon_new_from_file()
+func StatusIconNewFromFile(filename string) (*StatusIcon, error) {
+	cstr := C.CString(filename)
+	defer C.free(unsafe.Pointer(cstr))
+	c := C.gtk_status_icon_new_from_file((*C.gchar)(cstr))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	obj.RefSink()
+	e := wrapStatusIcon(obj)
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return e, nil
+}
+
+// StatusIconNewFromIconName is a wrapper around gtk_status_icon_new_from_name()
+func StatusIconNewFromIconName(iconName string) (*StatusIcon, error) {
+	cstr := C.CString(iconName)
+	defer C.free(unsafe.Pointer(cstr))
+	s := C.gtk_status_icon_new_from_icon_name((*C.gchar)(cstr))
+	if s == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(s))}
+	obj.RefSink()
+	e := wrapStatusIcon(obj)
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return e, nil
+}
+
+// SetFromFile is a wrapper around gtk_status_icon_set_from_file()
+func (v *StatusIcon) SetFromFile(filename string) {
+	cstr := C.CString(filename)
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_status_icon_set_from_file(v.native(), (*C.gchar)(cstr))
+}
+
+// SetFromIconName is a wrapper around gtk_status_icon_set_from_icon_name()
+func (v *StatusIcon) SetFromIconName(iconName string) {
+	cstr := C.CString(iconName)
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_status_icon_set_from_icon_name(v.native(), (*C.gchar)(cstr))
+}
+
+// GetStorageType is a wrapper around gtk_status_icon_get_storage_type()
+func (v *StatusIcon) GetStorageType() ImageType {
+	return (ImageType)(C.gtk_status_icon_get_storage_type(v.native()))
+}
+
+// GetIconName is a wrapper around gtk_status_icon_get_icon_name()
+func (v *StatusIcon) GetIconName() string {
+	cstr := (*C.char)(C.gtk_status_icon_get_icon_name(v.native()))
+	defer C.free(unsafe.Pointer(cstr))
+	return C.GoString(cstr)
+}
+
+// GetSize is a wrapper around gtk_status_icon_get_size()
+func (v *StatusIcon) GetSize() int {
+	return int(C.gtk_status_icon_get_size(v.native()))
+}
+
+// SetTooltipText is a wrapper around gtk_status_icon_set_tooltip_text()
+func (v *StatusIcon) SetTooltipText(text string) {
+	cstr := C.CString(text)
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_status_icon_set_tooltip_text(v.native(), (*C.gchar)(cstr))
+}
+
+// GetTooltipText is a wrapper around gtk_status_icon_get_tooltip_text()
+func (v *StatusIcon) GetTooltipText() string {
+	cstr := (*C.char)(C.gtk_status_icon_get_tooltip_text(v.native()))
+	defer C.free(unsafe.Pointer(cstr))
+	return C.GoString(cstr)
+}
+
+// SetTooltipMarkup is a wrapper around gtk_status_icon_set_tooltip_markup()
+func (v *StatusIcon) SetTooltipMarkup(markup string) {
+	cstr := (*C.gchar)(C.CString(markup))
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_status_icon_set_tooltip_markup(v.native(), cstr)
+}
+
+// GetTooltipMarkup is a wrapper around gtk_status_icon_get_tooltip_markup()
+func (v *StatusIcon) GetTooltipMarkup() string {
+	cstr := (*C.char)(C.gtk_status_icon_get_tooltip_markup(v.native()))
+	defer C.free(unsafe.Pointer(cstr))
+	return C.GoString(cstr)
+}
+
+// SetHasTooltip is a wrapper around gtk_status_icon_set_has_tooltip()
+func (v *StatusIcon) SetHasTooltip(hasTooltip bool) {
+	C.gtk_status_icon_set_has_tooltip(v.native(), gbool(hasTooltip))
+}
+
+// GetHasTooltip is a wrapper around gtk_status_icon_get_has_tooltip()
+func (v *StatusIcon) GetHasTooltip() bool {
+	return gobool(C.gtk_status_icon_get_has_tooltip(v.native()))
+}
+
+// SetTitle is a wrapper around gtk_status_icon_set_title()
+func (v *StatusIcon) SetTitle(title string) {
+	cstr := (*C.gchar)(C.CString(title))
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_status_icon_set_title(v.native(), cstr)
+}
+
+// GetTitle is a wrapper around gtk_status_icon_get_title()
+func (v *StatusIcon) GetTitle() string {
+	cstr := (*C.char)(C.gtk_status_icon_get_title(v.native()))
+	defer C.free(unsafe.Pointer(cstr))
+	return C.GoString(cstr)
+}
+
+// SetName is a wrapper around gtk_status_icon_set_name()
+func (v *StatusIcon) SetName(name string) {
+	cstr := (*C.gchar)(C.CString(name))
+	defer C.free(unsafe.Pointer(cstr))
+	C.gtk_status_icon_set_name(v.native(), cstr)
+}
+
+// SetVisible is a wrapper around gtk_status_icon_set_visible()
+func (v *StatusIcon) SetVisible(visible bool) {
+	C.gtk_status_icon_set_visible(v.native(), gbool(visible))
+}
+
+// GetVisible is a wrapper around gtk_status_icon_get_visible()
+func (v *StatusIcon) GetVisible() bool {
+	return gobool(C.gtk_status_icon_get_visible(v.native()))
+}
+
+// IsEmbedded is a wrapper around gtk_status_icon_is_embedded()
+func (v *StatusIcon) IsEmbedded() bool {
+	return gobool(C.gtk_status_icon_is_embedded(v.native()))
+}
+
+// GetX11WindowID is a wrapper around gtk_status_icon_get_x11_window_id()
+func (v *StatusIcon) GetX11WindowID() int {
+	return int(C.gtk_status_icon_get_x11_window_id(v.native()))
+}
+
+/*
  * GtkStatusbar
  */
 
@@ -6511,17 +6720,17 @@ func (v *TextView) SetEditable(editable bool) {
 	C.gtk_text_view_set_editable(v.native(), gbool(editable))
 }
 
-// SetEditable is a wrapper around gtk_text_view_set_editable().
-func (v *TextBuffer) GetEndIter() *TextIter {
-	iter := TextIter{}
-	C.gtk_text_buffer_get_end_iter(v.native(), (*C.GtkTextIter)(&iter))
-	return &iter
-}
-
 // GetEditable is a wrapper around gtk_text_view_get_editable().
 func (v *TextView) GetEditable() bool {
 	c := C.gtk_text_view_get_editable(v.native())
 	return gobool(c)
+}
+
+// GetEndIter is a wrapper around tk_text_buffer_get_end_iter().
+func (v *TextBuffer) GetEndIter() *TextIter {
+	iter := TextIter{}
+	C.gtk_text_buffer_get_end_iter(v.native(), (*C.GtkTextIter)(&iter))
+	return &iter
 }
 
 // SetWrapMode is a wrapper around gtk_text_view_set_wrap_mode().
@@ -7504,6 +7713,14 @@ type TreePath struct {
 	GtkTreePath *C.GtkTreePath
 }
 
+// Return a TreePath from the GList
+func TreePathFromList(list *glib.List) *TreePath {
+	if list == nil {
+		return nil
+	}
+	return &TreePath{(*C.GtkTreePath)(unsafe.Pointer(list.Data))}
+}
+
 // native returns a pointer to the underlying GtkTreePath.
 func (v *TreePath) native() *C.GtkTreePath {
 	if v == nil {
@@ -7567,6 +7784,31 @@ func (v *TreeSelection) GetSelected(model *ITreeModel, iter *TreeIter) bool {
 	c := C.gtk_tree_selection_get_selected(v.native(),
 		pcmodel, iter.native())
 	return gobool(c)
+}
+
+// GetSelectedRows is a wrapper around gtk_tree_selection_get_selected_rows().
+//
+// Please note that a runtime finalizer is only set on the head of the linked
+// list, and must be kept live while accessing any item in the list, or the
+// Go garbage collector will free the whole list.
+func (v *TreeSelection) GetSelectedRows(model ITreeModel) *glib.List {
+	var pcmodel **C.GtkTreeModel
+	if model != nil {
+		cmodel := model.toTreeModel()
+		pcmodel = &cmodel
+	}
+	clist := C.gtk_tree_selection_get_selected_rows(v.native(), pcmodel)
+	glist := (*glib.List)(unsafe.Pointer(clist))
+	runtime.SetFinalizer(glist, func(glist *glib.List) {
+		C.g_list_free_full((*C.GList)(unsafe.Pointer(glist)),
+			(C.GDestroyNotify)(C.gtk_tree_path_free))
+	})
+	return glist
+}
+
+// CountSelectedRows() is a wrapper around gtk_tree_selection_count_selected_rows().
+func (v *TreeSelection) CountSelectedRows() int {
+	return int(C.gtk_tree_selection_count_selected_rows(v.native()))
 }
 
 /*
@@ -7858,15 +8100,15 @@ func (v *Widget) SetRealized(realized bool) {
 	C.gtk_widget_set_realized(v.native(), gbool(realized))
 }
 
+// SetDoubleBuffered is a wrapper around gtk_widget_set_double_buffered().
+func (v *Widget) SetDoubleBuffered(doubleBuffered bool) {
+	C.gtk_widget_set_double_buffered(v.native(), gbool(doubleBuffered))
+}
+
 // GetDoubleBuffered is a wrapper around gtk_widget_get_double_buffered().
 func (v *Widget) GetDoubleBuffered() bool {
 	c := C.gtk_widget_get_double_buffered(v.native())
 	return gobool(c)
-}
-
-// SetDoubleBuffered is a wrapper around gtk_widget_get_double_buffered().
-func (v *Widget) SetDoubleBuffered(doubleBuffered bool) {
-	C.gtk_widget_set_double_buffered(v.native(), gbool(doubleBuffered))
 }
 
 // GetHasWindow is a wrapper around gtk_widget_get_has_window().
@@ -8309,6 +8551,24 @@ func (v *Widget) SetVExpand(expand bool) {
 	C.gtk_widget_set_vexpand(v.native(), gbool(expand))
 }
 
+// SetVisual is a wrapper around gtk_widget_set_visual().
+func (v *Widget) SetVisual(visual *gdk.Visual) {
+	C.gtk_widget_set_visual(v.native(),
+		(*C.GdkVisual)(unsafe.Pointer(visual.Native())))
+}
+
+// SetAppPaintable is a wrapper around gtk_widget_set_app_paintable().
+func (v *Widget) SetAppPaintable(paintable bool) {
+	C.gtk_widget_set_app_paintable(v.native(), gbool(paintable))
+}
+
+// GetAppPaintable is a wrapper around gtk_widget_get_app_paintable().
+func (v *Widget) GetAppPaintable() bool {
+	c := C.gtk_widget_get_app_paintable(v.native())
+	return gobool(c)
+}
+
+// QueueDraw is a wrapper around gtk_widget_queue_draw().
 func (v *Widget) QueueDraw() {
 	C.gtk_widget_queue_draw(v.native())
 }
@@ -8414,6 +8674,19 @@ func (v *Window) SetDefaultSize(width, height int) {
 func (v *Window) SetDefaultGeometry(width, height int) {
 	C.gtk_window_set_default_geometry(v.native(), C.gint(width),
 		C.gint(height))
+}
+
+// GetScreen is a wrapper around gtk_window_get_screen().
+func (v *Window) GetScreen() (*gdk.Screen, error) {
+	c := C.gtk_window_get_screen(v.native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	s := &gdk.Screen{obj}
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return s, nil
 }
 
 // TODO(jrick) GdkGeometry GdkWindowHints.
@@ -8756,7 +9029,7 @@ func (v *Window) SetIconFromFile(file string) error {
 	res := C.gtk_window_set_icon_from_file(v.native(), (*C.gchar)(cstr), &err)
 	if res == 0 {
 		defer C.g_error_free(err)
-		return errors.New(C.GoString((*C.char)(C.error_get_message(err))))
+		return errors.New(C.GoString((*C.char)(err.message)))
 	}
 	return nil
 }
