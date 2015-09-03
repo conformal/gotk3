@@ -658,6 +658,11 @@ func (v *Context) Stroke() {
 	C.cairo_stroke(v.native())
 }
 
+// Scale s a wrapper around cairo_scale().
+func (v *Context) Scale(x, y float64) {
+	C.cairo_scale(v.native(), C.double(x), C.double(y))
+}
+
 // StrokePreserve is a wrapper around cairo_stroke_preserve().
 func (v *Context) StrokePreserve() {
 	C.cairo_stroke_preserve(v.native())
