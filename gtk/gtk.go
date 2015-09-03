@@ -1742,6 +1742,60 @@ func (v *Box) SetChildPacking(child IWidget, expand, fill bool, padding uint, pa
 }
 
 /*
+ * GtkScale
+ */
+
+// Calendar is a representation of GTK's GtkCalendar.
+type Scale struct {
+	Widget
+}
+
+// native() returns a pointer to the underlying GtkCalendar.
+func (v *Scale) native() *C.GtkScale {
+	if v == nil || v.GObject == nil {
+		return nil
+	}
+	p := unsafe.Pointer(v.GObject)
+	return C.toGtkScale(p)
+}
+
+func marshalScale(p uintptr) (interface{}, error) {
+	c := C.g_value_get_object((*C.GValue)(unsafe.Pointer(p)))
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	return wrapCalendar(obj), nil
+}
+
+func wrapScale(obj *glib.Object) *Scale {
+	return &Scale{Widget{glib.InitiallyUnowned{obj}}}
+}
+
+// ScaleNew is a wrapper around gtk_scale_new().
+func ScaleNew(o Orientation, adj *Adjustment) (*Scale, error) {
+	c := C.gtk_scale_new(C.GtkOrientation(o), adj.native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	a := wrapScale(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return a, nil
+}
+
+// ScaleNew is a wrapper around gtk_scale_new().
+func ScaleNewWithRange(o Orientation, min, max, step float64) (*Scale, error) {
+	c := C.gtk_scale_new_with_range(C.GtkOrientation(o), C.gdouble(min), C.gdouble(max), C.gdouble(step))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	a := wrapScale(obj)
+	obj.RefSink()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return a, nil
+}
+
+/*
  * GtkCalendar
  */
 

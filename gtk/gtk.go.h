@@ -50,6 +50,12 @@ toGtkAssistant(void *p)
 	return (GTK_ASSISTANT(p));
 }
 
+static GtkScale *
+toGtkScale(void *p)
+{
+	return (GTK_SCALE(p));
+}
+
 static GtkCalendar *
 toGtkCalendar(void *p)
 {
