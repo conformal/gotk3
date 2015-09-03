@@ -1796,6 +1796,12 @@ func ScaleNewWithRange(o Orientation, min, max, step float64) (*Scale, error) {
 }
 
 /*
+func (scale *Scale) GetRange() float64 {
+	val := C.gtk_range_get_value(C.toGtkRange(scale.native()))
+	return float64(val)
+}
+*/
+/*
  * GtkCalendar
  */
 
@@ -5975,6 +5981,11 @@ func marshalRange(p uintptr) (interface{}, error) {
 
 func wrapRange(obj *glib.Object) *Range {
 	return &Range{Widget{glib.InitiallyUnowned{obj}}}
+}
+
+func (v *Range) GetValue() float64 {
+	val := C.gtk_range_get_value(v.native())
+	return float64(val)
 }
 
 /*
