@@ -51,6 +51,7 @@ import "C"
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"runtime"
 	"unsafe"
 
@@ -97,6 +98,7 @@ func init() {
 		{glib.Type(C.gtk_wrap_mode_get_type()), marshalWrapMode},
 
 		// Objects/Interfaces
+		{glib.Type(C.gtk_selection_data_get_type()), marshalSelectionData},
 		{glib.Type(C.gtk_about_dialog_get_type()), marshalAboutDialog},
 		{glib.Type(C.gtk_adjustment_get_type()), marshalAdjustment},
 		{glib.Type(C.gtk_alignment_get_type()), marshalAlignment},
@@ -760,6 +762,11 @@ func Init(args *[]string) {
 	}
 }
 
+// MainIterationDo is a wrapper around gtk_main_iteration_do
+func MainIterationDo(blocking bool) bool {
+	return gobool(C.gtk_main_iteration_do(gbool(blocking)))
+}
+
 // Main() is a wrapper around gtk_main() and runs the GTK main loop,
 // blocking until MainQuit() is called.
 func Main() {
@@ -770,6 +777,47 @@ func Main() {
 // the GTK main loop (started by Main()).
 func MainQuit() {
 	C.gtk_main_quit()
+}
+
+/*
+ * GtkSelectionData
+ */
+type SelectionData struct {
+	GtkSelectionData *C.GtkSelectionData
+}
+
+func marshalSelectionData(p uintptr) (interface{}, error) {
+	c := C.g_value_get_boxed((*C.GValue)(unsafe.Pointer(p)))
+	return (*SelectionData)(unsafe.Pointer(c)), nil
+}
+
+// native returns a pointer to the underlying GtkSelectionData.
+func (v *SelectionData) native() *C.GtkSelectionData {
+	if v == nil {
+		return nil
+	}
+	return v.GtkSelectionData
+}
+
+// GetLength is a wrapper around gtk_selection_data_get_length
+func (v *SelectionData) GetLength() int {
+	return int(C.gtk_selection_data_get_length(v.native()))
+}
+
+// GetData is a wrapper around gtk_selection_data_get_data_with_length.
+// It returns a slice of the correct size with the selection's data.
+func (v *SelectionData) GetData() (data []byte) {
+	var length C.gint
+	c := C.gtk_selection_data_get_data_with_length(v.native(), &length)
+	sliceHeader := (*reflect.SliceHeader)(unsafe.Pointer(&data))
+	sliceHeader.Data = uintptr(unsafe.Pointer(c))
+	sliceHeader.Len = int(length)
+	sliceHeader.Cap = int(length)
+	return
+}
+
+func (v *SelectionData) free() {
+	C.gtk_selection_data_free(v.native())
 }
 
 /*
@@ -2228,6 +2276,17 @@ func (v *Clipboard) native() *C.GtkClipboard {
 	return C.toGtkClipboard(p)
 }
 
+// WaitForContents is a wrapper around gtk_clipboard_wait_for_contents
+func (v *Clipboard) WaitForContents(target gdk.Atom) (*SelectionData, error) {
+	c := C.gtk_clipboard_wait_for_contents(v.native(), C.GdkAtom(unsafe.Pointer(target)))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	p := &SelectionData{c}
+	runtime.SetFinalizer(p, (*SelectionData).free)
+	return p, nil
+}
+
 // WaitForText is a wrapper around gtk_clipboard_wait_for_text
 func (v *Clipboard) WaitForText() (string, error) {
 	c := C.gtk_clipboard_wait_for_text(v.native())
@@ -2236,6 +2295,24 @@ func (v *Clipboard) WaitForText() (string, error) {
 	}
 	defer C.g_free(C.gpointer(c))
 	return C.GoString((*C.char)(c)), nil
+}
+
+// WaitForImage is a wrapper around gtk_clipboard_wait_for_image
+func (v *Clipboard) WaitForImage() (*gdk.Pixbuf, error) {
+	c := C.gtk_clipboard_wait_for_image(v.native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	p := &gdk.Pixbuf{obj}
+	obj.Ref()
+	runtime.SetFinalizer(obj, (*glib.Object).Unref)
+	return p, nil
+}
+
+// Store is a wrapper around gtk_clipboard_store
+func (v *Clipboard) Store() {
+	C.gtk_clipboard_store(v.native())
 }
 
 func marshalClipboard(p uintptr) (interface{}, error) {
@@ -2282,6 +2359,11 @@ func (v *Clipboard) SetText(text string) {
 	defer C.free(unsafe.Pointer(cstr))
 	C.gtk_clipboard_set_text(v.native(), (*C.gchar)(cstr),
 		C.gint(len(text)))
+}
+
+// SetImage is a wrapper around gtk_clipboard_set_image
+func (v *Clipboard) SetImage(pixbuf *gdk.Pixbuf) {
+	C.gtk_clipboard_set_image(v.native(), (*C.GdkPixbuf)(unsafe.Pointer(pixbuf.Native())))
 }
 
 /*
