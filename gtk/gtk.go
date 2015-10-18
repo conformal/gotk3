@@ -51,9 +51,9 @@ import "C"
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"runtime"
 	"unsafe"
-	"reflect"
 
 	"github.com/conformal/gotk3/cairo"
 	"github.com/conformal/gotk3/gdk"
@@ -98,7 +98,7 @@ func init() {
 		{glib.Type(C.gtk_wrap_mode_get_type()), marshalWrapMode},
 
 		// Objects/Interfaces
-		{glib.Type(C.gtk_selection_data_get_type()), marshalSelectionData}, 
+		{glib.Type(C.gtk_selection_data_get_type()), marshalSelectionData},
 		{glib.Type(C.gtk_about_dialog_get_type()), marshalAboutDialog},
 		{glib.Type(C.gtk_adjustment_get_type()), marshalAdjustment},
 		{glib.Type(C.gtk_alignment_get_type()), marshalAlignment},
@@ -2276,7 +2276,7 @@ func (v *Clipboard) native() *C.GtkClipboard {
 	return C.toGtkClipboard(p)
 }
 
-// WaitForContents is a wrapper around gtk_clipboard_wait_for_contents 
+// WaitForContents is a wrapper around gtk_clipboard_wait_for_contents
 func (v *Clipboard) WaitForContents(target gdk.Atom) (*SelectionData, error) {
 	c := C.gtk_clipboard_wait_for_contents(v.native(), C.GdkAtom(unsafe.Pointer(target)))
 	if c == nil {

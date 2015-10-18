@@ -20,6 +20,10 @@ package gdk
 // #cgo pkg-config: gdk-3.0
 // #include <gdk/gdk.h>
 // #include "gdk.go.h"
+//
+// GdkEventType get_event_type(GdkEvent *e) {
+//     return e->type;
+// }
 import "C"
 import (
 	"errors"
@@ -517,6 +521,12 @@ func (v *Event) native() *C.GdkEvent {
 	return v.GdkEvent
 }
 
+func (v *Event) Type() uint {
+	// lol hack to access type without keyword clashes
+	c := C.get_event_type(v.native())
+	return uint(c)
+}
+
 // Native returns a pointer to the underlying GdkEvent.
 func (v *Event) Native() uintptr {
 	return uintptr(unsafe.Pointer(v.native()))
@@ -551,6 +561,36 @@ func (v *EventKey) native() *C.GdkEventKey {
 
 func (v *EventKey) KeyVal() uint {
 	c := v.native().keyval
+	return uint(c)
+}
+
+/*
+ * GdkEventButton
+ */
+
+const (
+	BUTTON_PRESS       = C.GDK_BUTTON_PRESS
+	TWO_BUTTON_PRESS   = C.GDK_2BUTTON_PRESS
+	THREE_BUTTON_PRESS = C.GDK_3BUTTON_PRESS
+	BUTTON_RELEASE     = C.GDK_BUTTON_RELEASE
+)
+
+// EventButton is a representation of GDK's GdkEventButton.
+type EventButton struct {
+	*Event
+}
+
+// Native returns a pointer to the underlying GdkEventButton.
+func (v *EventButton) Native() uintptr {
+	return uintptr(unsafe.Pointer(v.native()))
+}
+
+func (v *EventButton) native() *C.GdkEventButton {
+	return (*C.GdkEventButton)(unsafe.Pointer(v.Event.native()))
+}
+
+func (v *EventButton) Button() uint {
+	c := v.native().button
 	return uint(c)
 }
 
