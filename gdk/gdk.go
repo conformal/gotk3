@@ -547,6 +547,56 @@ func (v *EventKey) KeyVal() uint {
 }
 
 /*
+ * EventButton
+ */
+
+type EventButton struct {
+	*Event
+}
+
+func (e *EventButton) native() *C.GdkEventButton {
+	return (*C.GdkEventButton)(unsafe.Pointer(e.Event.native()))
+}
+
+func (e *EventButton) Native() uintptr {
+	return uintptr(unsafe.Pointer(e.native()))
+}
+
+func (e *EventButton) Pos() (x, y int) {
+	n := e.native()
+	x = int(n.x)
+	y = int(n.y)
+	return
+}
+
+/*
+ * EventMotion
+ */
+
+type EventMotion struct {
+	*Event
+}
+
+func (e *EventMotion) native() *C.GdkEventMotion {
+	return (*C.GdkEventMotion)(unsafe.Pointer(e.Event.native()))
+}
+
+func (e *EventMotion) Native() uintptr {
+	return uintptr(unsafe.Pointer(e.native()))
+}
+
+func (e *EventMotion) Pos() (x, y int) {
+	n := e.native()
+	x = int(n.x)
+	y = int(n.y)
+	return
+}
+
+func (e *EventMotion) State() int {
+	return int(e.native().state)
+}
+
+/*
  * GdkPixbuf
  */
 
