@@ -62,20 +62,20 @@ func (v *EventKey) KeyVal() uint {
 	return uint(c)
 }
 
+/*
+ * GdkEventButton
+ */
+
 type EventButton struct {
-	event *C.GdkEventButton
-}
-
-func (e *EventButton) native() *C.GdkEventButton {
-	return e.event
-}
-
-func (e *EventButton) FromNative(ptr uintptr) {
-	e.event = (*C.GdkEventButton)(unsafe.Pointer(ptr))
+	*Event
 }
 
 func (e *EventButton) Native() uintptr {
-	return uintptr(unsafe.Pointer(e.event))
+	return uintptr(unsafe.Pointer(e.native()))
+}
+
+func (e *EventButton) native() *C.GdkEventButton {
+	return (*C.GdkEventButton)(unsafe.Pointer(e.Event.native()))
 }
 
 func (e *EventButton) Pos() (x, y int) {
@@ -85,30 +85,19 @@ func (e *EventButton) Pos() (x, y int) {
 }
 
 /*
-struct GdkEventMotion {
-  GdkEventType type;
-  GdkWindow *window;
-  gint8 send_event;
-  guint32 time;
-  gdouble x;
-  gdouble y;
-  gdouble *axes;
-  guint state;
-  gint16 is_hint;
-  GdkDevice *device;
-  gdouble x_root, y_root;
-};
-*/
+ * GdkEventMotion
+ */
+
 type EventMotion struct {
-	event *C.GdkEventMotion
+	*Event
+}
+
+func (e *EventMotion) Native() uintptr {
+	return uintptr(unsafe.Pointer(e.native()))
 }
 
 func (e *EventMotion) native() *C.GdkEventMotion {
-	return e.event
-}
-
-func (e *EventMotion) FromNative(ptr uintptr) {
-	e.event = (*C.GdkEventMotion)(unsafe.Pointer(ptr))
+	return (*C.GdkEventMotion)(unsafe.Pointer(e.Event.native()))
 }
 
 func (e *EventMotion) Pos() (x, y int) {
