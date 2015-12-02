@@ -24,7 +24,6 @@ package cairo
 // #include <cairo-gobject.h>
 import "C"
 import (
-	"errors"
 	"reflect"
 	"runtime"
 	"unsafe"
@@ -739,7 +738,7 @@ func NewSurfaceFromPNG(fileName string) (*Surface, error) {
 
 	status := Status(C.cairo_surface_status(surfaceNative))
 	if status != STATUS_SUCCESS {
-		return nil, errors.New(StatusToString(status))
+		return nil, ErrorStatus(status)
 	}
 
 	return &Surface{surfaceNative}, nil
