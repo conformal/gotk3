@@ -20,9 +20,10 @@ package gtk
 
 import (
 	"fmt"
-	"github.com/conformal/gotk3/glib"
 	"log"
 	"testing"
+
+	"github.com/envoker/gotk3/glib"
 )
 
 func init() {

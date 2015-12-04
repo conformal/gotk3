@@ -20,8 +20,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/conformal/gotk3/glib"
-	"github.com/conformal/gotk3/gtk"
+	"github.com/envoker/gotk3/glib"
+	"github.com/envoker/gotk3/gtk"
 	"log"
 	"time"
 )
