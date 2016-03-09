@@ -21,7 +21,7 @@ import (
 
 // Surface is a representation of Cairo's cairo_surface_t.
 type Surface struct {
-	surface *C.cairo_surface_t
+	surface_n *C.cairo_surface_t
 }
 
 func NewSurface(format Format, width, height int) (*Surface, error) {
@@ -75,7 +75,7 @@ func (v *Surface) native() *C.cairo_surface_t {
 	if v == nil {
 		return nil
 	}
-	return v.surface
+	return v.surface_n
 }
 
 // Native returns a pointer to the underlying cairo_surface_t.
@@ -115,7 +115,7 @@ func (v *Surface) CreateForRectangle(x, y, width, height float64) *Surface {
 
 // reference is a wrapper around cairo_surface_reference().
 func (v *Surface) reference() {
-	v.surface = C.cairo_surface_reference(v.native())
+	v.surface_n = C.cairo_surface_reference(v.native())
 }
 
 // destroy is a wrapper around cairo_surface_destroy().
