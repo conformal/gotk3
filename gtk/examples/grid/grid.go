@@ -19,8 +19,9 @@
 package main
 
 import (
-	"github.com/envoker/gotk3/gtk"
 	"log"
+
+	"github.com/envoker/gotk3/gtk"
 )
 
 func main() {

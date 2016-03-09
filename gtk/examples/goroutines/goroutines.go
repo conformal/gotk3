@@ -20,10 +20,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/envoker/gotk3/glib"
-	"github.com/envoker/gotk3/gtk"
 	"log"
 	"time"
+
+	"github.com/envoker/gotk3/glib"
+	"github.com/envoker/gotk3/gtk"
 )
 
 var (
@@ -72,6 +73,7 @@ func main() {
 			}
 			nSets++
 			s = fmt.Sprintf("Set a label %d time(s)!", nSets)
+
 			_, err = glib.IdleAdd(bottomLabel.SetText, s)
 			if err != nil {
 				log.Fatal("IdleAdd() failed:", err)

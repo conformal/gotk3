@@ -24,19 +24,50 @@ type Surface struct {
 	surface *C.cairo_surface_t
 }
 
+func NewSurface(format Format, width, height int) (*Surface, error) {
+
+	surface_n := C.cairo_image_surface_create(C.cairo_format_t(format), C.int(width), C.int(height))
+
+	status := Status(C.cairo_surface_status(surface_n))
+	if status != STATUS_SUCCESS {
+		return nil, ErrorStatus(status)
+	}
+
+	surface := wrapSurface(surface_n)
+	runtime.SetFinalizer(surface, (*Surface).destroy)
+
+	return surface, nil
+}
+
+// NewSurface creates a gotk3 cairo Surface from a pointer to a
+// C cairo_surface_t.  This is primarily designed for use with other
+// gotk3 packages and should be avoided by applications.
+func NewSurfaceFromNative(ptr uintptr, needsRef bool) *Surface {
+	surface_n := (*C.cairo_surface_t)(unsafe.Pointer(ptr))
+	surface := wrapSurface(surface_n)
+	if needsRef {
+		surface.reference()
+	}
+	runtime.SetFinalizer(surface, (*Surface).destroy)
+	return surface
+}
+
 func NewSurfaceFromPNG(fileName string) (*Surface, error) {
 
 	cstr := C.CString(fileName)
 	defer C.free(unsafe.Pointer(cstr))
 
-	surfaceNative := C.cairo_image_surface_create_from_png(cstr)
+	surface_n := C.cairo_image_surface_create_from_png(cstr)
 
-	status := Status(C.cairo_surface_status(surfaceNative))
+	status := Status(C.cairo_surface_status(surface_n))
 	if status != STATUS_SUCCESS {
 		return nil, ErrorStatus(status)
 	}
 
-	return &Surface{surfaceNative}, nil
+	surface := wrapSurface(surface_n)
+	runtime.SetFinalizer(surface, (*Surface).destroy)
+
+	return surface, nil
 }
 
 // native returns a pointer to the underlying cairo_surface_t.
@@ -60,19 +91,6 @@ func marshalSurface(p uintptr) (interface{}, error) {
 
 func wrapSurface(surface *C.cairo_surface_t) *Surface {
 	return &Surface{surface}
-}
-
-// NewSurface creates a gotk3 cairo Surface from a pointer to a
-// C cairo_surface_t.  This is primarily designed for use with other
-// gotk3 packages and should be avoided by applications.
-func NewSurface(s uintptr, needsRef bool) *Surface {
-	ptr := (*C.cairo_surface_t)(unsafe.Pointer(s))
-	surface := wrapSurface(ptr)
-	if needsRef {
-		surface.reference()
-	}
-	runtime.SetFinalizer(surface, (*Surface).destroy)
-	return surface
 }
 
 // CreateSimilar is a wrapper around cairo_surface_create_similar().

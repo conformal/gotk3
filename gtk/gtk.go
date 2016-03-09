@@ -5428,7 +5428,7 @@ func (v *OffscreenWindow) GetSurface() (*cairo.Surface, error) {
 	}
 	surfacePtr := (uintptr)(unsafe.Pointer(c))
 
-	s := cairo.NewSurface(surfacePtr, true)
+	s := cairo.NewSurfaceFromNative(surfacePtr, true)
 
 	return s, nil
 }
