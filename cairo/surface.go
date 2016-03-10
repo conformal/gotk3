@@ -93,6 +93,14 @@ func wrapSurface(surface *C.cairo_surface_t) *Surface {
 	return &Surface{surface}
 }
 
+func (s *Surface) GetWidth() int {
+	return int(C.cairo_image_surface_get_width(s.surface_n))
+}
+
+func (s *Surface) GetHeight() int {
+	return int(C.cairo_image_surface_get_height(s.surface_n))
+}
+
 // CreateSimilar is a wrapper around cairo_surface_create_similar().
 func (v *Surface) CreateSimilar(content Content, width, height int) *Surface {
 	c := C.cairo_surface_create_similar(v.native(),
