@@ -24,11 +24,9 @@ package cairo
 // #include <cairo-gobject.h>
 import "C"
 import (
-	"reflect"
-	"runtime"
 	"unsafe"
 
-	"github.com/conformal/gotk3/glib"
+	"github.com/envoker/gotk3/glib"
 )
 
 func init() {
@@ -48,22 +46,6 @@ func init() {
 		{glib.Type(C.cairo_gobject_surface_get_type()), marshalSurface},
 	}
 	glib.RegisterGValueMarshalers(tm)
-}
-
-// Type conversions
-
-func cairobool(b bool) C.cairo_bool_t {
-	if b {
-		return C.cairo_bool_t(1)
-	}
-	return C.cairo_bool_t(0)
-}
-
-func gobool(b C.cairo_bool_t) bool {
-	if b != 0 {
-		return true
-	}
-	return false
 }
 
 // Constants
@@ -237,6 +219,56 @@ const (
 	// STATUS_DEVICE_FINISHED           Status = C.CAIRO_STATUS_DEVICE_FINISHED (since 1.12)
 )
 
+var key_Status = map[Status]string{
+
+	STATUS_SUCCESS:                   "CAIRO_STATUS_SUCCESS",
+	STATUS_NO_MEMORY:                 "CAIRO_STATUS_NO_MEMORY",
+	STATUS_INVALID_RESTORE:           "CAIRO_STATUS_INVALID_RESTORE",
+	STATUS_INVALID_POP_GROUP:         "CAIRO_STATUS_INVALID_POP_GROUP",
+	STATUS_NO_CURRENT_POINT:          "CAIRO_STATUS_NO_CURRENT_POINT",
+	STATUS_INVALID_MATRIX:            "CAIRO_STATUS_INVALID_MATRIX",
+	STATUS_INVALID_STATUS:            "CAIRO_STATUS_INVALID_STATUS",
+	STATUS_NULL_POINTER:              "CAIRO_STATUS_NULL_POINTER",
+	STATUS_INVALID_STRING:            "CAIRO_STATUS_INVALID_STRING",
+	STATUS_INVALID_PATH_DATA:         "CAIRO_STATUS_INVALID_PATH_DATA",
+	STATUS_READ_ERROR:                "CAIRO_STATUS_READ_ERROR",
+	STATUS_WRITE_ERROR:               "CAIRO_STATUS_WRITE_ERROR",
+	STATUS_SURFACE_FINISHED:          "CAIRO_STATUS_SURFACE_FINISHED",
+	STATUS_SURFACE_TYPE_MISMATCH:     "CAIRO_STATUS_SURFACE_TYPE_MISMATCH",
+	STATUS_PATTERN_TYPE_MISMATCH:     "CAIRO_STATUS_PATTERN_TYPE_MISMATCH",
+	STATUS_INVALID_CONTENT:           "CAIRO_STATUS_INVALID_CONTENT",
+	STATUS_INVALID_FORMAT:            "CAIRO_STATUS_INVALID_FORMAT",
+	STATUS_INVALID_VISUAL:            "CAIRO_STATUS_INVALID_VISUAL",
+	STATUS_FILE_NOT_FOUND:            "CAIRO_STATUS_FILE_NOT_FOUND",
+	STATUS_INVALID_DASH:              "CAIRO_STATUS_INVALID_DASH",
+	STATUS_INVALID_DSC_COMMENT:       "CAIRO_STATUS_INVALID_DSC_COMMENT",
+	STATUS_INVALID_INDEX:             "CAIRO_STATUS_INVALID_INDEX",
+	STATUS_CLIP_NOT_REPRESENTABLE:    "CAIRO_STATUS_CLIP_NOT_REPRESENTABLE",
+	STATUS_TEMP_FILE_ERROR:           "CAIRO_STATUS_TEMP_FILE_ERROR",
+	STATUS_INVALID_STRIDE:            "CAIRO_STATUS_INVALID_STRIDE",
+	STATUS_FONT_TYPE_MISMATCH:        "CAIRO_STATUS_FONT_TYPE_MISMATCH",
+	STATUS_USER_FONT_IMMUTABLE:       "CAIRO_STATUS_USER_FONT_IMMUTABLE",
+	STATUS_USER_FONT_ERROR:           "CAIRO_STATUS_USER_FONT_ERROR",
+	STATUS_NEGATIVE_COUNT:            "CAIRO_STATUS_NEGATIVE_COUNT",
+	STATUS_INVALID_CLUSTERS:          "CAIRO_STATUS_INVALID_CLUSTERS",
+	STATUS_INVALID_SLANT:             "CAIRO_STATUS_INVALID_SLANT",
+	STATUS_INVALID_WEIGHT:            "CAIRO_STATUS_INVALID_WEIGHT",
+	STATUS_INVALID_SIZE:              "CAIRO_STATUS_INVALID_SIZE",
+	STATUS_USER_FONT_NOT_IMPLEMENTED: "CAIRO_STATUS_USER_FONT_NOT_IMPLEMENTED",
+	STATUS_DEVICE_TYPE_MISMATCH:      "CAIRO_STATUS_DEVICE_TYPE_MISMATCH",
+	STATUS_DEVICE_ERROR:              "CAIRO_STATUS_DEVICE_ERROR",
+}
+
+func StatusToString(status Status) string {
+
+	s, ok := key_Status[status]
+	if !ok {
+		s = "CAIRO_STATUS_UNDEFINED"
+	}
+
+	return s
+}
+
 func marshalStatus(p uintptr) (interface{}, error) {
 	c := C.g_value_get_enum((*C.GValue)(unsafe.Pointer(p)))
 	return Status(c), nil
@@ -277,570 +309,3 @@ func marshalSurfaceType(p uintptr) (interface{}, error) {
 	c := C.g_value_get_enum((*C.GValue)(unsafe.Pointer(p)))
 	return SurfaceType(c), nil
 }
-
-/*
- * cairo_t
- */
-
-// Context is a representation of Cairo's cairo_t.
-type Context struct {
-	context *C.cairo_t
-}
-
-// native returns a pointer to the underlying cairo_t.
-func (v *Context) native() *C.cairo_t {
-	if v == nil {
-		return nil
-	}
-	return v.context
-}
-
-// Native returns a pointer to the underlying cairo_t.
-func (v *Context) Native() uintptr {
-	return uintptr(unsafe.Pointer(v.native()))
-}
-
-func marshalContext(p uintptr) (interface{}, error) {
-	c := C.g_value_get_boxed((*C.GValue)(unsafe.Pointer(p)))
-	context := (*C.cairo_t)(unsafe.Pointer(c))
-	return wrapContext(context), nil
-}
-
-func wrapContext(context *C.cairo_t) *Context {
-	return &Context{context}
-}
-
-// Create is a wrapper around cairo_create().
-func Create(target *Surface) *Context {
-	c := C.cairo_create(target.native())
-	ctx := wrapContext(c)
-	runtime.SetFinalizer(ctx, (*Context).destroy)
-	return ctx
-}
-
-// reference is a wrapper around cairo_reference().
-func (v *Context) reference() {
-	v.context = C.cairo_reference(v.native())
-}
-
-// destroy is a wrapper around cairo_destroy().
-func (v *Context) destroy() {
-	C.cairo_destroy(v.native())
-}
-
-// Status is a wrapper around cairo_status().
-func (v *Context) Status() Status {
-	c := C.cairo_status(v.native())
-	return Status(c)
-}
-
-// Save is a wrapper around cairo_save().
-func (v *Context) Save() {
-	C.cairo_save(v.native())
-}
-
-// Restore is a wrapper around cairo_restore().
-func (v *Context) Restore() {
-	C.cairo_restore(v.native())
-}
-
-// GetTarget is a wrapper around cairo_get_target().
-func (v *Context) GetTarget() *Surface {
-	c := C.cairo_get_target(v.native())
-	s := wrapSurface(c)
-	s.reference()
-	runtime.SetFinalizer(s, (*Surface).destroy)
-	return s
-}
-
-// PushGroup is a wrapper around cairo_push_group().
-func (v *Context) PushGroup() {
-	C.cairo_push_group(v.native())
-}
-
-// PushGroupWithContent is a wrapper around cairo_push_group_with_content().
-func (v *Context) PushGroupWithContent(content Content) {
-	C.cairo_push_group_with_content(v.native(), C.cairo_content_t(content))
-}
-
-// TODO(jrick) PopGroup (depends on Pattern)
-
-// PopGroupToSource is a wrapper around cairo_pop_group_to_source().
-func (v *Context) PopGroupToSource() {
-	C.cairo_pop_group_to_source(v.native())
-}
-
-// GetGroupTarget is a wrapper around cairo_get_group_target().
-func (v *Context) GetGroupTarget() *Surface {
-	c := C.cairo_get_group_target(v.native())
-	s := wrapSurface(c)
-	s.reference()
-	runtime.SetFinalizer(s, (*Surface).destroy)
-	return s
-}
-
-// SetSourceRGB is a wrapper around cairo_set_source_rgb().
-func (v *Context) SetSourceRGB(red, green, blue float64) {
-	C.cairo_set_source_rgb(v.native(), C.double(red), C.double(green),
-		C.double(blue))
-}
-
-// SetSourceRGBA is a wrapper around cairo_set_source_rgba().
-func (v *Context) SetSourceRGBA(red, green, blue, alpha float64) {
-	C.cairo_set_source_rgba(v.native(), C.double(red), C.double(green),
-		C.double(blue), C.double(alpha))
-}
-
-// TODO(jrick) SetSource (depends on Pattern)
-
-// SetSourceSurface is a wrapper around cairo_set_source_surface().
-func (v *Context) SetSourceSurface(surface *Surface, x, y float64) {
-	C.cairo_set_source_surface(v.native(), surface.native(), C.double(x),
-		C.double(y))
-}
-
-// TODO(jrick) GetSource (depends on Pattern)
-
-// SetAntialias is a wrapper around cairo_set_antialias().
-func (v *Context) SetAntialias(antialias Antialias) {
-	C.cairo_set_antialias(v.native(), C.cairo_antialias_t(antialias))
-}
-
-// GetAntialias is a wrapper around cairo_get_antialias().
-func (v *Context) GetAntialias() Antialias {
-	c := C.cairo_get_antialias(v.native())
-	return Antialias(c)
-}
-
-// SetDash is a wrapper around cairo_set_dash().
-func (v *Context) SetDash(dashes []float64, offset float64) {
-	header := (*reflect.SliceHeader)(unsafe.Pointer(&dashes))
-	cdashes := (*C.double)(unsafe.Pointer(header.Data))
-	C.cairo_set_dash(v.native(), cdashes, C.int(header.Len),
-		C.double(offset))
-}
-
-// GetDashCount is a wrapper around cairo_get_dash_count().
-func (v *Context) GetDashCount() int {
-	c := C.cairo_get_dash_count(v.native())
-	return int(c)
-}
-
-// GetDash is a wrapper around cairo_get_dash().
-func (v *Context) GetDash() (dashes []float64, offset float64) {
-	dashCount := v.GetDashCount()
-	cdashes := (*C.double)(C.calloc(8, C.size_t(dashCount)))
-	var coffset C.double
-	C.cairo_get_dash(v.native(), cdashes, &coffset)
-	header := (*reflect.SliceHeader)((unsafe.Pointer(&dashes)))
-	header.Data = uintptr(unsafe.Pointer(cdashes))
-	header.Len = dashCount
-	header.Cap = dashCount
-	return dashes, float64(coffset)
-}
-
-// SetFillRule is a wrapper around cairo_set_fill_rule().
-func (v *Context) SetFillRule(fillRule FillRule) {
-	C.cairo_set_fill_rule(v.native(), C.cairo_fill_rule_t(fillRule))
-}
-
-// GetFillRule is a wrapper around cairo_get_fill_rule().
-func (v *Context) GetFillRule() FillRule {
-	c := C.cairo_get_fill_rule(v.native())
-	return FillRule(c)
-}
-
-// SetLineCap is a wrapper around cairo_set_line_cap().
-func (v *Context) SetLineCap(lineCap LineCap) {
-	C.cairo_set_line_cap(v.native(), C.cairo_line_cap_t(lineCap))
-}
-
-// GetLineCap is a wrapper around cairo_get_line_cap().
-func (v *Context) GetLineCap() LineCap {
-	c := C.cairo_get_line_cap(v.native())
-	return LineCap(c)
-}
-
-// SetLineJoin is a wrapper around cairo_set_line_join().
-func (v *Context) SetLineJoin(lineJoin LineJoin) {
-	C.cairo_set_line_join(v.native(), C.cairo_line_join_t(lineJoin))
-}
-
-// GetLineJoin is a wrapper around cairo_get_line_join().
-func (v *Context) GetLineJoin() LineJoin {
-	c := C.cairo_get_line_join(v.native())
-	return LineJoin(c)
-}
-
-// SetLineWidth is a wrapper around cairo_set_line_width().
-func (v *Context) SetLineWidth(width float64) {
-	C.cairo_set_line_width(v.native(), C.double(width))
-}
-
-// GetLineWidth is a wrapper cairo_get_line_width().
-func (v *Context) GetLineWidth() float64 {
-	c := C.cairo_get_line_width(v.native())
-	return float64(c)
-}
-
-// SetMiterLimit is a wrapper around cairo_set_miter_limit().
-func (v *Context) SetMiterLimit(limit float64) {
-	C.cairo_set_miter_limit(v.native(), C.double(limit))
-}
-
-// GetMiterLimit is a wrapper around cairo_get_miter_limit().
-func (v *Context) GetMiterLimit() float64 {
-	c := C.cairo_get_miter_limit(v.native())
-	return float64(c)
-}
-
-// SetOperator is a wrapper around cairo_set_operator().
-func (v *Context) SetOperator(op Operator) {
-	C.cairo_set_operator(v.native(), C.cairo_operator_t(op))
-}
-
-// GetOperator is a wrapper around cairo_get_operator().
-func (v *Context) GetOperator() Operator {
-	c := C.cairo_get_operator(v.native())
-	return Operator(c)
-}
-
-// SetTolerance is a wrapper around cairo_set_tolerance().
-func (v *Context) SetTolerance(tolerance float64) {
-	C.cairo_set_tolerance(v.native(), C.double(tolerance))
-}
-
-// GetTolerance is a wrapper around cairo_get_tolerance().
-func (v *Context) GetTolerance() float64 {
-	c := C.cairo_get_tolerance(v.native())
-	return float64(c)
-}
-
-// Clip is a wrapper around cairo_clip().
-func (v *Context) Clip() {
-	C.cairo_clip(v.native())
-}
-
-// ClipPreserve is a wrapper around cairo_clip_preserve().
-func (v *Context) ClipPreserve() {
-	C.cairo_clip_preserve(v.native())
-}
-
-// ClipExtents is a wrapper around cairo_clip_extents().
-func (v *Context) ClipExtents() (x1, y1, x2, y2 float64) {
-	var cx1, cy1, cx2, cy2 C.double
-	C.cairo_clip_extents(v.native(), &cx1, &cy1, &cx2, &cy2)
-	return float64(cx1), float64(cy1), float64(cx2), float64(cy2)
-}
-
-// InClip is a wrapper around cairo_in_clip().
-func (v *Context) InClip(x, y float64) bool {
-	c := C.cairo_in_clip(v.native(), C.double(x), C.double(y))
-	return gobool(c)
-}
-
-// ResetClip is a wrapper around cairo_reset_clip().
-func (v *Context) ResetClip() {
-	C.cairo_reset_clip(v.native())
-}
-
-// Rectangle is a wrapper around cairo_rectangle().
-func (v *Context) Rectangle(x, y, w, h float64) {
-	C.cairo_rectangle(v.native(), C.double(x), C.double(y), C.double(w), C.double(h))
-}
-
-// Arc is a wrapper around cairo_arc().
-func (v *Context) Arc(xc, yc, radius, angle1, angle2 float64) {
-	C.cairo_arc(v.native(), C.double(xc), C.double(yc), C.double(radius), C.double(angle1), C.double(angle2))
-}
-
-// ArcNegative is a wrapper around cairo_arc_negative().
-func (v *Context) ArcNegative(xc, yc, radius, angle1, angle2 float64) {
-	C.cairo_arc_negative(v.native(), C.double(xc), C.double(yc), C.double(radius), C.double(angle1), C.double(angle2))
-}
-
-// LineTo is a wrapper around cairo_line_to().
-func (v *Context) LineTo(x, y float64) {
-	C.cairo_line_to(v.native(), C.double(x), C.double(y))
-}
-
-// CurveTo is a wrapper around cairo_curve_to().
-func (v *Context) CurveTo(x1, y1, x2, y2, x3, y3 float64) {
-	C.cairo_curve_to(v.native(), C.double(x1), C.double(y1), C.double(x2), C.double(y2), C.double(x3), C.double(y3))
-}
-
-// MoveTo is a wrapper around cairo_move_to().
-func (v *Context) MoveTo(x, y float64) {
-	C.cairo_move_to(v.native(), C.double(x), C.double(y))
-}
-
-// TODO(jrick) CopyRectangleList (depends on RectangleList)
-
-// Fill is a wrapper around cairo_fill().
-func (v *Context) Fill() {
-	C.cairo_fill(v.native())
-}
-
-// ClosePath is a wrapper around cairo_close_path().
-func (v *Context) ClosePath() {
-	C.cairo_close_path(v.native())
-}
-
-// NewPath is a wrapper around cairo_new_path().
-func (v *Context) NewPath() {
-	C.cairo_new_path(v.native())
-}
-
-// GetCurrentPoint is a wrapper around cairo_get_current_point().
-func (v *Context) GetCurrentPoint() (x, y float64) {
-	C.cairo_get_current_point(v.native(), (*C.double)(&x), (*C.double)(&y))
-	return
-}
-
-// FillPreserve is a wrapper around cairo_fill_preserve().
-func (v *Context) FillPreserve() {
-	C.cairo_fill_preserve(v.native())
-}
-
-// FillExtents is a wrapper around cairo_fill_extents().
-func (v *Context) FillExtents() (x1, y1, x2, y2 float64) {
-	var cx1, cy1, cx2, cy2 C.double
-	C.cairo_fill_extents(v.native(), &cx1, &cy1, &cx2, &cy2)
-	return float64(cx1), float64(cy1), float64(cx2), float64(cy2)
-}
-
-// InFill is a wrapper around cairo_in_fill().
-func (v *Context) InFill(x, y float64) bool {
-	c := C.cairo_in_fill(v.native(), C.double(x), C.double(y))
-	return gobool(c)
-}
-
-// TODO(jrick) Mask (depends on Pattern)
-
-// MaskSurface is a wrapper around cairo_mask_surface().
-func (v *Context) MaskSurface(surface *Surface, surfaceX, surfaceY float64) {
-	C.cairo_mask_surface(v.native(), surface.native(), C.double(surfaceX),
-		C.double(surfaceY))
-}
-
-// Paint is a wrapper around cairo_paint().
-func (v *Context) Paint() {
-	C.cairo_paint(v.native())
-}
-
-// PaintWithAlpha is a wrapper around cairo_paint_with_alpha().
-func (v *Context) PaintWithAlpha(alpha float64) {
-	C.cairo_paint_with_alpha(v.native(), C.double(alpha))
-}
-
-// Stroke is a wrapper around cairo_stroke().
-func (v *Context) Stroke() {
-	C.cairo_stroke(v.native())
-}
-
-// StrokePreserve is a wrapper around cairo_stroke_preserve().
-func (v *Context) StrokePreserve() {
-	C.cairo_stroke_preserve(v.native())
-}
-
-// StrokeExtents is a wrapper around cairo_stroke_extents().
-func (v *Context) StrokeExtents() (x1, y1, x2, y2 float64) {
-	var cx1, cy1, cx2, cy2 C.double
-	C.cairo_stroke_extents(v.native(), &cx1, &cy1, &cx2, &cy2)
-	return float64(cx1), float64(cy1), float64(cx2), float64(cy2)
-}
-
-// InStroke is a wrapper around cairo_in_stroke().
-func (v *Context) InStroke(x, y float64) bool {
-	c := C.cairo_in_stroke(v.native(), C.double(x), C.double(y))
-	return gobool(c)
-}
-
-// CopyPage is a wrapper around cairo_copy_page().
-func (v *Context) CopyPage() {
-	C.cairo_copy_page(v.native())
-}
-
-// ShowPage is a wrapper around cairo_show_page().
-func (v *Context) ShowPage() {
-	C.cairo_show_page(v.native())
-}
-
-// TODO(jrick) SetUserData (depends on UserDataKey and DestroyFunc)
-
-// TODO(jrick) GetUserData (depends on UserDataKey)
-
-/*
- * cairo_surface_t
- */
-
-// Surface is a representation of Cairo's cairo_surface_t.
-type Surface struct {
-	surface *C.cairo_surface_t
-}
-
-// native returns a pointer to the underlying cairo_surface_t.
-func (v *Surface) native() *C.cairo_surface_t {
-	if v == nil {
-		return nil
-	}
-	return v.surface
-}
-
-// Native returns a pointer to the underlying cairo_surface_t.
-func (v *Surface) Native() uintptr {
-	return uintptr(unsafe.Pointer(v.native()))
-}
-
-func marshalSurface(p uintptr) (interface{}, error) {
-	c := C.g_value_get_boxed((*C.GValue)(unsafe.Pointer(p)))
-	surface := (*C.cairo_surface_t)(unsafe.Pointer(c))
-	return wrapSurface(surface), nil
-}
-
-func wrapSurface(surface *C.cairo_surface_t) *Surface {
-	return &Surface{surface}
-}
-
-// NewSurface creates a gotk3 cairo Surface from a pointer to a
-// C cairo_surface_t.  This is primarily designed for use with other
-// gotk3 packages and should be avoided by applications.
-func NewSurface(s uintptr, needsRef bool) *Surface {
-	ptr := (*C.cairo_surface_t)(unsafe.Pointer(s))
-	surface := wrapSurface(ptr)
-	if needsRef {
-		surface.reference()
-	}
-	runtime.SetFinalizer(surface, (*Surface).destroy)
-	return surface
-}
-
-// CreateSimilar is a wrapper around cairo_surface_create_similar().
-func (v *Surface) CreateSimilar(content Content, width, height int) *Surface {
-	c := C.cairo_surface_create_similar(v.native(),
-		C.cairo_content_t(content), C.int(width), C.int(height))
-	s := wrapSurface(c)
-	runtime.SetFinalizer(s, (*Surface).destroy)
-	return s
-}
-
-// TODO cairo_surface_create_similar_image (since 1.12)
-
-// CreateForRectangle is a wrapper around cairo_surface_create_for_rectangle().
-func (v *Surface) CreateForRectangle(x, y, width, height float64) *Surface {
-	c := C.cairo_surface_create_for_rectangle(v.native(), C.double(x),
-		C.double(y), C.double(width), C.double(height))
-	s := wrapSurface(c)
-	runtime.SetFinalizer(s, (*Surface).destroy)
-	return s
-}
-
-// reference is a wrapper around cairo_surface_reference().
-func (v *Surface) reference() {
-	v.surface = C.cairo_surface_reference(v.native())
-}
-
-// destroy is a wrapper around cairo_surface_destroy().
-func (v *Surface) destroy() {
-	C.cairo_surface_destroy(v.native())
-}
-
-// Status is a wrapper around cairo_surface_status().
-func (v *Surface) Status() Status {
-	c := C.cairo_surface_status(v.native())
-	return Status(c)
-}
-
-// Flush is a wrapper around cairo_surface_flush().
-func (v *Surface) Flush() {
-	C.cairo_surface_flush(v.native())
-}
-
-// TODO(jrick) GetDevice (requires Device bindings)
-
-// TODO(jrick) GetFontOptions (require FontOptions bindings)
-
-// TODO(jrick) GetContent (requires Content bindings)
-
-// MarkDirty is a wrapper around cairo_surface_mark_dirty().
-func (v *Surface) MarkDirty() {
-	C.cairo_surface_mark_dirty(v.native())
-}
-
-// MarkDirtyRectangle is a wrapper around cairo_surface_mark_dirty_rectangle().
-func (v *Surface) MarkDirtyRectangle(x, y, width, height int) {
-	C.cairo_surface_mark_dirty_rectangle(v.native(), C.int(x), C.int(y),
-		C.int(width), C.int(height))
-}
-
-// SetDeviceOffset is a wrapper around cairo_surface_set_device_offset().
-func (v *Surface) SetDeviceOffset(x, y float64) {
-	C.cairo_surface_set_device_offset(v.native(), C.double(x), C.double(y))
-}
-
-// GetDeviceOffset is a wrapper around cairo_surface_get_device_offset().
-func (v *Surface) GetDeviceOffset() (x, y float64) {
-	var xOffset, yOffset C.double
-	C.cairo_surface_get_device_offset(v.native(), &xOffset, &yOffset)
-	return float64(xOffset), float64(yOffset)
-}
-
-// SetFallbackResolution is a wrapper around
-// cairo_surface_set_fallback_resolution().
-func (v *Surface) SetFallbackResolution(xPPI, yPPI float64) {
-	C.cairo_surface_set_fallback_resolution(v.native(), C.double(xPPI),
-		C.double(yPPI))
-}
-
-// GetFallbackResolution is a wrapper around
-// cairo_surface_get_fallback_resolution().
-func (v *Surface) GetFallbackResolution() (xPPI, yPPI float64) {
-	var x, y C.double
-	C.cairo_surface_get_fallback_resolution(v.native(), &x, &y)
-	return float64(x), float64(y)
-}
-
-// GetType is a wrapper around cairo_surface_get_type().
-func (v *Surface) GetType() SurfaceType {
-	c := C.cairo_surface_get_type(v.native())
-	return SurfaceType(c)
-}
-
-// TODO(jrick) SetUserData (depends on UserDataKey and DestroyFunc)
-
-// TODO(jrick) GetUserData (depends on UserDataKey)
-
-// CopyPage is a wrapper around cairo_surface_copy_page().
-func (v *Surface) CopyPage() {
-	C.cairo_surface_copy_page(v.native())
-}
-
-// ShowPage is a wrapper around cairo_surface_show_page().
-func (v *Surface) ShowPage() {
-	C.cairo_surface_show_page(v.native())
-}
-
-// HasShowTextGlyphs is a wrapper around cairo_surface_has_show_text_glyphs().
-func (v *Surface) HasShowTextGlyphs() bool {
-	c := C.cairo_surface_has_show_text_glyphs(v.native())
-	return gobool(c)
-}
-
-// TODO(jrick) SetMimeData (depends on DestroyFunc)
-
-// GetMimeData is a wrapper around cairo_surface_get_mime_data().  The
-// returned mimetype data is returned as a Go byte slice.
-func (v *Surface) GetMimeData(mimeType MimeType) []byte {
-	cstr := C.CString(string(mimeType))
-	defer C.free(unsafe.Pointer(cstr))
-	var data *C.uchar
-	var length C.ulong
-	C.cairo_surface_get_mime_data(v.native(), cstr, &data, &length)
-	return C.GoBytes(unsafe.Pointer(data), C.int(length))
-}
-
-// TODO(jrick) SupportsMimeType (since 1.12)
-
-// TODO(jrick) MapToImage (since 1.12)
-
-// TODO(jrick) UnmapImage (since 1.12)

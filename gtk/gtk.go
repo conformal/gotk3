@@ -54,10 +54,12 @@ import (
 	"runtime"
 	"unsafe"
 
-	"github.com/conformal/gotk3/cairo"
-	"github.com/conformal/gotk3/gdk"
-	"github.com/conformal/gotk3/glib"
-	"github.com/conformal/gotk3/pango"
+	//"github.com/gitchander/go-lang/cairo"
+	"github.com/envoker/gotk3/cairo"
+
+	"github.com/envoker/gotk3/gdk"
+	"github.com/envoker/gotk3/glib"
+	"github.com/envoker/gotk3/pango"
 )
 
 func init() {
@@ -2518,6 +2520,9 @@ func (v *Container) SetBorderWidth(borderWidth uint) {
 
 // PropagateDraw is a wrapper around gtk_container_propagate_draw().
 func (v *Container) PropagateDraw(child IWidget, cr *cairo.Context) {
+
+	fmt.Println("++++")
+
 	context := (*C.cairo_t)(unsafe.Pointer(cr.Native()))
 	C.gtk_container_propagate_draw(v.native(), child.toWidget(), context)
 }
@@ -5416,12 +5421,15 @@ func OffscreenWindowNew() (*OffscreenWindow, error) {
 // GetSurface is a wrapper around gtk_offscreen_window_get_surface().
 // The returned surface is safe to use over window resizes.
 func (v *OffscreenWindow) GetSurface() (*cairo.Surface, error) {
+
 	c := C.gtk_offscreen_window_get_surface(v.native())
 	if c == nil {
 		return nil, nilPtrErr
 	}
-	cairoPtr := (uintptr)(unsafe.Pointer(c))
-	s := cairo.NewSurface(cairoPtr, true)
+	surfacePtr := (uintptr)(unsafe.Pointer(c))
+
+	s := cairo.NewSurfaceFromNative(surfacePtr, true)
+
 	return s, nil
 }
 

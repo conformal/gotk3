@@ -27,7 +27,7 @@ import (
 	"runtime"
 	"unsafe"
 
-	"github.com/conformal/gotk3/glib"
+	"github.com/envoker/gotk3/glib"
 )
 
 func init() {
@@ -490,60 +490,6 @@ func (v *Display) NotifyStartupComplete(startupID string) {
 	cstr := C.CString(startupID)
 	defer C.free(unsafe.Pointer(cstr))
 	C.gdk_display_notify_startup_complete(v.native(), (*C.gchar)(cstr))
-}
-
-/*
- * GdkEvent
- */
-
-// Event is a representation of GDK's GdkEvent.
-type Event struct {
-	GdkEvent *C.GdkEvent
-}
-
-// native returns a pointer to the underlying GdkEvent.
-func (v *Event) native() *C.GdkEvent {
-	if v == nil {
-		return nil
-	}
-	return v.GdkEvent
-}
-
-// Native returns a pointer to the underlying GdkEvent.
-func (v *Event) Native() uintptr {
-	return uintptr(unsafe.Pointer(v.native()))
-}
-
-func marshalEvent(p uintptr) (interface{}, error) {
-	c := C.g_value_get_boxed((*C.GValue)(unsafe.Pointer(p)))
-	return &Event{(*C.GdkEvent)(unsafe.Pointer(c))}, nil
-}
-
-func (v *Event) free() {
-	C.gdk_event_free(v.native())
-}
-
-/*
- * GdkEventKey
- */
-
-// EventKey is a representation of GDK's GdkEventKey.
-type EventKey struct {
-	*Event
-}
-
-// Native returns a pointer to the underlying GdkEventKey.
-func (v *EventKey) Native() uintptr {
-	return uintptr(unsafe.Pointer(v.native()))
-}
-
-func (v *EventKey) native() *C.GdkEventKey {
-	return (*C.GdkEventKey)(unsafe.Pointer(v.Event.native()))
-}
-
-func (v *EventKey) KeyVal() uint {
-	c := v.native().keyval
-	return uint(c)
 }
 
 /*

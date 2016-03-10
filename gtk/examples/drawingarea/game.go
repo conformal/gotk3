@@ -1,9 +1,11 @@
 package main
 
 import (
-	"github.com/conformal/gotk3/cairo"
-	"github.com/conformal/gotk3/gdk"
-	"github.com/conformal/gotk3/gtk"
+	"github.com/envoker/gotk3/cairo"
+	//"github.com/gitchander/go-lang/cairo"
+
+	"github.com/envoker/gotk3/gdk"
+	"github.com/envoker/gotk3/gtk"
 )
 
 const (
@@ -36,10 +38,10 @@ func main() {
 	}
 
 	// Event handlers
-	da.Connect("draw", func(da *gtk.DrawingArea, cr *cairo.Context) {
-		cr.SetSourceRGB(0, 0, 0)
-		cr.Rectangle(x*unitSize, y*unitSize, unitSize, unitSize)
-		cr.Fill()
+	da.Connect("draw", func(da *gtk.DrawingArea, c *cairo.Context) {
+		c.SetSourceRGB(0, 0, 0)
+		c.Rectangle(x*unitSize, y*unitSize, unitSize, unitSize)
+		c.Fill()
 	})
 	win.Connect("key-press-event", func(win *gtk.Window, ev *gdk.Event) {
 		keyEvent := &gdk.EventKey{ev}
