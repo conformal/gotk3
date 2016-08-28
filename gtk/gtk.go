@@ -211,6 +211,47 @@ func testBoolConvs() error {
 	return nil
 }
 
+// GTK **gchar array to Go []string slice.
+func gogchars(p **C.gchar) []string {
+	var s []string
+	q := uintptr(unsafe.Pointer(p))
+	for {
+		p = (**C.gchar)(unsafe.Pointer(q))
+		if *p == nil {
+			break
+		}
+		s = append(s, C.GoString((*C.char)(*p)))
+		q += unsafe.Sizeof(q)
+	}
+	return s
+}
+
+// Go []string slice to **gchar array.
+//
+// The C array is allocated in the C heap using malloc.
+// It is the caller's responsibility to arrange for it to be freed,
+// such as by calling C.free (be sure to include stdlib.h).
+func cstrings(ss []string) unsafe.Pointer {
+	n := len(ss)+1
+	bs := make([][]byte, n)
+	for i, s := range ss {
+		bs[i] = []byte(s)
+	}
+	bs[n - 1] = []byte{0}
+
+	var g *C.gchar
+	gs := unsafe.Sizeof(g)
+
+	p := C.malloc(C.size_t(n) * C.size_t(gs))
+
+	for i := 0; i < n; i++ {
+		el := (**C.gchar)(unsafe.Pointer(uintptr(p)+uintptr(i)*gs))
+		*el = (*C.gchar)(unsafe.Pointer(&bs[i][0]))
+	}
+
+	return p
+}
+
 /*
  * Unexported vars
  */
