@@ -854,6 +854,19 @@ func AboutDialogNew() (*AboutDialog, error) {
 	return a, nil
 }
 
+// GetAuthors is a wrapper around gtk_about_dialog_get_authors().
+func (v *AboutDialog) GetAuthors() []string {
+	p := C.gtk_about_dialog_get_authors(v.native())
+	return gogchars(p)
+}
+
+// SetAuthors is a wrapper around gtk_about_dialog_set_authors().
+func (v *AboutDialog) SetAuthors(authors []string) {
+	p := cstrings(authors)
+	defer C.free(p)
+	C.gtk_about_dialog_set_authors(v.native(), (**C.gchar)(p))
+}
+
 // GetComments is a wrapper around gtk_about_dialog_get_comments().
 func (v *AboutDialog) GetComments() string {
 	c := C.gtk_about_dialog_get_comments(v.native())
