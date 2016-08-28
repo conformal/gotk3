@@ -867,6 +867,19 @@ func (v *AboutDialog) SetAuthors(authors []string) {
 	C.gtk_about_dialog_set_authors(v.native(), (**C.gchar)(p))
 }
 
+// GetArtists is a wrapper around gtk_about_dialog_get_artists().
+func (v *AboutDialog) GetArtists() []string {
+	p := C.gtk_about_dialog_get_artists(v.native())
+	return gogchars(p)
+}
+
+// SetArtists is a wrapper around gtk_about_dialog_set_artists().
+func (v *AboutDialog) SetArtists(artists []string) {
+	p := cstrings(artists)
+	defer C.free(p)
+	C.gtk_about_dialog_set_artists(v.native(), (**C.gchar)(p))
+}
+
 // GetComments is a wrapper around gtk_about_dialog_get_comments().
 func (v *AboutDialog) GetComments() string {
 	c := C.gtk_about_dialog_get_comments(v.native())
