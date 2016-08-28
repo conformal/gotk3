@@ -211,6 +211,47 @@ func testBoolConvs() error {
 	return nil
 }
 
+// GTK **gchar array to Go []string slice.
+func gogchars(p **C.gchar) []string {
+	var s []string
+	q := uintptr(unsafe.Pointer(p))
+	for {
+		p = (**C.gchar)(unsafe.Pointer(q))
+		if *p == nil {
+			break
+		}
+		s = append(s, C.GoString((*C.char)(*p)))
+		q += unsafe.Sizeof(q)
+	}
+	return s
+}
+
+// Go []string slice to **gchar array.
+//
+// The C array is allocated in the C heap using malloc.
+// It is the caller's responsibility to arrange for it to be freed,
+// such as by calling C.free (be sure to include stdlib.h).
+func cstrings(ss []string) unsafe.Pointer {
+	n := len(ss)+1
+	bs := make([][]byte, n)
+	for i, s := range ss {
+		bs[i] = []byte(s)
+	}
+	bs[n - 1] = []byte{0}
+
+	var g *C.gchar
+	gs := unsafe.Sizeof(g)
+
+	p := C.malloc(C.size_t(n) * C.size_t(gs))
+
+	for i := 0; i < n; i++ {
+		el := (**C.gchar)(unsafe.Pointer(uintptr(p)+uintptr(i)*gs))
+		*el = (*C.gchar)(unsafe.Pointer(&bs[i][0]))
+	}
+
+	return p
+}
+
 /*
  * Unexported vars
  */
@@ -811,6 +852,45 @@ func AboutDialogNew() (*AboutDialog, error) {
 	obj.RefSink()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return a, nil
+}
+
+// GetAuthors is a wrapper around gtk_about_dialog_get_authors().
+func (v *AboutDialog) GetAuthors() []string {
+	p := C.gtk_about_dialog_get_authors(v.native())
+	return gogchars(p)
+}
+
+// SetAuthors is a wrapper around gtk_about_dialog_set_authors().
+func (v *AboutDialog) SetAuthors(authors []string) {
+	p := cstrings(authors)
+	defer C.free(p)
+	C.gtk_about_dialog_set_authors(v.native(), (**C.gchar)(p))
+}
+
+// GetArtists is a wrapper around gtk_about_dialog_get_artists().
+func (v *AboutDialog) GetArtists() []string {
+	p := C.gtk_about_dialog_get_artists(v.native())
+	return gogchars(p)
+}
+
+// SetArtists is a wrapper around gtk_about_dialog_set_artists().
+func (v *AboutDialog) SetArtists(artists []string) {
+	p := cstrings(artists)
+	defer C.free(p)
+	C.gtk_about_dialog_set_artists(v.native(), (**C.gchar)(p))
+}
+
+// GetDocumenters is a wrapper around gtk_about_dialog_get_documenters().
+func (v *AboutDialog) GetDocumenters() []string {
+	p := C.gtk_about_dialog_get_documenters(v.native())
+	return gogchars(p)
+}
+
+// SetDocumenters is a wrapper around gtk_about_dialog_set_documenters().
+func (v *AboutDialog) SetArtists(documenters []string) {
+	p := cstrings(documenters)
+	defer C.free(p)
+	C.gtk_about_dialog_set_documenters(v.native(), (**C.gchar)(p))
 }
 
 // GetComments is a wrapper around gtk_about_dialog_get_comments().
