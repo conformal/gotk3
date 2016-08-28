@@ -880,6 +880,19 @@ func (v *AboutDialog) SetArtists(artists []string) {
 	C.gtk_about_dialog_set_artists(v.native(), (**C.gchar)(p))
 }
 
+// GetDocumenters is a wrapper around gtk_about_dialog_get_documenters().
+func (v *AboutDialog) GetDocumenters() []string {
+	p := C.gtk_about_dialog_get_documenters(v.native())
+	return gogchars(p)
+}
+
+// SetDocumenters is a wrapper around gtk_about_dialog_set_documenters().
+func (v *AboutDialog) SetArtists(documenters []string) {
+	p := cstrings(documenters)
+	defer C.free(p)
+	C.gtk_about_dialog_set_documenters(v.native(), (**C.gchar)(p))
+}
+
 // GetComments is a wrapper around gtk_about_dialog_get_comments().
 func (v *AboutDialog) GetComments() string {
 	c := C.gtk_about_dialog_get_comments(v.native())
