@@ -23,11 +23,11 @@ package gdk
 import "C"
 import (
 	"errors"
+	"github.com/visionect/gotk3/cairo"
+	"github.com/visionect/gotk3/glib"
 	"reflect"
 	"runtime"
 	"unsafe"
-
-	"github.com/conformal/gotk3/glib"
 )
 
 func init() {
@@ -43,7 +43,6 @@ func init() {
 		{glib.Type(C.gdk_display_get_type()), marshalDisplay},
 		{glib.Type(C.gdk_pixbuf_get_type()), marshalPixbuf},
 		{glib.Type(C.gdk_screen_get_type()), marshalScreen},
-		{glib.Type(C.gdk_visual_get_type()), marshalVisual},
 		{glib.Type(C.gdk_window_get_type()), marshalWindow},
 
 		// Boxed
@@ -101,16 +100,6 @@ const (
 	INTERP_HYPER    InterpType = C.GDK_INTERP_HYPER
 )
 
-// PixbufRotation is a representation of GDK's GdkPixbufRotation.
-type PixbufRotation int
-
-const (
-	PIXBUF_ROTATE_NONE             PixbufRotation = C.GDK_PIXBUF_ROTATE_NONE
-	PIXBUF_ROTATE_COUNTERCLOCKWISE PixbufRotation = C.GDK_PIXBUF_ROTATE_COUNTERCLOCKWISE
-	PIXBUF_ROTATE_UPSIDEDOWN       PixbufRotation = C.GDK_PIXBUF_ROTATE_UPSIDEDOWN
-	PIXBUF_ROTATE_CLOCKWISE        PixbufRotation = C.GDK_PIXBUF_ROTATE_CLOCKWISE
-)
-
 func marshalInterpType(p uintptr) (interface{}, error) {
 	c := C.g_value_get_enum((*C.GValue)(unsafe.Pointer(p)))
 	return InterpType(c), nil
@@ -147,6 +136,36 @@ const (
 	SELECTION_TYPE_PIXMAP   Atom = 20
 	SELECTION_TYPE_WINDOW   Atom = 33
 	SELECTION_TYPE_STRING   Atom = 31
+)
+
+/*At this moment VISIONECT specific*/
+type EventMask uint
+
+/*At this moment VISIONECT specific*/
+// Event masks
+const (
+	EXPOSURE_MASK          EventMask = C.GDK_EXPOSURE_MASK
+	POINTER_MOTION_MASK              = C.GDK_POINTER_MOTION_MASK
+	POINTER_MOTION_HINT              = C.GDK_POINTER_MOTION_HINT_MASK
+	BUTTON_MOTION_MASK               = C.GDK_BUTTON_MOTION_MASK
+	BUTTON1_MOTION_MASK              = C.GDK_BUTTON1_MOTION_MASK
+	BUTTON2_MOTION_MASK              = C.GDK_BUTTON2_MOTION_MASK
+	BUTTON3_MOTION_MASK              = C.GDK_BUTTON3_MOTION_MASK
+	BUTTON_PRESS_MASK                = C.GDK_BUTTON_PRESS_MASK
+	BUTTON_RELEASE_MASK              = C.GDK_BUTTON_RELEASE_MASK
+	KEY_PRESS_MASK                   = C.GDK_KEY_PRESS_MASK
+	KEY_RELEASE_MASK                 = C.GDK_KEY_RELEASE_MASK
+	ENTER_NOTIFY_MASK                = C.GDK_ENTER_NOTIFY_MASK
+	LEAVE_NOTIFY_MASK                = C.GDK_LEAVE_NOTIFY_MASK
+	FOCUS_CHANGE_MASK                = C.GDK_FOCUS_CHANGE_MASK
+	STRUCTURE_MASK                   = C.GDK_STRUCTURE_MASK
+	PROPERTY_CHANGE_MASK             = C.GDK_PROPERTY_CHANGE_MASK
+	VISIBILITY_NOTIFY_MASK           = C.GDK_VISIBILITY_NOTIFY_MASK
+	PROXIMITY_IN_MASK                = C.GDK_PROXIMITY_IN_MASK
+	PROXIMITY_OUT_MASK               = C.GDK_PROXIMITY_OUT_MASK
+	SUBSTRUCTURE_MASK                = C.GDK_SUBSTRUCTURE_MASK
+	SCROLL_MASK                      = C.GDK_SCROLL_MASK
+	ALL_EVENTS_MASK                  = C.GDK_ALL_EVENTS_MASK
 )
 
 /*
@@ -274,6 +293,14 @@ func DisplayGetDefault() (*Display, error) {
 	obj.Ref()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return d, nil
+}
+
+func CairoCreate(window *Window) *cairo.Context {
+	ctx := C.gdk_cairo_create(window.native())
+	if ctx == nil {
+		return nil
+	}
+	return cairo.WrapContext(unsafe.Pointer(ctx))
 }
 
 // GetName() is a wrapper around gdk_display_get_name().
@@ -496,9 +523,49 @@ func (v *Display) NotifyStartupComplete(startupID string) {
  * GdkEvent
  */
 
+type EventType int
+
+const (
+	ButtonPress EventType = C.GDK_BUTTON_PRESS
+)
+
+type EventAny struct {
+	Type      EventType
+	Window    *Window
+	SendEvent int8
+}
+
+type EventButton struct {
+	EventAny
+	Time         uint32
+	X            float64
+	Y            float64
+	Axes         *float64
+	State        uint32
+	Button       uint32
+	Device       *Device
+	XRoot, YRoot float64
+}
+
 // Event is a representation of GDK's GdkEvent.
 type Event struct {
 	GdkEvent *C.GdkEvent
+}
+
+// Marshall returns a native go structor for event v.
+func (v *Event) Marshall() interface{} {
+	evType := C.gdk_event_get_event_type(v.GdkEvent)
+	switch evType {
+	case C.GDK_BUTTON_PRESS:
+		evButton := &EventButton{}
+		evButton.Type = ButtonPress
+		evButton.Time = uint32(C.gdk_event_get_time(v.GdkEvent))
+		xPtr := (*C.gdouble)(unsafe.Pointer(&evButton.X))
+		yPtr := (*C.gdouble)(unsafe.Pointer(&evButton.Y))
+		C.gdk_event_get_coords(v.GdkEvent, xPtr, yPtr)
+		return evButton
+	}
+	return nil
 }
 
 // native returns a pointer to the underlying GdkEvent.
@@ -521,29 +588,6 @@ func marshalEvent(p uintptr) (interface{}, error) {
 
 func (v *Event) free() {
 	C.gdk_event_free(v.native())
-}
-
-/*
- * GdkEventKey
- */
-
-// EventKey is a representation of GDK's GdkEventKey.
-type EventKey struct {
-	*Event
-}
-
-// Native returns a pointer to the underlying GdkEventKey.
-func (v *EventKey) Native() uintptr {
-	return uintptr(unsafe.Pointer(v.native()))
-}
-
-func (v *EventKey) native() *C.GdkEventKey {
-	return (*C.GdkEventKey)(unsafe.Pointer(v.Event.native()))
-}
-
-func (v *EventKey) KeyVal() uint {
-	c := v.native().keyval
-	return uint(c)
 }
 
 /*
@@ -667,40 +711,10 @@ func PixbufNew(colorspace Colorspace, hasAlpha bool, bitsPerSample, width, heigh
 	return p, nil
 }
 
-// PixbufNewFromFile is a wrapper around gdk_pixbuf_new_from_file().
-func PixbufNewFromFile(filename string) (*Pixbuf, error) {
-	cstr := C.CString(filename)
-	defer C.free(unsafe.Pointer(cstr))
-	var err *C.GError
-	res := C.gdk_pixbuf_new_from_file((*C.char)(cstr), &err)
-	if res == nil {
-		defer C.g_error_free(err)
-		return nil, errors.New(C.GoString((*C.char)(err.message)))
-	}
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(res))}
-	p := &Pixbuf{obj}
-	obj.Ref()
-	runtime.SetFinalizer(obj, (*glib.Object).Unref)
-	return p, nil
-}
-
 // ScaleSimple is a wrapper around gdk_pixbuf_scale_simple().
 func (v *Pixbuf) ScaleSimple(destWidth, destHeight int, interpType InterpType) (*Pixbuf, error) {
 	c := C.gdk_pixbuf_scale_simple(v.native(), C.int(destWidth),
 		C.int(destHeight), C.GdkInterpType(interpType))
-	if c == nil {
-		return nil, nilPtrErr
-	}
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	p := &Pixbuf{obj}
-	obj.Ref()
-	runtime.SetFinalizer(obj, (*glib.Object).Unref)
-	return p, nil
-}
-
-// RotateSimple is a wrapper around gdk_pixbuf_rotate_simple().
-func (v *Pixbuf) RotateSimple(angle PixbufRotation) (*Pixbuf, error) {
-	c := C.gdk_pixbuf_rotate_simple(v.native(), C.GdkPixbufRotation(angle))
 	if c == nil {
 		return nil, nilPtrErr
 	}
@@ -738,71 +752,6 @@ func marshalScreen(p uintptr) (interface{}, error) {
 	c := C.g_value_get_object((*C.GValue)(unsafe.Pointer(p)))
 	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
 	return &Screen{obj}, nil
-}
-
-// GetRGBAVisual is a wrapper around gdk_screen_get_rgba_visual().
-func (v *Screen) GetRGBAVisual() (*Visual, error) {
-	c := C.gdk_screen_get_rgba_visual(v.native())
-	if c == nil {
-		return nil, nilPtrErr
-	}
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	visual := &Visual{obj}
-	obj.Ref()
-	runtime.SetFinalizer(obj, (*glib.Object).Unref)
-	return visual, nil
-}
-
-// GetSystemVisual is a wrapper around gdk_screen_get_system_visual().
-func (v *Screen) GetSystemVisual() (*Visual, error) {
-	c := C.gdk_screen_get_system_visual(v.native())
-	if c == nil {
-		return nil, nilPtrErr
-	}
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	visual := &Visual{obj}
-	obj.Ref()
-	runtime.SetFinalizer(obj, (*glib.Object).Unref)
-	return visual, nil
-}
-
-// GetWidth is a wrapper around gdk_screen_get_width().
-func (v *Screen) GetWidth() int {
-	c := C.gdk_screen_get_width(v.native())
-	return int(c)
-}
-
-// GetHeight is a wrapper around gdk_screen_get_height().
-func (v *Screen) GetHeight() int {
-	c := C.gdk_screen_get_height(v.native())
-	return int(c)
-}
-
-/*
- * GdkVisual
- */
-
-// Visual is a representation of GDK's GdkVisual.
-type Visual struct {
-	*glib.Object
-}
-
-func (v *Visual) native() *C.GdkVisual {
-	if v == nil || v.GObject == nil {
-		return nil
-	}
-	p := unsafe.Pointer(v.GObject)
-	return C.toGdkVisual(p)
-}
-
-func (v *Visual) Native() uintptr {
-	return uintptr(unsafe.Pointer(v.native()))
-}
-
-func marshalVisual(p uintptr) (interface{}, error) {
-	c := C.g_value_get_object((*C.GValue)(unsafe.Pointer(p)))
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	return &Visual{obj}, nil
 }
 
 /*

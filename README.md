@@ -28,7 +28,7 @@ Usage of additional features is also demonstrated in the
 package main
 
 import (
-	"github.com/conformal/gotk3/gtk"
+	"github.com/visionect/gotk3/gtk"
 	"log"
 )
 
@@ -72,15 +72,15 @@ func main() {
 
 Each package's internal `go doc` style documentation can be viewed
 online without installing this package by using the GoDoc site (links
-to [cairo](http://godoc.org/github.com/conformal/gotk3/cairo),
-[glib](http://godoc.org/github.com/conformal/gotk3/glib),
-[gdk](http://godoc.org/github.com/conformal/gotk3/gdk), and
-[gtk](http://godoc.org/github.com/conformal/gotk3/gtk) documentation).
+to [cairo](http://godoc.org/github.com/visionect/gotk3/cairo),
+[glib](http://godoc.org/github.com/visionect/gotk3/glib),
+[gdk](http://godoc.org/github.com/visionect/gotk3/gdk), and
+[gtk](http://godoc.org/github.com/visionect/gotk3/gtk) documentation).
 
 You can also view the documentation locally once the package is
 installed with the `godoc` tool by running `godoc -http=":6060"` and
 pointing your browser to
-http://localhost:6060/pkg/github.com/conformal/gotk3
+http://localhost:6060/pkg/github.com/visionect/gotk3
 
 ## Installation
 
@@ -99,28 +99,18 @@ release (3.12).
 To install gotk3 targeting the latest GTK version:
 
 ```bash
-$ go get github.com/conformal/gotk3/gtk
+$ go get github.com/visionect/gotk3/gtk
 ```
 
 On MacOS (using homebrew) you would likely specify PKG_CONFIG_PATH as such:
 ```bash
-$ PKG_CONFIG_PATH=/opt/X11/lib/pkgconfig:`brew --prefix gtk+3`/lib/pkgconfig go get -u -v github.com/conformal/gotk3/gdk
+$ PKG_CONFIG_PATH=/opt/X11/lib/pkgconfig:`brew --prefix gtk+3`/lib/pkgconfig go get -u -v github.com/visionect/gotk3/gdk
 ```
 
 To install gotk3 targeting the older GTK 3.10 release:
 
 ```bash
-$ go get -tags gtk_3_10 github.com/conformal/gotk3/gtk
-```
-
-Ubuntu 14.04 uses the GTK 3.10 release.  Also, some required packages may be
-missing.  You may need to install the first or all of these packages in Ubuntu
-before gotk3:
-
-```bash
-$ sudo apt-get install libgtk-3-dev
-$ sudo apt-get install libcairo2-dev
-$ sudo apt-get install libglib2.0-dev
+$ go get -tags gtk_3_10 github.com/visionect/gotk3/gtk
 ```
 
 ## TODO
