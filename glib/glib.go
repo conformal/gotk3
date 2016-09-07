@@ -135,16 +135,6 @@ const (
 
 const USER_N_DIRECTORIES int = C.G_USER_N_DIRECTORIES
 
-// FileTest is a representation of GLib's GFileTest.
-type FileTestType int
-const (
-	FILE_TEST_IS_REGULAR	FileTestType = C.G_FILE_TEST_IS_REGULAR
-	FILE_TEST_IS_SYMLINK	FileTestType = C.G_FILE_TEST_IS_SYMLINK
-	FILE_TEST_IS_DIR	FileTestType = C.G_FILE_TEST_IS_DIR
-	FILE_TEST_IS_EXECUTABLE FileTestType = C.G_FILE_TEST_IS_EXECUTABLE
-	FILE_TEST_EXISTS	FileTestType = C.G_FILE_TEST_EXISTS
-)
-
 /*
  * Events
  */
@@ -161,7 +151,39 @@ type SignalHandle uint
 // C callback, or an interface type which the value may be packed in.
 // If the type is not suitable, a runtime panic will occur when the
 // signal is emitted.
+//
+//The handler will be called before the default handler of the signal.
 func (v *Object) Connect(detailedSignal string, f interface{}, userData ...interface{}) (SignalHandle, error) {
+	return v.closureConnect(detailedSignal, false, f, userData)
+}
+
+// ConnectAfter is a wrapper around g_signal_connect_closure().  f must be
+// a function with a signaure matching the callback signature for
+// detailedSignal.  userData must either 0 or 1 elements which can
+// be optionally passed to f.  If f takes less arguments than it is
+// passed from the GLib runtime, the extra arguments are ignored.
+//
+// Arguments for f must be a matching Go equivalent type for the
+// C callback, or an interface type which the value may be packed in.
+// If the type is not suitable, a runtime panic will occur when the
+// signal is emitted.
+//
+//The handler will be called before the default handler of the signal.
+func (v *Object) ConnectAfter(detailedSignal string, f interface{}, userData ...interface{}) (SignalHandle, error) {
+	return v.closureConnect(detailedSignal, true, f, userData)
+}
+
+// closureConnect is a wrapper around g_signal_connect_closure().  f must be
+// a function with a signaure matching the callback signature for
+// detailedSignal.  userData must either 0 or 1 elements which can
+// be optionally passed to f.  If f takes less arguments than it is
+// passed from the GLib runtime, the extra arguments are ignored.
+//
+// Arguments for f must be a matching Go equivalent type for the
+// C callback, or an interface type which the value may be packed in.
+// If the type is not suitable, a runtime panic will occur when the
+// signal is emitted.
+func (v *Object) closureConnect(detailedSignal string, after bool, f interface{}, userData ...interface{}) (SignalHandle, error) {
 	if len(userData) > 1 {
 		return 0, errors.New("userData len must be 0 or 1")
 	}
@@ -177,7 +199,7 @@ func (v *Object) Connect(detailedSignal string, f interface{}, userData ...inter
 	C._g_closure_add_finalize_notifier(closure)
 
 	c := C.g_signal_connect_closure(C.gpointer(v.native()),
-		(*C.gchar)(cstr), closure, gbool(false))
+		(*C.gchar)(cstr), closure, gbool(after))
 	handle := SignalHandle(c)
 
 	// Map the signal handle to the closure.
@@ -413,12 +435,6 @@ func sourceAttach(src *C.GSource, rf reflect.Value, args ...interface{}) (Source
  * Miscellaneous Utility Functions
  */
 
- // GetPrgName is a wrapper around g_get_prgname ()
- // Gets the name of the program.
-func GetPrgName() string {
-	return C.GoString((*C.char)(C.g_get_prgname()))
-}
-
 // GetUserSpecialDir is a wrapper around g_get_user_special_dir().  A
 // non-nil error is returned in the case that g_get_user_special_dir()
 // returns NULL to differentiate between NULL and an empty string.
@@ -428,57 +444,6 @@ func GetUserSpecialDir(directory UserDirectory) (string, error) {
 		return "", errNilPtr
 	}
 	return C.GoString((*C.char)(c)), nil
-}
-
-// GetHomeDir is a wrapper around g_get_home_dir(). 
-// Gets the current user's home directory. 
-func GetHomeDir() (string) {
-	c := C.g_get_home_dir()
-	return C.GoString((*C.char)(c))
-}
-
-// GetUserConfigDir is a wrapper around g_get_user_config_dir(). 
-// Returns a base directory in which to store user-specific application configuration information
-// such as user preferences and settings.  
-func GetUserConfigDir() (string) {
-	c := C.g_get_user_config_dir()
-	return C.GoString((*C.char)(c))
-}
-
-// GetUserCacheDir is a wrapper around g_get_user_cache_dir(). 
-// Returns a base directory in which to store non-essential,
-// cached data specific to particular user. 
-func GetUserCacheDir() (string) {
-	c := C.g_get_user_cache_dir()
-	return C.GoString((*C.char)(c))
-}
-
-/*
-* File Utilities functions
-*/
-
-// MkdirWithParents is a wraper around  g_mkdir_with_parents()
-// Create a directory if it doesn't already exist. Create intermediate parent directories as needed, too.
-func MkdirWithParents(pathname string, mode int) bool {
-	cstr := C.CString(pathname)
-	defer C.free(unsafe.Pointer(cstr))
-	ret := C.g_mkdir_with_parents((*C.gchar)(cstr),
-		C.gint(mode))
-	if int(ret) == 0 {
-		return true
-	}
-	return false
-}
-
-func FileTest(filename string, test FileTestType) bool {
-	cstr := C.CString(filename)
-	defer C.free(unsafe.Pointer(cstr))
-	ret := C.g_file_test((*C.gchar)(cstr),
-			C.GFileTest(test))
-	if int(ret) == 0 {
-		return false
-	}
-	return true
 }
 
 /*

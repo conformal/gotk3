@@ -20,6 +20,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+static GtkSettings *
+toGtkSettings(void *p)
+{
+	return (GTK_SETTINGS(p));
+}
+
 static GtkAboutDialog *
 toGtkAboutDialog(void *p)
 {
@@ -42,12 +48,6 @@ static GtkAssistant *
 toGtkAssistant(void *p)
 {
 	return (GTK_ASSISTANT(p));
-}
-
-static GtkScale *
-toGtkScale(void *p)
-{
-	return (GTK_SCALE(p));
 }
 
 static GtkCalendar *
@@ -114,12 +114,6 @@ static GtkStatusbar *
 toGtkStatusbar(void *p)
 {
 	return (GTK_STATUSBAR(p));
-}
-
-static GtkStatusIcon *
-toGtkStatusIcon(void *p)
-{
-	return (GTK_STATUS_ICON(p));
 }
 
 static GtkMisc *
@@ -513,6 +507,12 @@ _gtk_message_dialog_format_secondary_markup(GtkMessageDialog *message_dialog,
     const gchar *msg)
 {
 	gtk_message_dialog_format_secondary_markup(message_dialog, "%s", msg);
+}
+
+static gchar *
+error_get_message(GError *error)
+{
+	return error->message;
 }
 
 static const gchar *
