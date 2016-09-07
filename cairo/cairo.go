@@ -29,7 +29,7 @@ import (
 	"runtime"
 	"unsafe"
 
-	"github.com/visionect/gotk3/glib"
+	"github.com/conformal/gotk3/glib"
 )
 
 func init() {
@@ -412,7 +412,9 @@ func (v *Context) SetSourceSurface(surface *Surface, x, y float64) {
 // TODO(jrick) GetSource (depends on Pattern)
 
 func (v *Surface) WriteToPng(filename string) error {
-	status := C.cairo_surface_write_to_png(v.native(), C.CString(filename))
+	cstr := C.CString(filename)
+	defer C.free(unsafe.Pointer(cstr))
+	status := C.cairo_surface_write_to_png(v.native(), cstr)
 	if status != C.CAIRO_STATUS_SUCCESS {
 		return errors.New("error writing to PNG file")
 	}
@@ -562,11 +564,57 @@ func (v *Context) ResetClip() {
 	C.cairo_reset_clip(v.native())
 }
 
+// Rectangle is a wrapper around cairo_rectangle().
+func (v *Context) Rectangle(x, y, w, h float64) {
+	C.cairo_rectangle(v.native(), C.double(x), C.double(y), C.double(w), C.double(h))
+}
+
+// Arc is a wrapper around cairo_arc().
+func (v *Context) Arc(xc, yc, radius, angle1, angle2 float64) {
+	C.cairo_arc(v.native(), C.double(xc), C.double(yc), C.double(radius), C.double(angle1), C.double(angle2))
+}
+
+// ArcNegative is a wrapper around cairo_arc_negative().
+func (v *Context) ArcNegative(xc, yc, radius, angle1, angle2 float64) {
+	C.cairo_arc_negative(v.native(), C.double(xc), C.double(yc), C.double(radius), C.double(angle1), C.double(angle2))
+}
+
+// LineTo is a wrapper around cairo_line_to().
+func (v *Context) LineTo(x, y float64) {
+	C.cairo_line_to(v.native(), C.double(x), C.double(y))
+}
+
+// CurveTo is a wrapper around cairo_curve_to().
+func (v *Context) CurveTo(x1, y1, x2, y2, x3, y3 float64) {
+	C.cairo_curve_to(v.native(), C.double(x1), C.double(y1), C.double(x2), C.double(y2), C.double(x3), C.double(y3))
+}
+
+// MoveTo is a wrapper around cairo_move_to().
+func (v *Context) MoveTo(x, y float64) {
+	C.cairo_move_to(v.native(), C.double(x), C.double(y))
+}
+
 // TODO(jrick) CopyRectangleList (depends on RectangleList)
 
 // Fill is a wrapper around cairo_fill().
 func (v *Context) Fill() {
 	C.cairo_fill(v.native())
+}
+
+// ClosePath is a wrapper around cairo_close_path().
+func (v *Context) ClosePath() {
+	C.cairo_close_path(v.native())
+}
+
+// NewPath is a wrapper around cairo_new_path().
+func (v *Context) NewPath() {
+	C.cairo_new_path(v.native())
+}
+
+// GetCurrentPoint is a wrapper around cairo_get_current_point().
+func (v *Context) GetCurrentPoint() (x, y float64) {
+	C.cairo_get_current_point(v.native(), (*C.double)(&x), (*C.double)(&y))
+	return
 }
 
 // FillPreserve is a wrapper around cairo_fill_preserve().
@@ -608,6 +656,11 @@ func (v *Context) PaintWithAlpha(alpha float64) {
 // Stroke is a wrapper around cairo_stroke().
 func (v *Context) Stroke() {
 	C.cairo_stroke(v.native())
+}
+
+// Scale s a wrapper around cairo_scale().
+func (v *Context) Scale(x, y float64) {
+	C.cairo_scale(v.native(), C.double(x), C.double(y))
 }
 
 // StrokePreserve is a wrapper around cairo_stroke_preserve().

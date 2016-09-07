@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/visionect/gotk3/gtk"
+	"github.com/conformal/gotk3/gtk"
 )
 
 // Setup the Window.
