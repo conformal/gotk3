@@ -27,8 +27,7 @@ import (
 	"runtime"
 	"unsafe"
 
-	"github.com/visionect/gotk3/glib"
-    "github.com/visionect/gotk3/cairo"
+	"github.com/conformal/gotk3/glib"
 )
 
 func init() {
@@ -148,36 +147,6 @@ const (
 	SELECTION_TYPE_PIXMAP   Atom = 20
 	SELECTION_TYPE_WINDOW   Atom = 33
 	SELECTION_TYPE_STRING   Atom = 31
-)
-
-/*At this moment VISIONECT specific*/
-type EventMask uint
-
-/*At this moment VISIONECT specific*/
-// Event masks
-const (
-	EXPOSURE_MASK          EventMask = C.GDK_EXPOSURE_MASK
-	POINTER_MOTION_MASK              = C.GDK_POINTER_MOTION_MASK
-	POINTER_MOTION_HINT              = C.GDK_POINTER_MOTION_HINT_MASK
-	BUTTON_MOTION_MASK               = C.GDK_BUTTON_MOTION_MASK
-	BUTTON1_MOTION_MASK              = C.GDK_BUTTON1_MOTION_MASK
-	BUTTON2_MOTION_MASK              = C.GDK_BUTTON2_MOTION_MASK
-	BUTTON3_MOTION_MASK              = C.GDK_BUTTON3_MOTION_MASK
-	BUTTON_PRESS_MASK                = C.GDK_BUTTON_PRESS_MASK
-	BUTTON_RELEASE_MASK              = C.GDK_BUTTON_RELEASE_MASK
-	KEY_PRESS_MASK                   = C.GDK_KEY_PRESS_MASK
-	KEY_RELEASE_MASK                 = C.GDK_KEY_RELEASE_MASK
-	ENTER_NOTIFY_MASK                = C.GDK_ENTER_NOTIFY_MASK
-	LEAVE_NOTIFY_MASK                = C.GDK_LEAVE_NOTIFY_MASK
-	FOCUS_CHANGE_MASK                = C.GDK_FOCUS_CHANGE_MASK
-	STRUCTURE_MASK                   = C.GDK_STRUCTURE_MASK
-	PROPERTY_CHANGE_MASK             = C.GDK_PROPERTY_CHANGE_MASK
-	VISIBILITY_NOTIFY_MASK           = C.GDK_VISIBILITY_NOTIFY_MASK
-	PROXIMITY_IN_MASK                = C.GDK_PROXIMITY_IN_MASK
-	PROXIMITY_OUT_MASK               = C.GDK_PROXIMITY_OUT_MASK
-	SUBSTRUCTURE_MASK                = C.GDK_SUBSTRUCTURE_MASK
-	SCROLL_MASK                      = C.GDK_SCROLL_MASK
-	ALL_EVENTS_MASK                  = C.GDK_ALL_EVENTS_MASK
 )
 
 /*
@@ -305,14 +274,6 @@ func DisplayGetDefault() (*Display, error) {
 	obj.Ref()
 	runtime.SetFinalizer(obj, (*glib.Object).Unref)
 	return d, nil
-}
-
-func CairoCreate(window *Window) *cairo.Context {
-	ctx := C.gdk_cairo_create(window.native())
-	if ctx == nil {
-		return nil
-	}
-	return cairo.WrapContext(unsafe.Pointer(ctx))
 }
 
 // GetName() is a wrapper around gdk_display_get_name().
@@ -535,49 +496,9 @@ func (v *Display) NotifyStartupComplete(startupID string) {
  * GdkEvent
  */
 
-type EventType int
-
-const (
-	ButtonPress EventType = C.GDK_BUTTON_PRESS
-)
-
-type EventAny struct {
-	Type      EventType
-	Window    *Window
-	SendEvent int8
-}
-
-type EventButton struct {
-	EventAny
-	Time         uint32
-	X            float64
-	Y            float64
-	Axes         *float64
-	State        uint32
-	Button       uint32
-	Device       *Device
-	XRoot, YRoot float64
-}
-
 // Event is a representation of GDK's GdkEvent.
 type Event struct {
 	GdkEvent *C.GdkEvent
-}
-
-// Marshall returns a native go structor for event v.
-func (v *Event) Marshall() interface{} {
-	evType := C.gdk_event_get_event_type(v.GdkEvent)
-	switch evType {
-	case C.GDK_BUTTON_PRESS:
-		evButton := &EventButton{}
-		evButton.Type = ButtonPress
-		evButton.Time = uint32(C.gdk_event_get_time(v.GdkEvent))
-		xPtr := (*C.gdouble)(unsafe.Pointer(&evButton.X))
-		yPtr := (*C.gdouble)(unsafe.Pointer(&evButton.Y))
-		C.gdk_event_get_coords(v.GdkEvent, xPtr, yPtr)
-		return evButton
-	}
-	return nil
 }
 
 // native returns a pointer to the underlying GdkEvent.

@@ -20,12 +20,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-static GtkSettings *
-toGtkSettings(void *p)
-{
-	return (GTK_SETTINGS(p));
-}
-
 static GtkAboutDialog *
 toGtkAboutDialog(void *p)
 {
