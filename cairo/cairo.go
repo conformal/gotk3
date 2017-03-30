@@ -24,11 +24,12 @@ package cairo
 // #include <cairo-gobject.h>
 import "C"
 import (
+	"errors"
 	"reflect"
 	"runtime"
 	"unsafe"
 
-	"github.com/conformal/gotk3/glib"
+	"github.com/visionect/gotk3/glib"
 )
 
 func init() {
@@ -310,6 +311,15 @@ func wrapContext(context *C.cairo_t) *Context {
 	return &Context{context}
 }
 
+// WrapContext creates a gotk3 cairo Context from a pointer to a
+// C cairo_t.  This is primarily designed for use with other
+// gotk3 packages and should be avoided by applications.
+func WrapContext(context unsafe.Pointer) *Context {
+	ctx := &Context{(*C.cairo_t)(context)}
+	ctx.reference()
+	return ctx
+}
+
 // Create is a wrapper around cairo_create().
 func Create(target *Surface) *Context {
 	c := C.cairo_create(target.native())
@@ -400,6 +410,14 @@ func (v *Context) SetSourceSurface(surface *Surface, x, y float64) {
 }
 
 // TODO(jrick) GetSource (depends on Pattern)
+
+func (v *Surface) WriteToPng(filename string) error {
+	status := C.cairo_surface_write_to_png(v.native(), C.CString(filename))
+	if status != C.CAIRO_STATUS_SUCCESS {
+		return errors.New("error writing to PNG file")
+	}
+	return nil
+}
 
 // SetAntialias is a wrapper around cairo_set_antialias().
 func (v *Context) SetAntialias(antialias Antialias) {
@@ -544,57 +562,11 @@ func (v *Context) ResetClip() {
 	C.cairo_reset_clip(v.native())
 }
 
-// Rectangle is a wrapper around cairo_rectangle().
-func (v *Context) Rectangle(x, y, w, h float64) {
-	C.cairo_rectangle(v.native(), C.double(x), C.double(y), C.double(w), C.double(h))
-}
-
-// Arc is a wrapper around cairo_arc().
-func (v *Context) Arc(xc, yc, radius, angle1, angle2 float64) {
-	C.cairo_arc(v.native(), C.double(xc), C.double(yc), C.double(radius), C.double(angle1), C.double(angle2))
-}
-
-// ArcNegative is a wrapper around cairo_arc_negative().
-func (v *Context) ArcNegative(xc, yc, radius, angle1, angle2 float64) {
-	C.cairo_arc_negative(v.native(), C.double(xc), C.double(yc), C.double(radius), C.double(angle1), C.double(angle2))
-}
-
-// LineTo is a wrapper around cairo_line_to().
-func (v *Context) LineTo(x, y float64) {
-	C.cairo_line_to(v.native(), C.double(x), C.double(y))
-}
-
-// CurveTo is a wrapper around cairo_curve_to().
-func (v *Context) CurveTo(x1, y1, x2, y2, x3, y3 float64) {
-	C.cairo_curve_to(v.native(), C.double(x1), C.double(y1), C.double(x2), C.double(y2), C.double(x3), C.double(y3))
-}
-
-// MoveTo is a wrapper around cairo_move_to().
-func (v *Context) MoveTo(x, y float64) {
-	C.cairo_move_to(v.native(), C.double(x), C.double(y))
-}
-
 // TODO(jrick) CopyRectangleList (depends on RectangleList)
 
 // Fill is a wrapper around cairo_fill().
 func (v *Context) Fill() {
 	C.cairo_fill(v.native())
-}
-
-// ClosePath is a wrapper around cairo_close_path().
-func (v *Context) ClosePath() {
-	C.cairo_close_path(v.native())
-}
-
-// NewPath is a wrapper around cairo_new_path().
-func (v *Context) NewPath() {
-	C.cairo_new_path(v.native())
-}
-
-// GetCurrentPoint is a wrapper around cairo_get_current_point().
-func (v *Context) GetCurrentPoint() (x, y float64) {
-	C.cairo_get_current_point(v.native(), (*C.double)(&x), (*C.double)(&y))
-	return
 }
 
 // FillPreserve is a wrapper around cairo_fill_preserve().
@@ -674,6 +646,22 @@ func (v *Context) ShowPage() {
  * cairo_surface_t
  */
 
+type Format int
+
+const (
+	FormatInvalid Format = iota - 1
+	FormatARGB32
+	FormatRGB24
+	FormatA8
+	FormatA1
+	FormatRGB16_565
+	FormatRGB30
+)
+
+func (format Format) StrideForWidth(width int) int {
+	return int(C.cairo_format_stride_for_width(C.cairo_format_t(format), C.int(width)))
+}
+
 // Surface is a representation of Cairo's cairo_surface_t.
 type Surface struct {
 	surface *C.cairo_surface_t
@@ -713,6 +701,41 @@ func NewSurface(s uintptr, needsRef bool) *Surface {
 	}
 	runtime.SetFinalizer(surface, (*Surface).destroy)
 	return surface
+}
+
+func NewImageSurface(format Format, width int, height int) *Surface {
+	c := C.cairo_image_surface_create(C.cairo_format_t(format), C.int(width), C.int(height))
+	s := wrapSurface(c)
+	runtime.SetFinalizer(s, (*Surface).destroy)
+	return s
+}
+
+func (v *Surface) GetData() []byte {
+	c_data := C.cairo_image_surface_get_data(v.native())
+	c_data_len := int(C.cairo_image_surface_get_stride(v.native()) *
+		C.cairo_image_surface_get_height(v.native()))
+	hdr := reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(c_data)),
+		Len:  c_data_len,
+		Cap:  c_data_len,
+	}
+	goSlice := *(*[]byte)(unsafe.Pointer(&hdr))
+	return goSlice
+}
+func NewImageSurfaceForData(data []byte, format Format, width, height, stride int) *Surface {
+	cData := (*C.uchar)(unsafe.Pointer(&data[0]))
+	cFormat := (C.cairo_format_t)(format)
+	c := C.cairo_image_surface_create_for_data(cData, cFormat, C.int(width), C.int(height), C.int(stride))
+	if c == nil {
+		return nil
+	}
+	s := wrapSurface(c)
+	if s == nil {
+		return nil
+	}
+	s.reference()
+	runtime.SetFinalizer(s, (*Surface).destroy)
+	return s
 }
 
 // CreateSimilar is a wrapper around cairo_surface_create_similar().

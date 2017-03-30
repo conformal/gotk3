@@ -151,7 +151,39 @@ type SignalHandle uint
 // C callback, or an interface type which the value may be packed in.
 // If the type is not suitable, a runtime panic will occur when the
 // signal is emitted.
+//
+//The handler will be called before the default handler of the signal.
 func (v *Object) Connect(detailedSignal string, f interface{}, userData ...interface{}) (SignalHandle, error) {
+	return v.closureConnect(detailedSignal, false, f, userData)
+}
+
+// ConnectAfter is a wrapper around g_signal_connect_closure().  f must be
+// a function with a signaure matching the callback signature for
+// detailedSignal.  userData must either 0 or 1 elements which can
+// be optionally passed to f.  If f takes less arguments than it is
+// passed from the GLib runtime, the extra arguments are ignored.
+//
+// Arguments for f must be a matching Go equivalent type for the
+// C callback, or an interface type which the value may be packed in.
+// If the type is not suitable, a runtime panic will occur when the
+// signal is emitted.
+//
+//The handler will be called before the default handler of the signal.
+func (v *Object) ConnectAfter(detailedSignal string, f interface{}, userData ...interface{}) (SignalHandle, error) {
+	return v.closureConnect(detailedSignal, true, f, userData)
+}
+
+// closureConnect is a wrapper around g_signal_connect_closure().  f must be
+// a function with a signaure matching the callback signature for
+// detailedSignal.  userData must either 0 or 1 elements which can
+// be optionally passed to f.  If f takes less arguments than it is
+// passed from the GLib runtime, the extra arguments are ignored.
+//
+// Arguments for f must be a matching Go equivalent type for the
+// C callback, or an interface type which the value may be packed in.
+// If the type is not suitable, a runtime panic will occur when the
+// signal is emitted.
+func (v *Object) closureConnect(detailedSignal string, after bool, f interface{}, userData ...interface{}) (SignalHandle, error) {
 	if len(userData) > 1 {
 		return 0, errors.New("userData len must be 0 or 1")
 	}
@@ -167,7 +199,7 @@ func (v *Object) Connect(detailedSignal string, f interface{}, userData ...inter
 	C._g_closure_add_finalize_notifier(closure)
 
 	c := C.g_signal_connect_closure(C.gpointer(v.native()),
-		(*C.gchar)(cstr), closure, gbool(false))
+		(*C.gchar)(cstr), closure, gbool(after))
 	handle := SignalHandle(c)
 
 	// Map the signal handle to the closure.
